@@ -5,6 +5,7 @@ import path from 'path';
 import util from 'util';
 
 import { query } from '@anthropic-ai/claude-code';
+import { LLMMappings } from '@redplanethq/sol-sdk';
 import axios from 'axios';
 import {
   getGithubIntegrationToken,
@@ -36,7 +37,7 @@ async function* generateClaudeMessages(
 
       options: {
         cwd: repoPath,
-        // model: LLMMappings.CLAUDESONNET,
+        model: LLMMappings.CLAUDESONNET,
         permissionMode: 'bypassPermissions',
         pathToClaudeCodeExecutable: '/usr/local/bin/claude',
       },

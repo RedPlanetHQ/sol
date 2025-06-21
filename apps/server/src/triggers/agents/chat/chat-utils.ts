@@ -397,6 +397,7 @@ export async function* run(
           preferences.autonomy,
           message,
         );
+
         if (confirmation) {
           yield Message('', AgentMessageType.MESSAGE_START);
           yield Message(
@@ -597,7 +598,7 @@ export async function* run(
               }
             }
             // Handle other MCP tools
-            else if (toolName !== 'load_mcp') {
+            else {
               result = await mcp.callTool(skillName, skillInput);
 
               yield Message(

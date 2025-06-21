@@ -53,6 +53,7 @@ export const SingleTaskMetadata = observer(
     return (
       <>
         <div className="p-2 mx-2 flex gap-2 rounded bg-grayAlpha-50 items-center">
+          <div className="mx-2 font-mono"> T-{task.number}</div>
           <ScheduleDropdown task={task} /> <DuedateDropdown task={task} />
           <SubTasks taskId={task.id} />
           {list && (

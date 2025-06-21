@@ -1,4 +1,11 @@
-import { Button, cn, Inbox, IssuesLine, Project } from '@redplanethq/ui';
+import {
+  Button,
+  cn,
+  Inbox,
+  IssuesLine,
+  NotificationLine,
+  Project,
+} from '@redplanethq/ui';
 import { MessageSquare } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import React from 'react';
@@ -82,7 +89,7 @@ export const AppTabs = observer(() => {
         <WorkspaceDropdown />
         <TooltipWrapper tooltip="G then H">
           <Button
-            variant="ghost"
+            variant="secondary"
             onClick={() => goTo(TabViewType.ASSISTANT)}
             className={cn(
               'gap-1 ml-1.5',
@@ -95,7 +102,7 @@ export const AppTabs = observer(() => {
         </TooltipWrapper>
         <TooltipWrapper tooltip="G then T">
           <Button
-            variant="ghost"
+            variant="secondary"
             onClick={() => goTo(TabViewType.MY_TASKS)}
             className={cn(
               'gap-1',
@@ -108,7 +115,7 @@ export const AppTabs = observer(() => {
         </TooltipWrapper>
         <TooltipWrapper tooltip="G then L">
           <Button
-            variant="ghost"
+            variant="secondary"
             onClick={() => goTo(TabViewType.LIST)}
             className={cn(
               'gap-1',
@@ -120,19 +127,28 @@ export const AppTabs = observer(() => {
         </TooltipWrapper>
       </div>
 
-      <div className="flex">
+      <div className="flex gap-0.5 mr-2">
         <AIThinking />
-
+        <Button
+          variant="secondary"
+          className={cn(
+            'gap-1 items-center h-7',
+            !collapsed && '!bg-background-3 shadow',
+          )}
+          onClick={() => (collapsed ? onOpen() : onClose())}
+        >
+          <NotificationLine size={16} />3
+        </Button>
         {activeTab.type !== TabViewType.ASSISTANT && (
           <Button
-            variant="ghost"
+            variant="secondary"
             className={cn(
-              'gap-1 items-center h-7 mr-2',
+              'gap-1 items-center h-7',
               !collapsed && '!bg-background-3 shadow',
             )}
             onClick={() => (collapsed ? onOpen() : onClose())}
           >
-            <MessageSquare size={16} /> Chat
+            <MessageSquare size={16} />
           </Button>
         )}
       </div>

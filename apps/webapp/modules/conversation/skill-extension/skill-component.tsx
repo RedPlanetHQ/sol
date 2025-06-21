@@ -6,6 +6,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
   Loader,
+  LoaderLine,
 } from '@redplanethq/ui';
 import { NodeViewWrapper } from '@tiptap/react';
 import { observer } from 'mobx-react-lite';
@@ -117,11 +118,15 @@ export const SkillComponent = observer((props: any) => {
         onOpenChange={setOpen}
       >
         <CollapsibleTrigger className="p-2 px-3 h-full flex gap-1 items-center">
-          <div className="flex gap-2 items-center">
+          <div className="flex gap-2 items-center text-sm">
             {getIcon()}
-            <span className="text-muted-foreground font-mono text-sm">
-              {snakeToTitleCase(name)}
-            </span>
+            <span className="font-mono text-sm">{snakeToTitleCase(name)}</span>
+
+            {streaming &&
+              actionMessagesForAction &&
+              actionMessagesForAction.isStreaming && (
+                <LoaderLine size={18} className="animate-spin" />
+              )}
           </div>
           <div className="px-0">
             {!open ? <ChevronRight size={16} /> : <ChevronDown size={16} />}

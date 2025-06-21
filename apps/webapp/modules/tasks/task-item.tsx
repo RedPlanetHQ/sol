@@ -219,9 +219,11 @@ export const TaskListItem = observer(
                       (conversationForTask.status === 'need_attention' ||
                         conversationForTask.status === 'need_approval') &&
                       conversationForTask.unread && (
-                        <Badge className="font-mono h-5 !bg-destructive">
-                          !
-                        </Badge>
+                        <TooltipWrapper tooltip="Task needs your attention">
+                          <Badge className="font-mono h-5 !bg-destructive">
+                            !
+                          </Badge>
+                        </TooltipWrapper>
                       )}
                   </div>
                 </div>
