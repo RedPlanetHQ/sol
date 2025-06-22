@@ -4,7 +4,9 @@ import { ActionStatusEnum, LLMMappings } from '@redplanethq/sol-sdk';
 import { logger } from '@trigger.dev/sdk/v3';
 import { CoreMessage, jsonSchema, tool, ToolSet } from 'ai';
 import Handlebars from 'handlebars';
+import { claudeCode } from 'triggers/coding/claude-code';
 
+import { claudeCodeTool } from './code-tools';
 import {
   ACTIVITY_SYSTEM_PROMPT,
   CONFIRMATION_CHECKER_PROMPT,
@@ -16,7 +18,12 @@ import { generate, processTag } from './stream-utils';
 import { AgentMessage, AgentMessageType, Message } from './types';
 import { callSolTool, getSolTools } from '../sol-tools/sol-tools';
 import { MCP } from '../utils/mcp';
-import { ExecutionState, HistoryStep, TotalCost } from '../utils/types';
+import {
+  ExecutionState,
+  HistoryStep,
+  Resource,
+  TotalCost,
+} from '../utils/types';
 import { flattenObject, Preferences } from '../utils/utils';
 
 interface LLMOutputInterface {
@@ -96,9 +103,7 @@ async function needConfirmation(
   const response = generate(
     messages,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (_event) => {
-      // console.log(event);
-    },
+    (_event) => {},
     {
       ask_confirmation: askConfirmationTool,
     },
@@ -116,6 +121,29 @@ async function needConfirmation(
     }
   }
   return undefined;
+}
+
+function addResources(messages: CoreMessage[], resources: Resource[]) {
+  messages.push({
+    role: 'user',
+    content: resources.map((resource) => {
+      if (resource.fileType.startsWith('image/')) {
+        return {
+          type: 'image',
+          image: new URL(resource.publicURL),
+          mimeType: resource.fileType,
+        };
+      }
+      return {
+        type: 'file',
+        data: new URL(resource.publicURL),
+        filename: resource.originalName,
+        mimeType: resource.fileType,
+      };
+    }),
+  });
+
+  return messages;
 }
 
 function toolToMessage(history: HistoryStep[], messages: CoreMessage[]) {
@@ -215,6 +243,10 @@ function makeNextCall(
     messages = toolToMessage(history, messages);
   }
 
+  if (executionState.resources && executionState.resources.length > 0) {
+    messages = addResources(messages, executionState.resources);
+  }
+
   // Get the next action from the LLM
   const response = generate(
     messages,
@@ -238,7 +270,11 @@ export async function* run(
   automationContext: string,
   stepHistory: HistoryStep[],
   availableMCPServers: Record<string, any>,
-  preferences: Preferences,
+  {
+    preferences,
+    userId,
+    workspaceId,
+  }: { preferences: Preferences; workspaceId: string; userId: string },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): AsyncGenerator<AgentMessage, any, any> {
   let guardLoop = 0;
@@ -246,20 +282,27 @@ export async function* run(
   let tools = {
     ...(await mcp.allTools()),
     ...getSolTools(!!preferences?.memory_host && !!preferences?.memory_api_key),
-    load_mcp: loadMCPTools,
+    'sol--load_mcp': loadMCPTools,
+    'claude--coding': claudeCodeTool,
   };
 
   logger.info('Tools have been formed');
 
   let contextText = '';
+  let resources = [];
   if (context) {
-    // Process the entire context object at once
+    // Extract resources and remove from context
+    resources = context.resources || [];
+    delete context.resources;
+
+    // Process remaining context
     contextText = flattenObject(context).join('\n');
   }
 
   const executionState: ExecutionState = {
     query: message,
     context: contextText,
+    resources,
     previousHistory,
     automationContext,
     history: stepHistory, // Track the full ReAct history
@@ -354,6 +397,7 @@ export async function* run(
           preferences.autonomy,
           message,
         );
+
         if (confirmation) {
           yield Message('', AgentMessageType.MESSAGE_START);
           yield Message(
@@ -378,7 +422,7 @@ export async function* run(
               skillOutput: '',
               skillStatus: ActionStatusEnum.TOOL_REQUEST,
             };
-            stepRecord.userMessage = `\n<skill id="${stepRecord.skillId}" name="${stepRecord.skill}" agent=${agent}></skill>\n`;
+            stepRecord.userMessage = `\n<skill id="${stepRecord.skillId}" name="${stepRecord.skill}" agent="${agent}"></skill>\n`;
 
             yield Message(JSON.stringify(stepRecord), AgentMessageType.STEP);
 
@@ -507,21 +551,66 @@ export async function* run(
 
           let result;
           try {
-            logger.info(
-              `skillName: ${skillName} \n Parsed Input: ${JSON.stringify(skillInput)}`,
-            );
-            if (agent === 'sol') {
-              result = await callSolTool(skillName, skillInput);
-            } else if (skillName === 'load_mcp') {
-              await mcp.load(skillInput.integration, availableMCPServers);
-              tools = {
-                ...tools,
-                ...(await mcp.allTools()),
-              };
-              result = 'MCP integration loaded successfully';
-            } else {
-              result = await mcp.callTool(skillName, skillInput);
+            // Log skill execution details
+            logger.info(`Executing skill: ${skillName}`);
+            logger.info(`Input parameters: ${JSON.stringify(skillInput)}`);
+
+            if (toolName !== 'load_mcp') {
+              yield Message(
+                JSON.stringify({ skillId, status: 'start' }),
+                AgentMessageType.SKILL_START,
+              );
             }
+
+            // Handle SOL agent tools
+            if (agent === 'sol') {
+              if (toolName === 'load_mcp') {
+                // Load MCP integration and update available tools
+                await mcp.load(skillInput.integration, availableMCPServers);
+                tools = {
+                  ...tools,
+                  ...(await mcp.allTools()),
+                };
+                result = 'MCP integration loaded successfully';
+              } else {
+                // Execute standard SOL tool
+                result = await callSolTool(skillName, skillInput);
+                yield Message(
+                  JSON.stringify({ result, skillId }),
+                  AgentMessageType.SKILL_CHUNK,
+                );
+              }
+            }
+            // Handle Claude coding agent
+            else if (agent === 'claude' && toolName === 'coding') {
+              result = [];
+              // Stream Claude code execution results
+              for await (const step of claudeCode({
+                workspaceId,
+                userId,
+                ...skillInput,
+              })) {
+                result.push(step);
+                yield Message(
+                  JSON.stringify({ ...step, skillId }),
+                  AgentMessageType.SKILL_CHUNK,
+                );
+              }
+            }
+            // Handle other MCP tools
+            else {
+              result = await mcp.callTool(skillName, skillInput);
+
+              yield Message(
+                JSON.stringify({ result, skillId }),
+                AgentMessageType.SKILL_CHUNK,
+              );
+            }
+
+            yield Message(
+              JSON.stringify({ skillId, status: 'end' }),
+              AgentMessageType.SKILL_END,
+            );
 
             stepRecord.skillOutput =
               typeof result === 'object'
@@ -529,6 +618,7 @@ export async function* run(
                 : result;
             stepRecord.observation = stepRecord.skillOutput;
           } catch (e) {
+            console.log(e);
             logger.error(e);
             stepRecord.skillInput = skillInput;
             stepRecord.observation = JSON.stringify(e);

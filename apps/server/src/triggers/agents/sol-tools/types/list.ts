@@ -14,7 +14,6 @@ export type ListParams = z.infer<typeof ListSchema>;
 
 export const UpdateListSchema = z.object({
   listId: z.string().uuid().describe('Unique identifier of the list'),
-  title: z.string().optional().describe('New title for the list'),
   htmlDescription: z
     .string()
     .optional()

@@ -407,6 +407,19 @@ model User {
   UserUsage           UserUsage?
   InvitationCode      InvitationCode?       @relation(fields: [invitationCodeId], references: [id])
   invitationCodeId    String?
+  UserCodingSession   UserCodingSession[]
+}
+
+model UserCodingSession {
+  id        String   @id @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sessionId     String
+  sessionStatus String
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
 }
 
 model UserUsage {

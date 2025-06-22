@@ -197,28 +197,35 @@ export const TaskListItem = observer(
                       {page?.title}
                     </div>
                   </div>
-                  <TaskInfo
-                    task={task}
-                    minimal={minimal}
-                    taskOccurrenceId={
-                      task.startTime ? taskOccurrenceId : undefined
-                    }
-                  />
+                  <div className="flex">
+                    <TaskInfo
+                      task={task}
+                      minimal={minimal}
+                      taskOccurrenceId={
+                        task.startTime ? taskOccurrenceId : undefined
+                      }
+                    />
 
-                  {agentWorklogForTask && (
-                    <span
-                      className="text-sm font-medium text-muted-foreground bg-gradient-to-r from-[#F48FD7] via-[#6528FD] to-[#F48FD7] 
+                    {agentWorklogForTask && (
+                      <span
+                        className="text-sm font-medium text-muted-foreground bg-gradient-to-r from-[#F48FD7] via-[#6528FD] to-[#F48FD7] 
             bg-[length:200%_100%] bg-clip-text text-transparent animate-gradient-slide"
-                    >
-                      Thinking...
-                    </span>
-                  )}
-
-                  {conversationForTask &&
-                    conversationForTask.status === 'need_attention' &&
-                    conversationForTask.unread && (
-                      <Badge className="font-mono h-5 bg-warning">!</Badge>
+                      >
+                        Thinking...
+                      </span>
                     )}
+
+                    {conversationForTask &&
+                      (conversationForTask.status === 'need_attention' ||
+                        conversationForTask.status === 'need_approval') &&
+                      conversationForTask.unread && (
+                        <TooltipWrapper tooltip="Task needs your attention">
+                          <Badge className="font-mono h-5 !bg-destructive">
+                            !
+                          </Badge>
+                        </TooltipWrapper>
+                      )}
+                  </div>
                 </div>
               </div>
             </div>

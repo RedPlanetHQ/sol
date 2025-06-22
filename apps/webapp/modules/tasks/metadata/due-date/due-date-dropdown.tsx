@@ -72,7 +72,7 @@ export const DuedateDropdown = observer(
               variant !== DuedateDropdownVariant.SHORT && 'h-7 px-2 text-base',
             )}
           >
-            <Fire size={14} />
+            <Fire size={14} className="shrink-0" />
             {timeText}
           </Badge>
         );
@@ -99,7 +99,7 @@ export const DuedateDropdown = observer(
     }
 
     return (
-      <div className="flex gap-1">
+      <div className="flex gap-1 shrink-0">
         <div
           onClick={(e) => {
             e.stopPropagation();

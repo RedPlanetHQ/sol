@@ -11,7 +11,7 @@ interface ImageUploadOptionsExtend extends ImageUploadOptions {
   ) => Promise<unknown>;
 }
 
-const onUploadFile = async (
+export const onUploadFile = async (
   file: File,
   callback?: (progress: number) => void,
 ) => {

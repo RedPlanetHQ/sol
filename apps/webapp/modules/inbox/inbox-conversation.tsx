@@ -7,6 +7,7 @@ import { Key } from 'ts-key-enum';
 
 import { ConversationItem } from 'modules/conversation/conversation-item';
 import { ConversationTextarea } from 'modules/conversation/conversation-textarea';
+import type { Resource } from 'modules/conversation/resource';
 import { StreamingConversation } from 'modules/conversation/streaming-conversation';
 import { useConversationRead } from 'modules/conversation/use-conversation-read';
 
@@ -64,16 +65,21 @@ export const InboxConversation = observer(
       { scopes: [SCOPES.ASSISTANT] },
     );
 
-    const onSend = (text: string, agents: string[]) => {
-      if (!!conversationResponse) {
+    const onSend = (
+      text: string,
+      agents: string[],
+      title: string,
+      resources: Resource[],
+    ) => {
+      if (!!conversationResponse || conversation?.status === 'running') {
         return;
       }
 
       createConversation(
         {
           message: text,
-          context: { agents },
-          title: text,
+          context: { agents, resources: resources.map((res) => res.publicURL) },
+          title,
           conversationId: conversation?.id,
         },
         {
@@ -136,7 +142,7 @@ export const InboxConversation = observer(
               );
             },
           )}
-          {conversation.status === 'need_approval' && (
+          {conversation?.status === 'need_approval' && (
             <div className="flex justify-start gap-2 mx-4">
               <Button
                 variant="destructive"
@@ -159,7 +165,7 @@ export const InboxConversation = observer(
     };
 
     return (
-      <div className="relative flex flex-col h-full justify-center w-full items-center overflow-auto px-2">
+      <div className="relative flex flex-col h-full justify-center w-full items-center overflow-auto">
         <div className="flex flex-col justify-end overflow-hidden h-full w-full">
           <ScrollAreaWithAutoScroll>
             {getConversations()}
@@ -167,19 +173,22 @@ export const InboxConversation = observer(
               <StreamingConversation
                 runId={conversationResponse.id}
                 token={conversationResponse.token}
+                conversationHistoryId={
+                  conversationResponse?.conversationHistoryId
+                }
                 afterStreaming={() => setConversationResponse(undefined)}
               />
             )}
           </ScrollAreaWithAutoScroll>
 
           <div className="flex flex-col w-full items-center">
-            <div className="max-w-[97ch] w-full">
-              {conversation.status !== 'need_approval' && (
+            <div className="max-w-[97ch] w-full px-1 pr-2">
+              {conversation?.status !== 'need_approval' && (
                 <ConversationTextarea
                   onSend={onSend}
                   className="bg-background-3 w-full border-gray-300 border-1"
                   isLoading={
-                    !!conversationResponse || conversation.status === 'running'
+                    !!conversationResponse || conversation?.status === 'running'
                   }
                 />
               )}

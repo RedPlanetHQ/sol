@@ -1,3 +1,5 @@
+import type { Resource } from './resource';
+
 import { Button, Loader, useToast } from '@redplanethq/ui';
 import { sort } from 'fast-sort';
 import { observer } from 'mobx-react-lite';
@@ -9,7 +11,10 @@ import { ScrollAreaWithAutoScroll } from 'common/use-auto-scroll';
 import { useApplication } from 'hooks/application';
 import { useConversationHistory } from 'hooks/conversations';
 
-import { useCreateConversationMutation } from 'services/conversations';
+import {
+  useCreateConversationMutation,
+  useGetCurrentConversationRun,
+} from 'services/conversations';
 import { useApproveOrDeclineMutation } from 'services/conversations/approve-or-decline';
 import { useGetIntegrationDefinitions } from 'services/integration-definition';
 
@@ -28,6 +33,10 @@ export const Conversation = observer(() => {
   const { conversationHistory, conversation } = useConversationHistory(
     activeTab.conversation_id,
   );
+  const { data: initialRunResponse } = useGetCurrentConversationRun(
+    activeTab.conversation_id,
+  );
+
   const { isLoading: integrationsLoading } = useGetIntegrationDefinitions();
   const pageId = useConversationContext();
   const task = tasksStore.getTaskForPage(pageId);
@@ -37,18 +46,30 @@ export const Conversation = observer(() => {
   const [conversationResponse, setConversationResponse] =
     React.useState(undefined);
 
-  const { mutate: createConversation } = useCreateConversationMutation({});
+  const { mutate: createConversation, isLoading: conversationLoading } =
+    useCreateConversationMutation({});
   const { mutate: approval, isLoading } = useApproveOrDeclineMutation({});
 
-  const onSend = (text: string, agents: string[], title: string) => {
-    if (conversationResponse) {
+  React.useEffect(() => {
+    if (initialRunResponse) {
+      setConversationResponse(initialRunResponse);
+    }
+  }, [initialRunResponse]);
+
+  const onSend = (
+    text: string,
+    agents: string[],
+    title: string,
+    resources?: Resource[],
+  ) => {
+    if (!!conversationResponse || conversation?.status === 'running') {
       return;
     }
 
     createConversation(
       {
         message: text,
-        context: { agents },
+        context: { agents, resources: resources.map((res) => res.publicURL) },
         title,
         conversationId: activeTab.conversation_id,
       },
@@ -138,7 +159,7 @@ export const Conversation = observer(() => {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh_-_66px)] items-center pr-2">
+    <div className="flex flex-col h-[calc(100vh_-_58px)] items-center pr-2">
       <div className="overflow-hidden w-full grow">
         <div className="flex flex-col h-full justify-start overflow-hidden">
           <ScrollAreaWithAutoScroll>
@@ -147,24 +168,29 @@ export const Conversation = observer(() => {
               <StreamingConversation
                 runId={conversationResponse.id}
                 token={conversationResponse.token}
+                conversationHistoryId={
+                  conversationResponse?.conversationHistoryId
+                }
                 afterStreaming={() => setConversationResponse(undefined)}
               />
             )}
           </ScrollAreaWithAutoScroll>
 
           <div className="flex flex-col">
-            <ConversationTextarea
-              onSend={onSend}
-              defaultValue={
-                task
-                  ? `<mention data-id='${task.id}' data-label='task'></mention>`
-                  : list
-                    ? `<mention data-id='${list.id}' data-label='list'></mention>`
-                    : undefined
-              }
-              isLoading={conversationResponse}
-              className="bg-background-2"
-            />
+            {conversation?.status !== 'need_approval' && (
+              <ConversationTextarea
+                onSend={onSend}
+                defaultValue={
+                  task
+                    ? `<mention data-id='${task.id}' data-label='task'></mention>`
+                    : list
+                      ? `<mention data-id='${list.id}' data-label='list'></mention>`
+                      : undefined
+                }
+                isLoading={conversationResponse || conversationLoading}
+                className="bg-background-2"
+              />
+            )}
           </div>
         </div>
       </div>

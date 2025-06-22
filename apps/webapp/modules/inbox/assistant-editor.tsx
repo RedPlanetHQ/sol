@@ -10,6 +10,7 @@ import { useCallback, useState } from 'react';
 import React from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 
+import { ResourceUploader } from 'modules/conversation/resource';
 import {
   CustomMention,
   useContextSuggestions,
@@ -20,12 +21,24 @@ import { EditorRoot, lowlight, type EditorT } from 'common/editor';
 import { SCOPES } from 'common/shortcut-scopes';
 
 interface ConversationTextareaProps {
-  onSend: (value: string, agents: string[], title: string) => void;
+  onSend: (
+    value: string,
+    agents: string[],
+    title: string,
+    resources?: Resource[],
+  ) => void;
   defaultValue?: string;
   placeholder?: string;
   isLoading?: boolean;
   className?: string;
   onChange?: (text: string) => void;
+}
+
+interface Resource {
+  type: 'image' | 'pdf';
+  name: string;
+  data: string; // base64 encoded
+  size: number;
 }
 
 export function AssistantEditor({
@@ -40,6 +53,8 @@ export function AssistantEditor({
   const [html, setHTML] = useState(defaultValue ?? '');
   const [editor, setEditor] = React.useState<EditorT>();
   const [agents, setAgents] = React.useState<string[]>([]);
+  const [resources, setResources] = React.useState<Resource[]>([]);
+
   const commands = useSearchCommands(
     text,
     () => {
@@ -101,11 +116,11 @@ export function AssistantEditor({
     if (!editor || !text) {
       return;
     }
-    onSend(html, agents, text);
+    onSend(html, agents, text, resources);
     editor.commands.clearContent(true);
     setText('');
     setHTML('');
-  }, [editor, text, onSend, html, agents]);
+  }, [editor, text, onSend, html, agents, resources]);
 
   const pagesCommands = () => {
     const pagesCommands = commands['Pages'];
@@ -126,7 +141,7 @@ export function AssistantEditor({
       <>
         <CommandItem
           onSelect={() => {
-            onSend(html, agents, text);
+            onSend(html, agents, text, resources);
             editor.commands.clearContent(true);
             setText('');
             setHTML('');
@@ -175,123 +190,11 @@ export function AssistantEditor({
 
   return (
     <Command className="rounded-lg border bg-background-3 mt-0 w-full p-1 rounded-xl border-gray-300 border-1 !h-auto">
-      <div
-        className={cn(
-          'flex flex-col rounded-md pt-1 bg-transparent',
-          className,
-        )}
-      >
-        <EditorRoot>
-          <EditorContent
-            initialContent={{
-              type: 'doc',
-              content: [
-                {
-                  type: 'paragraph',
-                  content: [
-                    {
-                      type: 'text',
-                      text: defaultValue,
-                    },
-                  ],
-                },
-              ],
-            }}
-            extensions={[
-              Document,
-              Paragraph,
-              Text,
-              CustomMention.configure({
-                suggestion,
-              }),
-              CodeBlockLowlight.configure({
-                lowlight,
-              }),
-              HardBreak.configure({
-                keepMarks: true,
-              }),
-              Placeholder.configure({
-                placeholder: () => {
-                  return placeholder ?? 'Ask sol...';
-                },
-                includeChildren: true,
-              }),
-            ]}
-            onCreate={async ({ editor }) => {
-              setEditor(editor);
-              await new Promise((resolve) => setTimeout(resolve, 100));
-
-              editor.commands.focus('end');
-            }}
-            onUpdate={({ editor }) => {
-              onCommentUpdate(editor);
-            }}
-            shouldRerenderOnTransaction={false}
-            editorProps={{
-              attributes: {
-                class: `prose prose-lg dark:prose-invert prose-headings:font-title font-default focus:outline-none max-w-full`,
-              },
-              handleKeyDown(view, event) {
-                // Block default Enter
-                if (event.key === 'Enter' && !event.shiftKey) {
-                  const mentionItem = document.querySelector(
-                    '[data-selected="true"]',
-                  ) as HTMLElement;
-
-                  if (mentionItem) {
-                    mentionItem.click();
-                    return true;
-                  }
-
-                  const activeItem = document.querySelector(
-                    '[aria-selected="true"]',
-                  ) as HTMLElement;
-
-                  if (activeItem) {
-                    activeItem.click();
-                    return true;
-                  }
-
-                  if (html) {
-                    handleSend();
-                    return true;
-                  }
-
-                  return false;
-                }
-
-                // Allow Shift+Enter to insert hard break
-                if (event.key === 'Enter' && event.shiftKey) {
-                  view.dispatch(
-                    view.state.tr.replaceSelectionWith(
-                      view.state.schema.nodes.hardBreak.create(),
-                    ),
-                  );
-                  return true;
-                }
-
-                return false;
-              },
-            }}
-            immediatelyRender={false}
-            className={cn(
-              'editor-container w-full min-w-full text-base sm:rounded-lg px-3 max-h-[400px] pt-1 min-h-[30px] overflow-auto',
-            )}
-          ></EditorContent>
-        </EditorRoot>
-      </div>
-
-      <CommandList className="p-2 pt-0 pb-2">
-        {text && text.slice(-1) !== '@' && pagesCommands()}
-
-        <div className={cn('flex justify-end pt-2 items-center')}>
-          {/* <Button variant="link" size="sm" className="px-0 gap-1">
-            <AddLine
-              size={16}
-              className="text-muted-foreground/60 hover:text-muted-foreground"
-            />
-            <span className="text-muted-foreground/60">Add tasks/lists</span>
-          </Button> */}
+      <ResourceUploader
+        onResourcesChange={setResources}
+        className={className}
+        inHome
+        actionComponent={
           <Button
             variant="default"
             className="transition-all duration-500 ease-in-out gap-1"
@@ -302,8 +205,118 @@ export function AssistantEditor({
           >
             {isLoading ? <>Generating...</> : <>Chat</>}
           </Button>
+        }
+      >
+        <div
+          className={cn(
+            'flex flex-col rounded-md pt-1 bg-transparent',
+            className,
+          )}
+        >
+          <EditorRoot>
+            <EditorContent
+              initialContent={{
+                type: 'doc',
+                content: [
+                  {
+                    type: 'paragraph',
+                    content: [
+                      {
+                        type: 'text',
+                        text: defaultValue,
+                      },
+                    ],
+                  },
+                ],
+              }}
+              extensions={[
+                Document,
+                Paragraph,
+                Text,
+                CustomMention.configure({
+                  suggestion,
+                }),
+                CodeBlockLowlight.configure({
+                  lowlight,
+                }),
+                HardBreak.configure({
+                  keepMarks: true,
+                }),
+                Placeholder.configure({
+                  placeholder: () => {
+                    return placeholder ?? 'Ask sol...';
+                  },
+                  includeChildren: true,
+                }),
+              ]}
+              onCreate={async ({ editor }) => {
+                setEditor(editor);
+                await new Promise((resolve) => setTimeout(resolve, 100));
+
+                editor.commands.focus('end');
+              }}
+              onUpdate={({ editor }) => {
+                onCommentUpdate(editor);
+              }}
+              shouldRerenderOnTransaction={false}
+              editorProps={{
+                attributes: {
+                  class: `prose prose-lg dark:prose-invert prose-headings:font-title font-default focus:outline-none max-w-full`,
+                },
+                handleKeyDown(view, event) {
+                  // Block default Enter
+                  if (event.key === 'Enter' && !event.shiftKey) {
+                    const mentionItem = document.querySelector(
+                      '[data-selected="true"]',
+                    ) as HTMLElement;
+
+                    if (mentionItem) {
+                      mentionItem.click();
+                      return true;
+                    }
+
+                    const activeItem = document.querySelector(
+                      '[aria-selected="true"]',
+                    ) as HTMLElement;
+
+                    if (activeItem) {
+                      activeItem.click();
+                      return true;
+                    }
+
+                    if (html) {
+                      handleSend();
+                      return true;
+                    }
+
+                    return false;
+                  }
+
+                  // Allow Shift+Enter to insert hard break
+                  if (event.key === 'Enter' && event.shiftKey) {
+                    view.dispatch(
+                      view.state.tr.replaceSelectionWith(
+                        view.state.schema.nodes.hardBreak.create(),
+                      ),
+                    );
+                    return true;
+                  }
+
+                  return false;
+                },
+              }}
+              immediatelyRender={false}
+              className={cn(
+                'editor-container w-full min-w-full text-base sm:rounded-lg px-3 max-h-[400px] pt-1 min-h-[30px] overflow-auto',
+              )}
+            ></EditorContent>
+          </EditorRoot>
         </div>
-      </CommandList>
+
+        <CommandList className="p-2">
+          {text && text.slice(-1) !== '@' && pagesCommands()}
+        </CommandList>
+      </ResourceUploader>
     </Command>
   );
 }

@@ -34,6 +34,7 @@ export default defineConfig({
         packages: ['@redplanethq/sol-sdk'],
       }),
       installUVX(),
+      installClaude(),
       prismaExtension({
         schema: 'prisma/schema.prisma',
       }),
@@ -47,8 +48,8 @@ export function installUVX(): BuildExtension {
     name: 'InstallUVX',
     onBuildComplete(context: BuildContext) {
       const instructions = [
-        // Install curl and uvx
-        `RUN apt-get update && apt-get install -y curl && \
+        // Install curl, git and uvx
+        `RUN apt-get update && apt-get install -y curl git && \
     curl -LsSf https://astral.sh/uv/install.sh | sh && \
     cp ~/.local/bin/uvx /usr/local/bin/ && \
     cp ~/.local/bin/uv /usr/local/bin/`,
@@ -56,6 +57,27 @@ export function installUVX(): BuildExtension {
 
       context.addLayer({
         id: 'uvx',
+        image: { instructions },
+        deploy: {
+          env: {},
+          override: true,
+        },
+      });
+    },
+  };
+}
+
+export function installClaude(): BuildExtension {
+  return {
+    name: 'InstallClaude',
+    onBuildComplete(context: BuildContext) {
+      const instructions = [
+        // Install Claude CLI globally and make it available in PATH
+        `RUN npm install -g @anthropic-ai/claude-code`,
+      ];
+
+      context.addLayer({
+        id: 'claude',
         image: { instructions },
         deploy: {
           env: {},

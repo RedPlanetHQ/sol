@@ -63,5 +63,40 @@ export const useTriggerStream = (runId: string, token: string) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [streams.messages?.length]);
 
-  return { isEnd, message };
+  const actionMessages = React.useMemo(() => {
+    if (!streams?.messages) {
+      return {};
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const messages: Record<string, { isStreaming: boolean; content: any[] }> =
+      {};
+
+    streams.messages.forEach((item) => {
+      if (item.type?.includes('SKILL_')) {
+        try {
+          const parsed = JSON.parse(item.message);
+          const skillId = parsed.skillId;
+
+          if (!messages[skillId]) {
+            messages[skillId] = { isStreaming: true, content: [] };
+          }
+
+          if (item.type === 'SKILL_END') {
+            messages[skillId].isStreaming = false;
+          }
+
+          messages[skillId].content.push(parsed);
+        } catch (e) {
+          console.error('Failed to parse message:', e);
+        }
+      }
+    });
+
+    return messages;
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [streams.messages?.length]);
+
+  return { isEnd, message, actionMessages };
 };

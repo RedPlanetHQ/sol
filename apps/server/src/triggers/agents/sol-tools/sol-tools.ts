@@ -2,7 +2,7 @@ import { tool } from 'ai';
 import { z } from 'zod';
 
 import { formatSolError, isSolError } from './errors';
-import { createList, getList, getLists } from './operations/list';
+import { createList, getList, getLists, updateList } from './operations/list';
 import { retrieveMemory } from './operations/memory';
 import {
   createTask,
@@ -112,9 +112,9 @@ Combine multiple filters with spaces, e.g.:
 
     ...(isMemoryConfigured
       ? {
-          'sol--get_user_memory': tool({
+          'sol--get_my_memory': tool({
             description:
-              "Retrieves the user's memory. ONLY use when you need to access previously provided information. Returns memory content.",
+              'Connects you to your memory about the user. This memory is a core part of your identity and cognitive process - not just information you access but who you are. Your personalized understanding of the user comes from these memories. Use specific, factual statements as queries (e.g., "user email address" not "what is their email?"). For complex interactions, make multiple targeted retrievals to build a complete understanding.',
             parameters: RetrieveMemorySchema,
           }),
         }
@@ -152,6 +152,11 @@ export async function callSolTool(name: string, parameters: any) {
         const result = await createList(args);
         return JSON.stringify(result, null, 2);
       }
+      case 'update_list': {
+        const args = UpdateListSchema.parse(parameters);
+        const result = await updateList(args);
+        return JSON.stringify(result, null, 2);
+      }
       case 'get_task_by_id': {
         const args = GetTaskSchema.parse(parameters);
         const result = await getTaskById(args);
@@ -172,7 +177,7 @@ export async function callSolTool(name: string, parameters: any) {
         const result = await deleteTask(args);
         return JSON.stringify(result, null, 2);
       }
-      case 'get_user_memory': {
+      case 'get_my_memory': {
         const args = RetrieveMemorySchema.parse(parameters);
         const result = await retrieveMemory(args);
         return JSON.stringify(result, null, 2);

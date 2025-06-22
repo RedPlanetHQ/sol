@@ -1,0 +1,191 @@
+import { exec } from 'child_process';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
+import util from 'util';
+
+import { query } from '@anthropic-ai/claude-code';
+import { LLMMappings } from '@redplanethq/sol-sdk';
+import axios from 'axios';
+import {
+  getGithubIntegrationToken,
+  CheckErrors,
+  checkUserSessions,
+} from 'triggers/agents/chat/code-tools';
+
+const execAsync = util.promisify(exec);
+
+interface ClaudeCodeParams {
+  workspaceId: string;
+  userId: string;
+  repo_url: string;
+  query: string;
+  session_id?: string;
+  branch_name?: string;
+}
+
+async function* generateClaudeMessages(
+  repoPath: string,
+  enhancedPrompt: string,
+) {
+  let sessionId: string | undefined;
+
+  try {
+    for await (const message of query({
+      prompt: enhancedPrompt,
+      abortController: new AbortController(),
+
+      options: {
+        cwd: repoPath,
+        model: LLMMappings.CLAUDESONNET,
+        permissionMode: 'bypassPermissions',
+        pathToClaudeCodeExecutable: '/usr/local/bin/claude',
+      },
+    })) {
+      if (message.type === 'system' && message.subtype === 'init') {
+        sessionId = message.session_id;
+        yield { type: 'init', sessionId };
+      } else if (message.type === 'assistant') {
+        if (
+          message.message.content[0] &&
+          message.message.content[0].type === 'text'
+        ) {
+          yield { type: 'message', content: message.message.content };
+        }
+      } else if (message.type === 'result') {
+        yield {
+          type: 'complete',
+          success: message.subtype === 'success',
+          error: message.is_error,
+        };
+      }
+    }
+  } catch (error) {
+    yield { type: 'complete', success: false, error: true };
+  }
+}
+
+export async function* claudeCode(payload: ClaudeCodeParams) {
+  const githubIntegrationToken = await getGithubIntegrationToken(
+    payload.workspaceId,
+  );
+
+  if ((githubIntegrationToken as CheckErrors).error) {
+    throw new Error(JSON.stringify(githubIntegrationToken));
+  }
+
+  const GITHUB_API_KEY = githubIntegrationToken;
+
+  const sessions = await checkUserSessions(payload.userId);
+
+  if ((sessions as CheckErrors).error) {
+    throw new Error(JSON.stringify(sessions));
+  }
+
+  // Create temp directory
+  const tempDir = path.join(os.tmpdir(), `repo-${Date.now()}`);
+  const branchName = payload.branch_name ?? 'main';
+  await fs.promises.mkdir(tempDir, { recursive: true });
+
+  try {
+    // Extract owner and repo from repo_url
+    const urlParts = payload.repo_url.split('/');
+    const owner = urlParts[urlParts.length - 2];
+    const repo = urlParts[urlParts.length - 1];
+
+    // Get GitHub user info
+    const { data: githubUser } = await axios.get(
+      'https://api.github.com/user',
+      {
+        headers: {
+          Authorization: `token ${GITHUB_API_KEY}`,
+        },
+      },
+    );
+
+    // Clone repository using token
+    const remoteUrl = `https://${GITHUB_API_KEY}:x-oauth-basic@github.com/${owner}/${repo}.git`;
+    await execAsync(`git clone --branch ${branchName} ${remoteUrl}`, {
+      cwd: tempDir,
+    });
+
+    const repoPath = path.join(tempDir, repo);
+
+    // Configure git user
+    await execAsync(
+      `git config user.name "${githubUser.name || githubUser.login}"`,
+      {
+        cwd: repoPath,
+      },
+    );
+    await execAsync(`git config user.email "${githubUser.email}"`, {
+      cwd: repoPath,
+    });
+
+    // Construct enhanced prompt
+    const enhancedPrompt = `
+    Please analyze and modify the code following these guidelines:
+
+    1. Best Practices Summary (prioritized):
+    - HIGH: Write clean, maintainable code with proper error handling
+    - HIGH: Follow language-specific conventions and best practices
+    - HIGH: Use meaningful variable/function names and add comments for complex logic
+    - MEDIUM: Consider performance implications and optimize where necessary
+    - MEDIUM: Follow SOLID principles and appropriate design patterns
+    - MEDIUM: Keep functions small, focused, and avoid code duplication
+    - LOW: Add comprehensive documentation where beneficial
+
+    2. Repository Context:
+    - Repository: ${payload.repo_url}
+    - Branch: ${branchName}
+
+    3. Code Quality:
+    - Ensure proper error handling and logging
+    - Add input validation where needed
+    - Follow async/await best practices
+    - Use TypeScript types/interfaces appropriately
+    - Add JSDoc comments for public APIs
+    - Consider backwards compatibility
+    - Follow semantic versioning
+    - Add unit tests for new functionality
+
+    4. User Query:
+    ${payload.query}
+
+    Important Instructions:
+    1. Make Changes:
+       - Focus on changes directly addressing the user query
+       - Prefer minimal, targeted changes unless comprehensive refactoring is requested
+       - If multiple approaches are possible, choose the most maintainable one
+    
+    2. After Making Changes:
+       a. Stage and commit with a descriptive message
+       b. CRITICAL: Always push your changes to the branch after committing
+       c. Verify the push was successful before proceeding
+       d. Explain what was changed and why, including:
+          - Specific files modified
+          - Nature of changes
+          - Reasoning behind changes
+          - Any potential impacts or considerations
+
+    3. If You Encounter Problems:
+       - If you face errors, try to resolve them if possible
+       - Document any errors you couldn't resolve
+       - Explain the nature of the problem and potential solutions
+
+    4. If you need additional input:
+      - Always push current changes
+      - Clearly state what information is needed
+      - Explain why it's needed
+      - Suggest possible options
+      `;
+
+    const messageStream = generateClaudeMessages(repoPath, enhancedPrompt);
+
+    for await (const step of messageStream) {
+      yield step;
+    }
+  } catch (error) {
+    throw new Error(error);
+  }
+}

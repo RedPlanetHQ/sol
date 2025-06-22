@@ -14,6 +14,7 @@ import { useApplication } from 'hooks/application';
 
 import { TabViewType } from 'store/application';
 
+import { Notifications } from './notifications';
 import { WorkspaceDropdown } from './workspace-dropdown';
 
 export const AppTabs = observer(() => {
@@ -82,7 +83,7 @@ export const AppTabs = observer(() => {
         <WorkspaceDropdown />
         <TooltipWrapper tooltip="G then H">
           <Button
-            variant="ghost"
+            variant="secondary"
             onClick={() => goTo(TabViewType.ASSISTANT)}
             className={cn(
               'gap-1 ml-1.5',
@@ -95,7 +96,7 @@ export const AppTabs = observer(() => {
         </TooltipWrapper>
         <TooltipWrapper tooltip="G then T">
           <Button
-            variant="ghost"
+            variant="secondary"
             onClick={() => goTo(TabViewType.MY_TASKS)}
             className={cn(
               'gap-1',
@@ -108,7 +109,7 @@ export const AppTabs = observer(() => {
         </TooltipWrapper>
         <TooltipWrapper tooltip="G then L">
           <Button
-            variant="ghost"
+            variant="secondary"
             onClick={() => goTo(TabViewType.LIST)}
             className={cn(
               'gap-1',
@@ -120,18 +121,19 @@ export const AppTabs = observer(() => {
         </TooltipWrapper>
       </div>
 
-      <div className="flex">
+      <div className="flex gap-0.5 mr-2">
         <AIThinking />
+        <Notifications />
         {activeTab.type !== TabViewType.ASSISTANT && (
           <Button
-            variant="ghost"
+            variant="secondary"
             className={cn(
-              'gap-1 items-center h-7 mr-2',
+              'gap-1 items-center h-7',
               !collapsed && '!bg-background-3 shadow',
             )}
             onClick={() => (collapsed ? onOpen() : onClose())}
           >
-            <MessageSquare size={16} /> chat
+            <MessageSquare size={16} />
           </Button>
         )}
       </div>

@@ -1,1 +1,0 @@
-{"timestamp":"2025-06-17T17:35:27.059Z","error":{"name":"AI_NoSuchToolError","toolName":"search_tasks","availableTools":["sol--get_lists","sol--get_list_by_id","sol--create_list","sol--update_list","sol--search_tasks","sol--get_task_by_id","sol--create_task","sol--update_task","sol--delete_task","sol--create_assistant_task","sol--update_assistant_task","load_mcp"]}}

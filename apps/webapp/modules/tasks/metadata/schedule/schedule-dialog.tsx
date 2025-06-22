@@ -304,7 +304,7 @@ export const ScheduleDialog = ({ onClose, taskIds }: ScheduleDialogProps) => {
               >
                 <div className="inline-flex items-center gap-2 min-w-[0px] w-full">
                   {getIcon(schedule)}
-                  <div className="truncate grow"> {schedule.text}</div>
+                  <div className="truncate"> {schedule.text}</div>
                   {getRecurringIcon(schedule.isRecurring)}
                 </div>
               </CommandItem>

@@ -61,7 +61,7 @@ export const RightSideLayout = observer(
         setRightSideCollapsed(true);
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [activeTab.type]);
+    }, [activeTab.type, activeTab.entity_id]);
 
     useHotkeys(
       [`${Key.Meta}+l`],

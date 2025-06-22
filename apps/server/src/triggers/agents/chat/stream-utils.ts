@@ -48,11 +48,15 @@ export async function* processTag(
     }
 
     if (state.inTag) {
-      if (
-        chunk.includes('</') && !chunk.includes(startTag)
-          ? chunk.includes(endTag)
-          : true
-      ) {
+      // Check if chunk contains end tag
+      const hasEndTag = chunk.includes(endTag);
+      const hasStartTag = chunk.includes(startTag);
+      const hasClosingTag = chunk.includes('</');
+
+      if (hasClosingTag && !hasStartTag && !hasEndTag) {
+        // If chunk only has </ but not the full end tag, accumulate it
+        state.message += chunk;
+      } else if (hasEndTag || (!hasEndTag && !hasClosingTag)) {
         let currentMessage = comingFromStart
           ? state.message
           : state.message + chunk;
@@ -79,8 +83,13 @@ export async function* processTag(
           state.message = currentMessage;
           state.messageEnded = true;
         } else {
+          const diff = currentMessage.slice(
+            currentMessage.indexOf(state.lastSent) + state.lastSent.length,
+          );
+
           // For chunks in between start and end
-          const messageToSend = comingFromStart ? state.message : chunk;
+          const messageToSend = comingFromStart ? state.message : diff;
+
           if (messageToSend) {
             state.lastSent = messageToSend;
             yield Message(

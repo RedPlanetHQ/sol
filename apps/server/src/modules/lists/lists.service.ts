@@ -91,20 +91,21 @@ export class ListsService {
     updateListDto: UpdateListDto,
     updatedBy: string = 'user',
   ) {
+    const { htmlDescription, ...rest } = updateListDto;
     const list = await this.prisma.list.update({
       where: {
         id: listId,
       },
-      data: { ...updateListDto, updatedBy },
+      data: { ...rest, updatedBy },
       include: {
         page: true,
       },
     });
 
-    if (updateListDto.htmlDescription) {
+    if (htmlDescription) {
       const page = await this.page.updatePage(
         {
-          htmlDescription: updateListDto.htmlDescription,
+          htmlDescription,
         },
         list.pageId,
       );

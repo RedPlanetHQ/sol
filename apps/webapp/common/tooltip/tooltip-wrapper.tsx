@@ -23,11 +23,14 @@ export function TooltipWrapper({
   }
 
   return (
-    <Tooltip delayDuration={1000} disableHoverableContent>
+    <Tooltip delayDuration={300} disableHoverableContent>
       <TooltipTrigger asChild>
         <div className={cn(className, 'flex items-center')}>{children}</div>
       </TooltipTrigger>
-      <TooltipContent className={cn('p-2', tooltipClassName)} side="bottom">
+      <TooltipContent
+        className={cn('p-2 max-w-[300px]', tooltipClassName)}
+        side="bottom"
+      >
         <span className="font-mono">{tooltip}</span>
       </TooltipContent>
     </Tooltip>

@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { cn } from '@redplanethq/ui';
 import { UserTypeEnum } from '@sol/types';
 import { EditorContent, useEditor } from '@tiptap/react';
@@ -5,6 +6,8 @@ import { observer } from 'mobx-react-lite';
 import React, { useEffect } from 'react';
 
 import { extensionsForConversation } from 'common/editor';
+
+import { useIPC } from 'hooks/ipc';
 
 import { useContextStore } from 'store/global-context-provider';
 
@@ -16,9 +19,18 @@ interface AIConversationItemProps {
   conversationHistoryId: string;
 }
 
+interface Resource {
+  id: string;
+  size: number;
+  fileType: string;
+  publicURL: string;
+  originalName: string;
+}
+
 export const ConversationItem = observer(
   ({ conversationHistoryId }: AIConversationItemProps) => {
     const { conversationHistoryStore } = useContextStore();
+    const ipc = useIPC();
 
     const conversationHistory =
       conversationHistoryStore.getConversationHistoryForId(
@@ -46,6 +58,22 @@ export const ConversationItem = observer(
       return null;
     }
 
+    const getResources = () => {
+      const context = conversationHistory.context;
+      try {
+        const contextParsed = JSON.parse(context);
+        return contextParsed.resources ?? [];
+      } catch (e) {
+        return [];
+      }
+    };
+
+    const resources = getResources();
+
+    const handleResourceClick = (url: string) => {
+      ipc.openUrl(url);
+    };
+
     return (
       <div className={cn('flex gap-2 pb-2 px-4', isUser && 'justify-end my-4')}>
         <div
@@ -57,6 +85,30 @@ export const ConversationItem = observer(
           <ConversationContext.Provider value={{ conversationHistoryId }}>
             <EditorContent editor={editor} />
           </ConversationContext.Provider>
+
+          {resources.length > 0 && (
+            <div className="flex flex-wrap gap-3 mt-3">
+              {resources.map((resource: Resource, index: number) => (
+                <div
+                  key={index}
+                  className="relative group cursor-pointer"
+                  onClick={() => handleResourceClick(resource.publicURL)}
+                >
+                  {resource.fileType === 'application/pdf' ? (
+                    <div className="w-10 h-10 flex items-center justify-center bg-grayAlpha-100 rounded hover:bg-grayAlpha-200">
+                      <span className="text-sm">PDF</span>
+                    </div>
+                  ) : resource.fileType.startsWith('image/') ? (
+                    <img
+                      src={resource.publicURL}
+                      alt={resource.originalName}
+                      className="w-10 h-10 object-cover rounded hover:opacity-90"
+                    />
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     );

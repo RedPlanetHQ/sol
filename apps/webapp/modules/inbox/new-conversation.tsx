@@ -2,6 +2,8 @@ import { useToast } from '@redplanethq/ui';
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 
+import type { Resource } from 'modules/conversation/resource';
+
 import { useApplication } from 'hooks/application';
 
 import { useCreateConversationMutation } from 'services/conversations';
@@ -29,12 +31,17 @@ export const NewConversation = observer(() => {
     return null;
   }
 
-  const onSend = (text: string, agents: string[]) => {
+  const onSend = (
+    text: string,
+    agents: string[],
+    title: string,
+    resources: Resource[],
+  ) => {
     createConversation(
       {
         message: text,
-        context: { agents },
-        title: text,
+        context: { agents, resources: resources.map((res) => res.publicURL) },
+        title,
       },
       {
         onSuccess: (data) => {

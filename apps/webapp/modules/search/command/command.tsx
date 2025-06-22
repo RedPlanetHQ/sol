@@ -141,6 +141,31 @@ export const CommandComponent = observer(
       );
     };
 
+    const createTaskCommands = () => {
+      const taskCommands = commands['create_tasks'];
+
+      if (!taskCommands) {
+        return null;
+      }
+
+      return (
+        <>
+          {taskCommands.map((command, index: number) => {
+            return (
+              <CommandItem
+                onSelect={command.command}
+                key={`task__${index}`}
+                className="flex gap-1 items-center py-2"
+              >
+                <command.Icon size={16} className="shrink-0" />
+                <div className="grow"> {command.text}</div>
+              </CommandItem>
+            );
+          })}
+        </>
+      );
+    };
+
     const getTasksComponent = () => {
       if (selectedTasks.length === 0) {
         return null;
@@ -191,7 +216,7 @@ export const CommandComponent = observer(
           {defaultCommands()}
           {settingsCommands()}
           {taskCommands()}
-
+          {createTaskCommands()}
           {pagesCommands()}
         </CommandList>
       </>

@@ -23,7 +23,7 @@ export const Assistant = observer(() => {
   }
 
   return (
-    <div className={cn('h-[calc(100vh_-56px)] flex flex-col pt-4')}>
+    <div className={cn('h-[calc(100vh_-_60px)] flex flex-col')}>
       {activeTab.conversation_id ? (
         <InboxConversation conversationId={activeTab.conversation_id} />
       ) : (

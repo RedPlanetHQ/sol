@@ -91,7 +91,7 @@ export const starterKit = StarterKit.configure({
   code: {
     HTMLAttributes: {
       class: cx(
-        'rounded-md bg-grayAlpha-100 text-[#BF4594] px-1.5 py-1 font-mono font-medium border-none',
+        'rounded bg-grayAlpha-100 text-[#BF4594] px-1.5 py-1 font-mono font-medium border-none',
       ),
       spellcheck: 'false',
     },

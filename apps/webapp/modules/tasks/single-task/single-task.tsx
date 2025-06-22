@@ -54,7 +54,8 @@ export const SingleTaskWithoutLayout = observer(
     React.useEffect(() => {
       if (
         conversationForTask &&
-        conversationForTask.status === 'need_attention' &&
+        (conversationForTask.status === 'need_attention' ||
+          conversationForTask.status === 'need_approval') &&
         conversationForTask.unread
       ) {
         updateConversationId(conversationForTask.id);

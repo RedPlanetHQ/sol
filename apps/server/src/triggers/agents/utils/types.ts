@@ -51,10 +51,19 @@ export type SchemaProperty =
       anyOf: any[];
     };
 
+export interface Resource {
+  id: string;
+  size: number;
+  fileType: string;
+  publicURL: string;
+  originalName: string;
+}
+
 export interface ExecutionState {
   query: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   context?: string;
+  resources: Resource[];
   previousHistory?: CoreMessage[];
   history: HistoryStep[];
   userMemoryContext?: string;

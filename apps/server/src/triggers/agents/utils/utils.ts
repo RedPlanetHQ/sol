@@ -461,13 +461,7 @@ export function flattenObject(obj: Record<string, any>, prefix = ''): string[] {
 export async function getContext(messages: CoreMessage[]) {
   let contextResponse = '';
 
-  const gen = generate(
-    messages,
-    () => {},
-    undefined,
-    '',
-    LLMMappings.CLAUDESONNET,
-  );
+  const gen = generate(messages, () => {}, undefined, '', LLMMappings.GPT41);
 
   for await (const chunk of gen) {
     if (typeof chunk === 'string') {

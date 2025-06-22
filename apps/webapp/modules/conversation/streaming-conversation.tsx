@@ -3,6 +3,7 @@ import React from 'react';
 
 import { extensionsForConversation } from 'common/editor';
 
+import { ConversationContext } from './conversation-context';
 import { skillExtension } from './skill-extension';
 import { CustomMention } from './suggestion-extension';
 import { useTriggerStream } from './use-trigger-stream';
@@ -10,6 +11,7 @@ import { useTriggerStream } from './use-trigger-stream';
 interface StreamingConversationProps {
   runId: string;
   token: string;
+  conversationHistoryId: string;
   afterStreaming: () => void;
 }
 
@@ -17,8 +19,9 @@ export const StreamingConversation = ({
   runId,
   token,
   afterStreaming,
+  conversationHistoryId,
 }: StreamingConversationProps) => {
-  const { message, isEnd } = useTriggerStream(runId, token);
+  const { message, isEnd, actionMessages } = useTriggerStream(runId, token);
   const [loadingText, setLoadingText] = React.useState('Thinking...');
 
   const loadingMessages = [
@@ -79,14 +82,18 @@ export const StreamingConversation = ({
     <div className="flex gap-2 py-4 px-5">
       <div className="flex flex-col gap-2">
         <div className="flex flex-col gap-1">
-          {message ? (
-            <EditorContent
-              editor={messagesEditor}
-              className="text-foreground"
-            />
-          ) : (
-            <div className="text-foreground italic">{loadingText}</div>
-          )}
+          <ConversationContext.Provider
+            value={{ conversationHistoryId, streaming: true, actionMessages }}
+          >
+            {message ? (
+              <EditorContent
+                editor={messagesEditor}
+                className="text-foreground"
+              />
+            ) : (
+              <div className="text-foreground italic">{loadingText}</div>
+            )}
+          </ConversationContext.Provider>
         </div>
       </div>
     </div>

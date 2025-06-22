@@ -17,7 +17,6 @@ export const addToMemory = async (
     return 'Memory is not configured';
   }
 
-  // Create episodeBody in string format
   const episodeBody = `user(${userName}): ${message}\nassistant: ${agentMessage}`;
 
   const response = await axios.post(
@@ -37,5 +36,6 @@ export const addToMemory = async (
       },
     },
   );
+
   return response.data;
 };

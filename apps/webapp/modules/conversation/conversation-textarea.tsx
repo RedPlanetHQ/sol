@@ -9,10 +9,16 @@ import React from 'react';
 
 import { EditorRoot, lowlight, type EditorT } from 'common/editor';
 
+import { ResourceUploader, type Resource } from './resource';
 import { CustomMention, useContextSuggestions } from './suggestion-extension';
 
 interface ConversationTextareaProps {
-  onSend: (value: string, agents: string[], title: string) => void;
+  onSend: (
+    value: string,
+    agents: string[],
+    title: string,
+    resources: Resource[],
+  ) => void;
   defaultValue?: string;
   placeholder?: string;
   isLoading?: boolean;
@@ -32,57 +38,70 @@ export function ConversationTextarea({
   onStop,
 }: ConversationTextareaProps) {
   const [text, setText] = useState(defaultValue ?? '');
-  const [editor, setEditor] = React.useState<EditorT>();
-  const [agents, setAgents] = React.useState<string[]>([]);
+  const [editor, setEditor] = useState<EditorT>();
+  const [agents, setAgents] = useState<string[]>([]);
+  const [resources, setResources] = useState<Resource[]>([]);
 
   const suggestion = useContextSuggestions();
 
   const onUpdate = (editor: EditorT) => {
     setText(editor.getHTML());
-
     onChange && onChange(editor.getText());
-    const json = editor.getJSON();
 
-    // Extract agent IDs from mentions
+    const json = editor.getJSON();
     const mentionAgents: string[] = [];
 
-    // Process JSON to find mention nodes
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const processNode = (node: any) => {
-      // Check if this is a mention node
       if (node.type === 'mention' && node.attrs && node.attrs.id) {
         mentionAgents.push(node.attrs.id);
       }
-
-      // Recursively process child nodes if they exist
       if (node.content && Array.isArray(node.content)) {
         node.content.forEach(processNode);
       }
     };
 
-    // Start processing from the root
     if (json.content && Array.isArray(json.content)) {
       json.content.forEach(processNode);
     }
 
-    // Update the agents state with the found mention IDs
     setAgents(mentionAgents);
   };
 
-  // Memoized send handler
   const handleSend = useCallback(() => {
     if (!editor || !text) {
       return;
     }
+
     const title = editor.getText();
-    onSend(text, agents, title);
+    onSend(text, agents, title, resources);
     editor.commands.clearContent(true);
     setText('');
-  }, [editor, text, agents, onSend]);
+    setResources([]);
+  }, [editor, text, agents, resources, onSend]);
 
   return (
-    <div
-      className={cn('flex flex-col rounded-md pt-2 bg-transparent', className)}
+    <ResourceUploader
+      onResourcesChange={setResources}
+      className={cn(className)}
+      actionComponent={
+        <Button
+          variant={isLoading ? 'secondary' : 'default'}
+          className="transition-all duration-500 ease-in-out gap-1"
+          type="submit"
+          size="lg"
+          onClick={() => {
+            if (isLoading) {
+              onStop && onStop();
+            }
+            if (text) {
+              handleSend();
+            }
+          }}
+        >
+          {isLoading ? <>Stop</> : <>Chat</>}
+        </Button>
+      }
     >
       <EditorRoot>
         <EditorContent
@@ -102,16 +121,13 @@ export function ConversationTextarea({
               keepMarks: true,
             }),
             Placeholder.configure({
-              placeholder: () => {
-                return placeholder ?? 'Ask sol...';
-              },
+              placeholder: () => placeholder ?? 'Ask sol...',
               includeChildren: true,
             }),
           ]}
           onCreate={async ({ editor }) => {
             setEditor(editor);
             await new Promise((resolve) => setTimeout(resolve, 100));
-
             editor.commands.focus('end');
           }}
           onUpdate={({ editor }) => {
@@ -123,25 +139,19 @@ export function ConversationTextarea({
               class: `prose prose-lg dark:prose-invert prose-headings:font-title font-default focus:outline-none max-w-full`,
             },
             handleKeyDown(view, event) {
-              // Block default Enter
               if (event.key === 'Enter' && !event.shiftKey) {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const target = event.target as any;
-
                 if (target.innerHTML.includes('suggestion')) {
                   return false;
                 }
-
                 event.preventDefault();
-
                 if (text) {
                   handleSend();
                 }
-
                 return true;
               }
 
-              // Allow Shift+Enter to insert hard break
               if (event.key === 'Enter' && event.shiftKey) {
                 view.dispatch(
                   view.state.tr.replaceSelectionWith(
@@ -150,7 +160,6 @@ export function ConversationTextarea({
                 );
                 return true;
               }
-
               return false;
             },
           }}
@@ -158,28 +167,8 @@ export function ConversationTextarea({
           className={cn(
             'editor-container w-full min-w-full text-base sm:rounded-lg px-3 max-h-[400px] min-h-[40px] overflow-auto',
           )}
-        ></EditorContent>
+        />
       </EditorRoot>
-
-      <div className={cn('flex justify-end p-2 pt-0 pb-2 items-center')}>
-        <Button
-          variant={isLoading ? 'secondary' : 'default'}
-          className="transition-all duration-500 ease-in-out gap-1"
-          type="submit"
-          size="lg"
-          onClick={() => {
-            if (isLoading) {
-              onStop && onStop();
-            }
-
-            if (text) {
-              handleSend();
-            }
-          }}
-        >
-          {isLoading ? <>Stop</> : <>Chat</>}
-        </Button>
-      </div>
-    </div>
+    </ResourceUploader>
   );
 }

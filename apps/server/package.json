@@ -1,6 +1,6 @@
 {
   "name": "server",
-  "version": "0.1.22",
+  "version": "0.1.23",
   "description": "Sol server",
   "author": "Sol",
   "private": true,
@@ -42,6 +42,7 @@
     "@ai-sdk/anthropic": "^1.2.10",
     "@ai-sdk/google": "^1.2.16",
     "@ai-sdk/openai": "^1.3.21",
+    "@anthropic-ai/claude-code": "1.0.30",
     "@anthropic-ai/sdk": "^0.18.0",
     "@aws-sdk/client-s3": "^3.712.0",
     "@aws-sdk/s3-request-presigner": "^3.712.0",

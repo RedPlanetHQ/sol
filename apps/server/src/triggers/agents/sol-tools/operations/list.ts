@@ -27,7 +27,6 @@ export async function getList(params: ListParams) {
 
 export async function updateList(params: UpdateListParams) {
   const response = await axios.post(`/api/v1/lists/${params.listId}`, {
-    title: params.title,
     htmlDescription: params.htmlDescription,
   });
   return response.data;

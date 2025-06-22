@@ -4,6 +4,10 @@ import { type UseQueryResult, useQuery } from 'react-query';
 import { type XHRErrorResponse } from 'services/utils';
 
 const getCurrentConversationRun = async (conversationId: string) => {
+  if (!conversationId) {
+    return undefined;
+  }
+
   const response = await axios(`/api/v1/conversation/${conversationId}/run`);
 
   return response.data;
