@@ -197,7 +197,7 @@ export const contextExtensions = [starterKit, heading];
 export const CONTENT = `<h2 class="heading-node h2-style text-xl mt-[1rem] font-medium">Work and projects</h2><ul class="list-disc list-outside pl-4 leading-1 my-1 mb-1.5"><li class="mt-1.5"><p class="leading-[24px] mt-[1rem] paragraph-node">Building sigma, a todo app with personal assistant</p></li><li class="mt-1.5"><p class="leading-[24px] mt-[1rem] paragraph-node">Into coding in typescript</p><p class="leading-[24px] mt-[1rem] paragraph-node"></p></li></ul><h1 class="heading-node h1-style text-2xl mt-[1rem] font-medium">Automation</h1><p class="leading-[24px] mt-[1rem] paragraph-node">When an email with Meeting summary is received create actionable items for me out of that summary</p><p class="leading-[24px] mt-[1rem] paragraph-node">When I get an email from my CA (Akash) create actionable items and add them to \`Tax Documentation\`</p>`;
 
 export const DownloadButton = () => {
-  const [latestVersion, setLatestVersion] = React.useState('0.1.22'); // Default fallback version
+  const [latestVersion, setLatestVersion] = React.useState('0.1.23'); // Default fallback version
 
   React.useEffect(() => {
     // Fetch the latest release version from GitHub API
