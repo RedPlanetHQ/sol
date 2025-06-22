@@ -1,11 +1,4 @@
-import {
-  Button,
-  cn,
-  Inbox,
-  IssuesLine,
-  NotificationLine,
-  Project,
-} from '@redplanethq/ui';
+import { Button, cn, Inbox, IssuesLine, Project } from '@redplanethq/ui';
 import { MessageSquare } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import React from 'react';
@@ -21,6 +14,7 @@ import { useApplication } from 'hooks/application';
 
 import { TabViewType } from 'store/application';
 
+import { Notifications } from './notifications';
 import { WorkspaceDropdown } from './workspace-dropdown';
 
 export const AppTabs = observer(() => {
@@ -129,16 +123,7 @@ export const AppTabs = observer(() => {
 
       <div className="flex gap-0.5 mr-2">
         <AIThinking />
-        <Button
-          variant="secondary"
-          className={cn(
-            'gap-1 items-center h-7',
-            !collapsed && '!bg-background-3 shadow',
-          )}
-          onClick={() => (collapsed ? onOpen() : onClose())}
-        >
-          <NotificationLine size={16} />3
-        </Button>
+        <Notifications />
         {activeTab.type !== TabViewType.ASSISTANT && (
           <Button
             variant="secondary"

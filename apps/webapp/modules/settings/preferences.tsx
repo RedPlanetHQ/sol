@@ -43,9 +43,6 @@ export function Preferences() {
   // In a real app, these would be loaded from/saved to user preferences.
   const [autonomy, setAutonomy] = React.useState(preferences.autonomy ?? 50);
   const [tone, setTone] = React.useState(preferences.tone ?? 50);
-  const [playfulness, setPlayfulness] = React.useState(
-    preferences.playfulness ?? 50,
-  );
 
   // Debounced updateWorkspace for personality changes
   const debouncedUpdateWorkspace = useDebouncedCallback(
@@ -70,9 +67,6 @@ export function Preferences() {
     }
     if (key === 'tone') {
       setTone(value);
-    }
-    if (key === 'playfulness') {
-      setPlayfulness(value);
     }
 
     // Persist to backend/user context (debounced)
@@ -161,31 +155,6 @@ export function Preferences() {
               <span>Formal</span>
               <span>Balanced</span>
               <span>Casual</span>
-            </div>
-          </div>
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <Label htmlFor="playfulness-slider" className="font-medium">
-                Playfulness
-              </Label>
-              <div className="text-xs text-muted-foreground">
-                Controls humor and creativity.
-              </div>
-            </div>
-            <SliderControl
-              id="playfulness-slider"
-              min={0}
-              max={100}
-              step={1}
-              value={[playfulness]}
-              onValueChange={(value) =>
-                handlePersonalityChange('playfulness', value[0])
-              }
-            />
-            <div className="flex justify-between text-xs mt-1 text-muted-foreground">
-              <span>Minimal</span>
-              <span>Moderate</span>
-              <span>Expressive</span>
             </div>
           </div>
         </div>

@@ -1,9 +1,5 @@
-import { LLMMappings } from '@redplanethq/sol-sdk';
-// import { logger } from '@trigger.dev/sdk/v3';
+import { logger } from '@trigger.dev/sdk/v3';
 import axios from 'axios';
-
-import { SOL_MEMORY_EXTRACTION } from './prompt';
-import { generate } from './stream-utils';
 
 export const addToMemory = async (
   conversationId: string,
@@ -16,60 +12,30 @@ export const addToMemory = async (
   const memoryHost = preferences.memory_host;
   const apiKey = preferences.memory_api_key;
 
-  // if (!memoryHost || !apiKey) {
-  //   logger.error('Memory is not configured');
-  //   return 'Memory is not configured';
-  // }
+  if (!memoryHost || !apiKey) {
+    logger.error('Memory is not configured');
+    return 'Memory is not configured';
+  }
 
-  // Create episodeBody in string format
-  const episodeBody = `user(${userName}): ${message}\n\nassistant: ${agentMessage}`;
+  const episodeBody = `user(${userName}): ${message}\nassistant: ${agentMessage}`;
 
-  let responseText = '';
-
-  const gen = generate(
-    [
-      { role: 'system', content: SOL_MEMORY_EXTRACTION },
-      { role: 'user', content: episodeBody },
-    ],
-    () => {},
-    undefined,
-    undefined,
-    LLMMappings.GPT41,
+  const response = await axios.post(
+    `${memoryHost}/ingest`,
+    {
+      episodeBody,
+      referenceTime: new Date().toISOString(),
+      metadata: {
+        type: 'Conversation',
+      },
+      source: 'sol',
+      sessionId: conversationId,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+      },
+    },
   );
 
-  for await (const chunk of gen) {
-    if (typeof chunk === 'string') {
-      responseText += chunk;
-    } else if (chunk && typeof chunk === 'object' && chunk.message) {
-      responseText += chunk.message;
-    }
-  }
-
-  const outputMatch = responseText.match(/<output>\s*(.*?)\s*<\/output>/s);
-  const memoryString =
-    outputMatch && outputMatch[1] ? outputMatch[1].trim() : '';
-
-  if (memoryString !== 'NOTHING_TO_REMEMBER') {
-    const response = await axios.post(
-      `${memoryHost}/ingest`,
-      {
-        episodeBody: responseText,
-        referenceTime: new Date().toISOString(),
-        metadata: {
-          type: 'Conversation',
-        },
-        source: 'sol',
-        sessionId: conversationId,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-        },
-      },
-    );
-
-    return response.data;
-  }
-
-  return 'NOTHING_TO_REMEMBER';
+  return response.data;
 };
