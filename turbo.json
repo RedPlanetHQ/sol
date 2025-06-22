@@ -48,7 +48,11 @@
     "TRIGGER_COMMON_ID",
     "TRIGGER_API_URL",
     "GOOGLE_CLIENT_ID",
-    "GOOGLE_CLIENT_SECRET"
+    "GOOGLE_CLIENT_SECRET",
+
+    "AWS_REGION",
+    "AWS_ACCESS_KEY_ID",
+    "AWS_SECRET_ACCESS_KEY"
   ],
   "ui": "tui",
   "tasks": {
