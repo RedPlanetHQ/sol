@@ -3,6 +3,7 @@ import { Button, Loader, CrossLine, FullscreenLine } from '@redplanethq/ui';
 import { RiDownloadLine } from '@remixicon/react';
 import { NodeViewWrapper } from '@tiptap/react';
 import React from 'react';
+import { useIsElectron } from 'hooks/use-is-electron';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const ImageComponent = (props: any) => {
@@ -36,10 +37,11 @@ export const ImageComponent = (props: any) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.node.attrs.openViewer]);
 
-  // Replace app.heysol.ai URLs with localhost:53082 for local Electron app usage
+  // Replace app.heysol.ai URLs with empty string for Electron app (creating a relative path)
+  const isElectron = useIsElectron();
   const getLocalUrl = (url: string) => {
-    if (url && typeof url === 'string') {
-      return url.replace('https://app.heysol.ai', 'http://localhost:53082');
+    if (url && typeof url === 'string' && isElectron) {
+      return url.replace('https://app.heysol.ai', '');
     }
     return url;
   };

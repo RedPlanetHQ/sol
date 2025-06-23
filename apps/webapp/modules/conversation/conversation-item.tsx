@@ -8,6 +8,7 @@ import React, { useEffect } from 'react';
 import { extensionsForConversation } from 'common/editor';
 
 import { useIPC } from 'hooks/ipc';
+import { useIsElectron } from 'hooks/use-is-electron';
 
 import { useContextStore } from 'store/global-context-provider';
 
@@ -70,10 +71,11 @@ export const ConversationItem = observer(
 
     const resources = getResources();
 
-    // Replace app.heysol.ai URLs with localhost:53082 for local Electron app usage
+    // Replace app.heysol.ai URLs with empty string for Electron app (creating a relative path)
+    const isElectron = useIsElectron();
     const getLocalUrl = (url: string) => {
-      if (url && typeof url === 'string') {
-        return url.replace('https://app.heysol.ai', 'http://localhost:53082');
+      if (url && typeof url === 'string' && isElectron) {
+        return url.replace('https://app.heysol.ai', '');
       }
       return url;
     };
