@@ -1,6 +1,6 @@
 {
   "name": "sol",
-  "version": "0.1.23",
+  "version": "0.1.24",
   "scripts": {
     "build": "dotenv -- turbo build",
     "compile": "dotenv -- turbo run compile --filter=electron",
