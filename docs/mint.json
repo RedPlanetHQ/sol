@@ -2,20 +2,20 @@
   "$schema": "https://mintlify.com/schema.json",
   "name": "SOL Documentation",
   "logo": {
-    "dark": "/logo/dark.svg",
-    "light": "/logo/light.svg"
+    "dark": "/logo/logo.png",
+    "light": "/logo/logo.png"
   },
   "openapi": [ "/openapi.yml" ],
   "theme": "quill",
   "layout": "sidenav",
   "favicon": "/favicon.svg",
   "colors": {
-    "primary": "#4b61d5",
-    "light": "#4b61d5",
-    "dark": "#4b61d5",
+    "primary": "#c15e50",
+    "light": "#c15e50",
+    "dark": "#c15e50",
     "anchors": {
-      "from": "#4b61d5",
-      "to": "#4b61d5"
+      "from": "#c15e50",
+      "to": "#c15e50"
     },
     "background": {
       "light": "#fff",
@@ -46,9 +46,9 @@
   },
   "anchors": [
     {
-      "name": "Integrations",
-      "icon": "brackets-curly",
-      "url": "integrations"
+      "name": "C.O.R.E.",
+      "icon": "brain",
+      "url": "core"
     }
   ],
   "navigation": [
