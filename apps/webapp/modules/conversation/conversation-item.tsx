@@ -70,8 +70,16 @@ export const ConversationItem = observer(
 
     const resources = getResources();
 
+    // Replace app.heysol.ai URLs with localhost:53082 for local Electron app usage
+    const getLocalUrl = (url: string) => {
+      if (url && typeof url === 'string') {
+        return url.replace('https://app.heysol.ai', 'http://localhost:53082');
+      }
+      return url;
+    };
+
     const handleResourceClick = (url: string) => {
-      ipc.openUrl(url);
+      ipc.openUrl(getLocalUrl(url));
     };
 
     return (
@@ -100,7 +108,7 @@ export const ConversationItem = observer(
                     </div>
                   ) : resource.fileType.startsWith('image/') ? (
                     <img
-                      src={resource.publicURL}
+                      src={getLocalUrl(resource.publicURL)}
                       alt={resource.originalName}
                       className="w-10 h-10 object-cover rounded hover:opacity-90"
                     />
