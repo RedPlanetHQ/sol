@@ -52,11 +52,11 @@ export type SchemaProperty =
     };
 
 export interface Resource {
-  id: string;
-  size: number;
+  id?: string;
+  size?: number;
   fileType: string;
   publicURL: string;
-  originalName: string;
+  originalName?: string;
 }
 
 export interface ExecutionState {

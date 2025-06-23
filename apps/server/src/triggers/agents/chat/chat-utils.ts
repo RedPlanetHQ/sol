@@ -82,6 +82,40 @@ const loadMCPTools = tool({
   }),
 });
 
+const seeFileTool = tool({
+  description: 'See the content of a file/image',
+  parameters: jsonSchema({
+    type: 'object',
+    properties: {
+      files: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            url: {
+              type: 'string',
+              description: 'The URL of the file/image',
+            },
+            fileType: {
+              type: 'string',
+              description:
+                'The file type (e.g., "image/png", "image/jpeg", "application/pdf")',
+            },
+          },
+          required: ['url', 'fileType'],
+          additionalProperties: false,
+        },
+        description:
+          'Array of file/image objects each containing a URL and file type',
+      },
+    },
+    required: ['files'],
+    additionalProperties: false,
+  }),
+});
+
+const internalTools = ['sol--load_mcp', 'sol--see_file'];
+
 async function needConfirmation(
   toolCalls: any[],
   autonomy: number,
@@ -126,6 +160,13 @@ async function needConfirmation(
 
 async function addResources(messages: CoreMessage[], resources: Resource[]) {
   const resourcePromises = resources.map(async (resource) => {
+    // Remove everything before "/api" in the publicURL
+    if (resource.publicURL) {
+      const apiIndex = resource.publicURL.indexOf('/api');
+      if (apiIndex !== -1) {
+        resource.publicURL = resource.publicURL.substring(apiIndex);
+      }
+    }
     const response = await axios.get(resource.publicURL, {
       responseType: 'arraybuffer',
     });
@@ -288,6 +329,7 @@ export async function* run(
     ...getSolTools(!!preferences?.memory_host && !!preferences?.memory_api_key),
     'sol--load_mcp': loadMCPTools,
     'claude--coding': claudeCodeTool,
+    'sol--see_file': seeFileTool,
   };
 
   logger.info('Tools have been formed');
@@ -355,7 +397,8 @@ export async function* run(
           if (
             chunk.toolName.includes('--') &&
             !chunk.toolName.includes('sol--') &&
-            !chunk.toolName.includes('claude--')
+            !chunk.toolName.includes('claude--') &&
+            !internalTools.includes(chunk.toolName)
           ) {
             askConfirmation = true;
           }
@@ -545,7 +588,7 @@ export async function* run(
             skillInput: JSON.stringify(skillInput),
           };
 
-          if (toolName !== 'load_mcp') {
+          if (!internalTools.includes(toolName)) {
             const skillMessageToSend = `\n<skill id="${skillId}" name="${toolName}" agent="${agent}"></skill>\n`;
 
             stepRecord.userMessage += skillMessageToSend;
@@ -561,7 +604,7 @@ export async function* run(
             logger.info(`Executing skill: ${skillName}`);
             logger.info(`Input parameters: ${JSON.stringify(skillInput)}`);
 
-            if (toolName !== 'load_mcp') {
+            if (!internalTools.includes(toolName)) {
               yield Message(
                 JSON.stringify({ skillId, status: 'start' }),
                 AgentMessageType.SKILL_START,
@@ -578,6 +621,16 @@ export async function* run(
                   ...(await mcp.allTools()),
                 };
                 result = 'MCP integration loaded successfully';
+              } else if (toolName === 'see_file') {
+                skillInput.files.forEach(
+                  (file: { fileType: string; url: string }) => {
+                    executionState.resources.push({
+                      fileType: file.fileType,
+                      publicURL: file.url,
+                    });
+                  },
+                );
+                result = 'File content added to resources';
               } else {
                 // Execute standard SOL tool
                 result = await callSolTool(skillName, skillInput);
