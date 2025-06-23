@@ -1,0 +1,104 @@
+---
+title: 'Tasks'
+description: 'SOL's task system and planner'
+---
+
+# Tasks: SOL's Task Management System
+
+SOL's task system is designed to centralize and streamline your work across multiple platforms, providing a unified system for tracking, prioritizing, and completing work items.
+
+## Task Fundamentals
+
+### What Is a SOL Task?
+
+A SOL task is a work item that:
+
+- Has a clear objective
+- Can be tracked to completion
+- May be linked to external systems (GitHub, Linear, etc.)
+- Contains context relevant to the work needed
+- Can be prioritized and scheduled
+
+### Task Sources
+
+Tasks in SOL can be created from multiple sources:
+
+1. **Manual Creation**: Directly created by you in SOL
+2. **Automation Rules**: Generated automatically based on triggers from connected tools
+3. **Conversation**: Created from chat with SOL
+4. **External Import**: Pulled from connected platforms (Linear issues, GitHub PRs, etc.)
+
+## Task Anatomy
+
+Each task in SOL consists of:
+
+- **Title**: Clear description of the work to be done
+- **Status**: Current state (Todo, In Progress, Done, etc.)
+- **Priority**: Importance level (P0-P3)
+- **Due Date**: When the task should be completed
+- **Source**: Origin of the task (Manual, GitHub, Linear, etc.)
+- **Context**: Related information, links, and background
+- **Subtasks**: Smaller steps needed to complete the main task
+- **Activity**: History of actions and changes
+
+## The Task Planner
+
+SOL's Task Planner helps you organize and prioritize your work:
+
+### Views
+
+- **Today**: Tasks needing attention today
+- **All Tasks**: Complete list of all your tasks
+- **By Priority**: Tasks grouped by priority level
+- **By Source**: Tasks grouped by originating platform
+- **Custom Views**: Create your own filtered views
+
+### Planning Features
+
+- **Drag and Drop**: Reorder tasks to set your working sequence
+- **Time Estimates**: Add time estimates to better plan your day
+- **Auto-prioritization**: SOL can suggest task priorities based on deadlines, importance, and context
+- **Dependency Tracking**: Mark tasks as blocked by or blocking other tasks
+
+## Task Workflows
+
+SOL supports flexible task workflows to match your preferred work style:
+
+### Basic Workflow
+
+1. **Capture**: Create or import tasks from various sources
+2. **Organize**: Set priorities, deadlines, and group related tasks
+3. **Execute**: Work through tasks in priority order
+4. **Complete**: Mark tasks as done when finished
+
+### Advanced Features
+
+- **Time Blocking**: Schedule specific times to work on tasks
+- **Focus Mode**: Eliminate distractions while working on high-priority tasks
+- **Recurring Tasks**: Set up regular tasks that repeat on schedules
+- **Task Templates**: Create reusable templates for common task types
+
+## Integration with Connected Tools
+
+SOL tasks maintain bi-directional sync with connected platforms:
+
+- Update a GitHub issue from SOL and see changes reflected in GitHub
+- Complete a Linear ticket and have it automatically marked as done in SOL
+- Comment on tasks in SOL and have those comments appear in the source system
+
+## Task Intelligence
+
+SOL's AI capabilities enhance task management by:
+
+- Suggesting related tasks that might be impacted
+- Drafting responses or actions based on task context
+- Identifying potential blockers or dependencies
+- Recommending optimal task sequence based on your work patterns
+
+## Best Practices
+
+- Review and groom your task list daily
+- Use consistent naming conventions
+- Break large tasks into smaller, manageable subtasks
+- Set realistic priorities (not everything can be high priority)
+- Use the notes field to capture context for future reference
