@@ -67,27 +67,21 @@ NotificationSection.displayName = 'NotificationSection';
 export const Notifications = observer(() => {
   const [open, setOpen] = React.useState(false);
   const { conversationsStore } = useContextStore();
+  const conversations = conversationsStore.conversations;
 
-  const categorizedConversations = React.useMemo(() => {
-    const conversations = conversationsStore.conversations;
-    return {
-      unread: conversations.filter((conv) => conv.unread),
-      needApproval: conversations.filter(
-        (conv) => conv.status === 'need_approval',
-      ),
-      needAttention: conversations.filter(
-        (conv) => conv.status === 'need_attention',
-      ),
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [conversationsStore.conversations.length]);
+  const categorizedConversations = {
+    unread: conversations.filter((conv) => conv.unread),
+    needApproval: conversations.filter(
+      (conv) => conv.status === 'need_approval',
+    ),
+    needAttention: conversations.filter(
+      (conv) => conv.status === 'need_attention',
+    ),
+  };
 
-  const totalNotifications = React.useMemo(
-    () =>
-      categorizedConversations.unread.length ||
-      categorizedConversations.needApproval.length,
-    [categorizedConversations],
-  );
+  const totalNotifications =
+    categorizedConversations.unread.length ||
+    categorizedConversations.needApproval.length;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -96,11 +90,14 @@ export const Notifications = observer(() => {
           variant="secondary"
           className={cn(
             'gap-1 items-center h-7',
+            totalNotifications && 'bg-primary text-white',
             open && '!bg-background-3 shadow',
           )}
         >
           <NotificationLine size={16} />
-          {totalNotifications}
+          {totalNotifications
+            ? `${totalNotifications} messages`
+            : totalNotifications}
         </Button>
       </PopoverTrigger>
       <PopoverPortal>

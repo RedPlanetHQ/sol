@@ -1,6 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import { Button, Close, cn } from '@redplanethq/ui';
-import { Plus } from 'lucide-react';
+import { AddLine, Button, Close, cn } from '@redplanethq/ui';
 import { useCallback, useState, type ReactNode } from 'react';
 import React from 'react';
 import { useDropzone } from 'react-dropzone';
@@ -122,14 +121,14 @@ export function ResourceUploader({
       />
 
       {children}
-      <div className={cn('flex justify-between p-2 pt-0 pb-2 items-center')}>
+      <div className={cn('flex justify-between px-3 pt-0 pb-2 items-center')}>
         <Button
           variant="link"
           size="sm"
           onClick={() => inputRef.current?.click()}
           className="gap-1 text-muted-foreground hover:text-foreground px-0 text-sm"
         >
-          <Plus className="h-4 w-4" /> Add files
+          <AddLine className="h-4 w-4" />
           <input
             {...getInputProps()}
             type="file"

@@ -91,7 +91,7 @@ export async function createMCPConfig(userMCP: any) {
       const server = mcpServers[serverKey];
 
       // If command is 'node', check all args for URLs to download
-      if (server.command === 'node' && server.args) {
+      if (server.args) {
         server.args = await Promise.all(
           server.args.map(async (arg: string) => {
             if (arg.startsWith('https://')) {
@@ -233,6 +233,8 @@ export const init = async (payload: InitChatPayload) => {
       config.url = `${process.env.BACKEND_HOST}${config.url.replace('/api', '')}`;
       config.headers.Authorization = `Bearer ${pat?.token}`;
       config.headers['x-updated-by'] = 'assistant';
+    } else if (config.url.includes(process.env.BACKEND_HOST)) {
+      config.headers.Authorization = `Bearer ${pat?.token}`;
     } else if (config.url?.startsWith('https://sol::core_memory')) {
       config.url = `${workspacePreferences.memory_host}/search`;
       config.headers.Authorization = `Bearer ${workspacePreferences.memory_api_key}`;
@@ -539,10 +541,7 @@ export const updateConversationStatus = async (
   status: string,
   conversationId: string,
 ) => {
-  const data: Prisma.ConversationUpdateInput = { status };
-  if (status === 'need_attention') {
-    data.unread = true;
-  }
+  const data: Prisma.ConversationUpdateInput = { status, unread: true };
 
   return await prisma.conversation.update({
     where: {

@@ -7,6 +7,7 @@ import { useContextStore } from 'store/global-context-provider';
 
 export const useConversationHistory = (conversationId: string) => {
   const { conversationHistoryStore, conversationsStore } = useContextStore();
+  const conversation = conversationsStore.getConversationWithId(conversationId);
 
   return React.useMemo(() => {
     const conversationHistory =
@@ -17,7 +18,7 @@ export const useConversationHistory = (conversationId: string) => {
       conversationHistory: sort(conversationHistory).asc(
         (co: ConversationHistoryType) => new Date(co.createdAt),
       ) as ConversationHistoryType[],
-      conversation: conversationsStore.getConversationWithId(conversationId),
+      conversation,
     };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

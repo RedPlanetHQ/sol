@@ -137,7 +137,7 @@ jobs:
 
             return new Promise((resolve) => {
               try {
-                const stdout = execSync(`aws s3 ls s3://sigma-integrations/${integration}/${version}/`).toString();
+                const stdout = execSync(`aws s3 ls s3://sol-integrations/${integration}/${version}/`).toString();
                 if (stdout.trim()) {
                   core.setFailed('Version already exists in S3 bucket');
                   
@@ -201,10 +201,10 @@ jobs:
           fi
 
           # Upload files
-          aws s3 cp "$DIST_DIR" s3://sigma-integrations/$INTEGRATION/$VERSION/ --recursive
+          aws s3 cp "$DIST_DIR" s3://sol-integrations/$INTEGRATION/$VERSION/ --recursive
 
           # Verify upload was successful
-          aws s3 ls s3://sigma-integrations/$INTEGRATION/$VERSION/ || { echo "Error: Upload verification failed"; exit 1; }
+          aws s3 ls s3://sol-integrations/$INTEGRATION/$VERSION/ || { echo "Error: Upload verification failed"; exit 1; }
 
       - name: Comment on PR
         if: steps.check_version.outputs.result != 'exists'

@@ -9,6 +9,7 @@ import {
 import { logger, task } from '@trigger.dev/sdk/v3';
 import axios from 'axios';
 import { addMinutes } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 import { generate } from 'triggers/agents/chat/stream-utils';
 
 const prisma = new PrismaClient();
@@ -68,9 +69,11 @@ export const beautifyTask = task({
             `${process.env.BACKEND_HOST}/v1/tasks/ai/recurrence`,
             {
               text: solTask.page.title,
-              currentTime: new Date().toLocaleString('en-US', {
-                timeZone: timezone,
-              }),
+              currentTime: formatInTimeZone(
+                new Date(),
+                timezone,
+                "yyyy-MM-dd'T'HH:mm:ssXXX",
+              ),
               taskIds: [],
             },
             { headers: { Authorization: `Bearer ${payload.pat}` } },
@@ -128,11 +131,11 @@ export const beautifyTask = task({
         const updateData = {
           // Basic task fields
           ...(outputData.startTime && {
-            startTime: outputData.startTime,
+            startTime: new Date(outputData.startTime),
           }),
           ...(outputData.endTime && {
             endTime: outputData.endTime
-              ? outputData.endTime
+              ? new Date(outputData.endTime)
               : addMinutes(outputData.startTime, 15).toISOString(),
           }),
 

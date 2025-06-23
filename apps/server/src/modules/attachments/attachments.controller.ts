@@ -114,7 +114,7 @@ export class AttachmentController {
 
   @Get(':attachmentId')
   @UseGuards(AuthGuard)
-  async getFileFromGCS(
+  async getFile(
     @Workspace() workspaceId: string,
     @Param() attachementRequestParams: AttachmentRequestParams,
     @Res() res: Response,

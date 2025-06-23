@@ -6,6 +6,7 @@ import util from 'util';
 
 import { query } from '@anthropic-ai/claude-code';
 import { LLMMappings } from '@redplanethq/sol-sdk';
+import { logger } from '@trigger.dev/sdk/v3';
 import axios from 'axios';
 import {
   getGithubIntegrationToken,
@@ -34,7 +35,6 @@ async function* generateClaudeMessages(
     for await (const message of query({
       prompt: enhancedPrompt,
       abortController: new AbortController(),
-
       options: {
         cwd: repoPath,
         model: LLMMappings.CLAUDESONNET,
@@ -66,11 +66,22 @@ async function* generateClaudeMessages(
 }
 
 export async function* claudeCode(payload: ClaudeCodeParams) {
+  logger.info('Starting Claude code execution', {
+    workspaceId: payload.workspaceId,
+    userId: payload.userId,
+    repoUrl: payload.repo_url,
+    branchName: payload.branch_name,
+  });
+
   const githubIntegrationToken = await getGithubIntegrationToken(
     payload.workspaceId,
   );
 
   if ((githubIntegrationToken as CheckErrors).error) {
+    logger.error('Failed to get GitHub integration token', {
+      error: githubIntegrationToken,
+      workspaceId: payload.workspaceId,
+    });
     throw new Error(JSON.stringify(githubIntegrationToken));
   }
 
@@ -79,6 +90,10 @@ export async function* claudeCode(payload: ClaudeCodeParams) {
   const sessions = await checkUserSessions(payload.userId);
 
   if ((sessions as CheckErrors).error) {
+    logger.error('Failed to check user sessions', {
+      error: sessions,
+      userId: payload.userId,
+    });
     throw new Error(JSON.stringify(sessions));
   }
 
@@ -87,11 +102,15 @@ export async function* claudeCode(payload: ClaudeCodeParams) {
   const branchName = payload.branch_name ?? 'main';
   await fs.promises.mkdir(tempDir, { recursive: true });
 
+  logger.info('Created temporary directory', { tempDir });
+
   try {
     // Extract owner and repo from repo_url
     const urlParts = payload.repo_url.split('/');
     const owner = urlParts[urlParts.length - 2];
     const repo = urlParts[urlParts.length - 1];
+
+    logger.info('Repository details', { owner, repo, branchName });
 
     // Get GitHub user info
     const { data: githubUser } = await axios.get(
@@ -103,8 +122,14 @@ export async function* claudeCode(payload: ClaudeCodeParams) {
       },
     );
 
+    logger.info('Retrieved GitHub user info', {
+      username: githubUser.login,
+    });
+
     // Clone repository using token
     const remoteUrl = `https://${GITHUB_API_KEY}:x-oauth-basic@github.com/${owner}/${repo}.git`;
+    logger.info('Cloning repository', { owner, repo, branchName });
+
     await execAsync(`git clone --branch ${branchName} ${remoteUrl}`, {
       cwd: tempDir,
     });
@@ -112,6 +137,7 @@ export async function* claudeCode(payload: ClaudeCodeParams) {
     const repoPath = path.join(tempDir, repo);
 
     // Configure git user
+    logger.info('Configuring git user');
     await execAsync(
       `git config user.name "${githubUser.name || githubUser.login}"`,
       {
@@ -123,6 +149,7 @@ export async function* claudeCode(payload: ClaudeCodeParams) {
     });
 
     // Construct enhanced prompt
+    logger.info('Constructing enhanced prompt');
     const enhancedPrompt = `
     Please analyze and modify the code following these guidelines:
 
@@ -180,12 +207,29 @@ export async function* claudeCode(payload: ClaudeCodeParams) {
       - Suggest possible options
       `;
 
+    logger.info('Starting Claude message stream');
     const messageStream = generateClaudeMessages(repoPath, enhancedPrompt);
 
     for await (const step of messageStream) {
+      logger.debug('Claude message received', { stepType: step.type });
       yield step;
     }
   } catch (error) {
+    logger.error('Error in Claude code execution', {
+      error: error.message,
+      stack: error.stack,
+    });
     throw new Error(error);
+  } finally {
+    // Clean up temp directory
+    try {
+      logger.info('Cleaning up temporary directory', { tempDir });
+      await fs.promises.rm(tempDir, { recursive: true, force: true });
+    } catch (error) {
+      logger.warn('Failed to clean up temporary directory', {
+        error: error.message,
+        tempDir,
+      });
+    }
   }
 }

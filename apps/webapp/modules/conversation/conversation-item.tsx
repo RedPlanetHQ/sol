@@ -8,6 +8,7 @@ import React, { useEffect } from 'react';
 import { extensionsForConversation } from 'common/editor';
 
 import { useIPC } from 'hooks/ipc';
+import { useIsElectron } from 'hooks/use-is-electron';
 
 import { useContextStore } from 'store/global-context-provider';
 
@@ -70,8 +71,17 @@ export const ConversationItem = observer(
 
     const resources = getResources();
 
+    // Replace app.heysol.ai URLs with empty string for Electron app (creating a relative path)
+    const isElectron = useIsElectron();
+    const getLocalUrl = (url: string) => {
+      if (url && typeof url === 'string' && isElectron) {
+        return url.replace('https://app.heysol.ai', '');
+      }
+      return url;
+    };
+
     const handleResourceClick = (url: string) => {
-      ipc.openUrl(url);
+      ipc.openUrl(getLocalUrl(url));
     };
 
     return (
@@ -88,25 +98,27 @@ export const ConversationItem = observer(
 
           {resources.length > 0 && (
             <div className="flex flex-wrap gap-3 mt-3">
-              {resources.map((resource: Resource, index: number) => (
-                <div
-                  key={index}
-                  className="relative group cursor-pointer"
-                  onClick={() => handleResourceClick(resource.publicURL)}
-                >
-                  {resource.fileType === 'application/pdf' ? (
-                    <div className="w-10 h-10 flex items-center justify-center bg-grayAlpha-100 rounded hover:bg-grayAlpha-200">
-                      <span className="text-sm">PDF</span>
-                    </div>
-                  ) : resource.fileType.startsWith('image/') ? (
-                    <img
-                      src={resource.publicURL}
-                      alt={resource.originalName}
-                      className="w-10 h-10 object-cover rounded hover:opacity-90"
-                    />
-                  ) : null}
-                </div>
-              ))}
+              {resources.map((resource: Resource, index: number) => {
+                return (
+                  <div
+                    key={index}
+                    className="relative group cursor-pointer"
+                    onClick={() => handleResourceClick(resource.publicURL)}
+                  >
+                    {resource.fileType === 'application/pdf' ? (
+                      <div className="w-10 h-10 flex items-center justify-center bg-grayAlpha-100 rounded hover:bg-grayAlpha-200">
+                        <span className="text-sm">PDF</span>
+                      </div>
+                    ) : resource.fileType.startsWith('image/') ? (
+                      <img
+                        src={getLocalUrl(resource.publicURL)}
+                        alt={resource.originalName}
+                        className="w-10 h-10 object-cover rounded hover:opacity-90"
+                      />
+                    ) : null}
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>

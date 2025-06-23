@@ -4,6 +4,8 @@ import { RiDownloadLine } from '@remixicon/react';
 import { NodeViewWrapper } from '@tiptap/react';
 import React from 'react';
 
+import { useIsElectron } from 'hooks/use-is-electron';
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const ImageComponent = (props: any) => {
   const setOpen = (openViewer: boolean) => {
@@ -36,12 +38,21 @@ export const ImageComponent = (props: any) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.node.attrs.openViewer]);
 
+  // Replace app.heysol.ai URLs with empty string for Electron app (creating a relative path)
+  const isElectron = useIsElectron();
+  const getLocalUrl = (url: string) => {
+    if (url && typeof url === 'string' && isElectron) {
+      return url.replace('https://app.heysol.ai', '');
+    }
+    return url;
+  };
+
   return (
     <NodeViewWrapper className="react-component-with-content">
       <div className="content">
         <div className="relative flex w-fit items-center p-1.5 bg-grayAlpha-100 rounded-lg gap-2 my-1 overflow-hidden">
           <img
-            src={props.node.attrs.src}
+            src={getLocalUrl(props.node.attrs.src)}
             alt={props.node.attrs.alt}
             className="max-w-[400px] rounded"
           />
@@ -57,7 +68,7 @@ export const ImageComponent = (props: any) => {
               <Button
                 variant="ghost"
                 onClick={() => {
-                  window.open(props.node.attrs.src, '_blank');
+                  window.open(getLocalUrl(props.node.attrs.src), '_blank');
                 }}
               >
                 <RiDownloadLine size={16} />
@@ -78,7 +89,7 @@ export const ImageComponent = (props: any) => {
             <div className="fixed inset-0 bg-background bg-opacity-80 flex justify-center items-center z-50 p-6">
               <div className="relative">
                 <img
-                  src={props.node.attrs.src}
+                  src={getLocalUrl(props.node.attrs.src)}
                   alt="fullscreen"
                   style={{
                     maxWidth: '800px',

@@ -56,7 +56,9 @@ export const ClaudeCoding = ({
 
       return (
         <div className="p-1 px-3">
-          <pre className="text-sm !bg-transparent">{messageText}</pre>
+          <pre className="text-sm !bg-transparent !font-normal !text-foreground !not-italic !font-[normal]">
+            {messageText}
+          </pre>
         </div>
       );
     }

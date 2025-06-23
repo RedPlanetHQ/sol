@@ -6,6 +6,7 @@ import { google } from '@ai-sdk/google';
 import { openai } from '@ai-sdk/openai';
 import { logger } from '@trigger.dev/sdk/v3';
 import { CoreMessage, LanguageModelV1, streamText, ToolSet } from 'ai';
+import { createOllama } from 'ollama-ai-provider';
 
 import { AgentMessageType, Message } from './types';
 
@@ -129,46 +130,56 @@ export async function* generate(
     }
 > {
   // Check for API keys
-
   const anthropicKey = process.env.ANTHROPIC_API_KEY;
   const googleKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
   const openaiKey = process.env.OPENAI_API_KEY;
+  const ollamaUrl = process.env.OLLAMA_URL;
   model = model || process.env.MODEL;
 
   let modelInstance;
   let modelTemperature = Number(process.env.MODEL_TEMPERATURE) || 1;
-  switch (model) {
-    case 'claude-3-7-sonnet-20250219':
-    case 'claude-3-opus-20240229':
-    case 'claude-3-5-haiku-20241022':
-      if (!anthropicKey) {
-        throw new Error('No Anthropic API key found. Set ANTHROPIC_API_KEY');
-      }
-      modelInstance = anthropic(model);
-      modelTemperature = 0.5;
-      break;
 
-    case 'gemini-2.5-flash-preview-04-17':
-    case 'gemini-2.5-pro-preview-03-25':
-    case 'gemini-2.0-flash':
-    case 'gemini-2.0-flash-lite':
-      if (!googleKey) {
-        throw new Error('No Google API key found. Set GOOGLE_API_KEY');
-      }
-      modelInstance = google(model);
-      break;
+  // First check if Ollama URL exists and use Ollama
+  if (ollamaUrl) {
+    const ollama = createOllama({
+      baseURL: ollamaUrl,
+    });
+    modelInstance = ollama(model || 'llama2'); // Default to llama2 if no model specified
+  } else {
+    // If no Ollama, check other models
+    switch (model) {
+      case 'claude-3-7-sonnet-20250219':
+      case 'claude-3-opus-20240229':
+      case 'claude-3-5-haiku-20241022':
+        if (!anthropicKey) {
+          throw new Error('No Anthropic API key found. Set ANTHROPIC_API_KEY');
+        }
+        modelInstance = anthropic(model);
+        modelTemperature = 0.5;
+        break;
 
-    case 'gpt-4.1-2025-04-14':
-    case 'gpt-4.1-mini-2025-04-14':
-    case 'gpt-4.1-nano-2025-04-14':
-      if (!openaiKey) {
-        throw new Error('No OpenAI API key found. Set OPENAI_API_KEY');
-      }
-      modelInstance = openai(model);
-      break;
+      case 'gemini-2.5-flash-preview-04-17':
+      case 'gemini-2.5-pro-preview-03-25':
+      case 'gemini-2.0-flash':
+      case 'gemini-2.0-flash-lite':
+        if (!googleKey) {
+          throw new Error('No Google API key found. Set GOOGLE_API_KEY');
+        }
+        modelInstance = google(model);
+        break;
 
-    default:
-      break;
+      case 'gpt-4.1-2025-04-14':
+      case 'gpt-4.1-mini-2025-04-14':
+      case 'gpt-4.1-nano-2025-04-14':
+        if (!openaiKey) {
+          throw new Error('No OpenAI API key found. Set OPENAI_API_KEY');
+        }
+        modelInstance = openai(model);
+        break;
+
+      default:
+        break;
+    }
   }
 
   logger.info('starting stream');
@@ -234,6 +245,7 @@ export async function* generate(
       }
       return;
     } catch (e) {
+      console.log(e);
       logger.error(e);
     }
   }

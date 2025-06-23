@@ -2,7 +2,8 @@
 
 import { ActionStatusEnum, LLMMappings } from '@redplanethq/sol-sdk';
 import { logger } from '@trigger.dev/sdk/v3';
-import { CoreMessage, jsonSchema, tool, ToolSet } from 'ai';
+import { CoreMessage, DataContent, jsonSchema, tool, ToolSet } from 'ai';
+import axios from 'axios';
 import Handlebars from 'handlebars';
 import { claudeCode } from 'triggers/coding/claude-code';
 
@@ -81,6 +82,40 @@ const loadMCPTools = tool({
   }),
 });
 
+const seeFileTool = tool({
+  description: 'See the content of a file/image',
+  parameters: jsonSchema({
+    type: 'object',
+    properties: {
+      files: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            url: {
+              type: 'string',
+              description: 'The URL of the file/image',
+            },
+            fileType: {
+              type: 'string',
+              description:
+                'The file type (e.g., "image/png", "image/jpeg", "application/pdf")',
+            },
+          },
+          required: ['url', 'fileType'],
+          additionalProperties: false,
+        },
+        description:
+          'Array of file/image objects each containing a URL and file type',
+      },
+    },
+    required: ['files'],
+    additionalProperties: false,
+  }),
+});
+
+const internalTools = ['sol--load_mcp', 'sol--see_file', 'sol--get_my_memory'];
+
 async function needConfirmation(
   toolCalls: any[],
   autonomy: number,
@@ -123,27 +158,37 @@ async function needConfirmation(
   return undefined;
 }
 
-function addResources(messages: CoreMessage[], resources: Resource[]) {
-  messages.push({
-    role: 'user',
-    content: resources.map((resource) => {
-      if (resource.fileType.startsWith('image/')) {
-        return {
-          type: 'image',
-          image: new URL(resource.publicURL),
-          mimeType: resource.fileType,
-        };
+async function addResources(messages: CoreMessage[], resources: Resource[]) {
+  const resourcePromises = resources.map(async (resource) => {
+    // Remove everything before "/api" in the publicURL
+    if (resource.publicURL) {
+      const apiIndex = resource.publicURL.indexOf('/api');
+      if (apiIndex !== -1) {
+        resource.publicURL = resource.publicURL.substring(apiIndex);
       }
+    }
+    const response = await axios.get(resource.publicURL, {
+      responseType: 'arraybuffer',
+    });
+
+    if (resource.fileType.startsWith('image/')) {
       return {
-        type: 'file',
-        data: new URL(resource.publicURL),
-        filename: resource.originalName,
-        mimeType: resource.fileType,
+        type: 'image',
+        image: response.data as DataContent,
       };
-    }),
+    }
+
+    return {
+      type: 'file',
+      data: response.data as DataContent,
+
+      mimeType: resource.fileType,
+    };
   });
 
-  return messages;
+  const content = await Promise.all(resourcePromises);
+
+  return [...messages, { role: 'user', content } as CoreMessage];
 }
 
 function toolToMessage(history: HistoryStep[], messages: CoreMessage[]) {
@@ -193,13 +238,13 @@ function toolToMessage(history: HistoryStep[], messages: CoreMessage[]) {
   return messages;
 }
 
-function makeNextCall(
+async function makeNextCall(
   executionState: ExecutionState,
   TOOLS: ToolSet,
   totalCost: TotalCost,
   availableMCPServers: string[],
   preferences: Preferences,
-): LLMOutputInterface {
+): Promise<LLMOutputInterface> {
   const { context, history, previousHistory } = executionState;
 
   const promptInfo = {
@@ -244,7 +289,7 @@ function makeNextCall(
   }
 
   if (executionState.resources && executionState.resources.length > 0) {
-    messages = addResources(messages, executionState.resources);
+    messages = await addResources(messages, executionState.resources);
   }
 
   // Get the next action from the LLM
@@ -284,6 +329,7 @@ export async function* run(
     ...getSolTools(!!preferences?.memory_host && !!preferences?.memory_api_key),
     'sol--load_mcp': loadMCPTools,
     'claude--coding': claudeCodeTool,
+    'sol--see_file': seeFileTool,
   };
 
   logger.info('Tools have been formed');
@@ -312,10 +358,10 @@ export async function* run(
   const totalCost: TotalCost = { inputTokens: 0, outputTokens: 0, cost: 0 };
 
   try {
-    while (!executionState.completed && guardLoop < 10) {
+    while (!executionState.completed && guardLoop < 50) {
       logger.info(`Starting the loop: ${guardLoop}`);
 
-      const { response: llmResponse } = makeNextCall(
+      const { response: llmResponse } = await makeNextCall(
         executionState,
         tools,
         totalCost,
@@ -350,7 +396,9 @@ export async function* run(
           toolCalls.push(chunk);
           if (
             chunk.toolName.includes('--') &&
-            !chunk.toolName.includes('sol--')
+            !chunk.toolName.includes('sol--') &&
+            !chunk.toolName.includes('claude--') &&
+            !internalTools.includes(chunk.toolName)
           ) {
             askConfirmation = true;
           }
@@ -408,6 +456,7 @@ export async function* run(
 
           for (const toolCallInfo of toolCalls) {
             const agent = toolCallInfo.toolName.split('--')[0];
+            const toolName = toolCallInfo.toolName.split('--')[1];
 
             const stepRecord: HistoryStep = {
               agent,
@@ -422,7 +471,7 @@ export async function* run(
               skillOutput: '',
               skillStatus: ActionStatusEnum.TOOL_REQUEST,
             };
-            stepRecord.userMessage = `\n<skill id="${stepRecord.skillId}" name="${stepRecord.skill}" agent="${agent}"></skill>\n`;
+            stepRecord.userMessage = `\n<skill id="${stepRecord.skillId}" name="${toolName}" agent="${agent}"></skill>\n`;
 
             yield Message(JSON.stringify(stepRecord), AgentMessageType.STEP);
 
@@ -539,8 +588,8 @@ export async function* run(
             skillInput: JSON.stringify(skillInput),
           };
 
-          if (toolName !== 'load_mcp') {
-            const skillMessageToSend = `\n<skill id="${skillId}" name="${toolName}" agent=${agent}></skill>\n`;
+          if (!internalTools.includes(toolName)) {
+            const skillMessageToSend = `\n<skill id="${skillId}" name="${toolName}" agent="${agent}"></skill>\n`;
 
             stepRecord.userMessage += skillMessageToSend;
 
@@ -555,7 +604,7 @@ export async function* run(
             logger.info(`Executing skill: ${skillName}`);
             logger.info(`Input parameters: ${JSON.stringify(skillInput)}`);
 
-            if (toolName !== 'load_mcp') {
+            if (!internalTools.includes(toolName)) {
               yield Message(
                 JSON.stringify({ skillId, status: 'start' }),
                 AgentMessageType.SKILL_START,
@@ -572,6 +621,16 @@ export async function* run(
                   ...(await mcp.allTools()),
                 };
                 result = 'MCP integration loaded successfully';
+              } else if (toolName === 'see_file') {
+                skillInput.files.forEach(
+                  (file: { fileType: string; url: string }) => {
+                    executionState.resources.push({
+                      fileType: file.fileType,
+                      publicURL: file.url,
+                    });
+                  },
+                );
+                result = 'File content added to resources';
               } else {
                 // Execute standard SOL tool
                 result = await callSolTool(skillName, skillInput);
@@ -597,6 +656,7 @@ export async function* run(
                 );
               }
             }
+
             // Handle other MCP tools
             else {
               result = await mcp.callTool(skillName, skillInput);
