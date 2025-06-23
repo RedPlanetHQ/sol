@@ -90,11 +90,14 @@ export const Notifications = observer(() => {
           variant="secondary"
           className={cn(
             'gap-1 items-center h-7',
+            totalNotifications && 'bg-primary text-white',
             open && '!bg-background-3 shadow',
           )}
         >
           <NotificationLine size={16} />
-          {totalNotifications}
+          {totalNotifications
+            ? `${totalNotifications} messages`
+            : totalNotifications}
         </Button>
       </PopoverTrigger>
       <PopoverPortal>

@@ -94,6 +94,7 @@
     "nest-winston": "^1.9.7",
     "nestjs-prisma": "0.22.0",
     "nodemailer": "^7.0.2",
+    "ollama-ai-provider": "1.2.0",
     "pg": "^8.15.6",
     "pg-logical-replication": "^2.0.7",
     "prisma": "5.21.0",

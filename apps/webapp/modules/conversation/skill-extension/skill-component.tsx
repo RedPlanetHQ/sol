@@ -14,7 +14,6 @@ import Image from 'next/image';
 import React from 'react';
 
 import { ClaudeCoding } from 'modules/editor/claude';
-import { Memory } from 'modules/editor/memory';
 import { JSONEditor } from 'modules/settings/json-editor';
 
 import { getIcon as iconUtil, type IconType } from 'common/icon-utils';
@@ -26,7 +25,6 @@ import { ConversationContext } from '../conversation-context';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const EXISTING_COMPONENTS: Record<string, React.FC<any>> = {
   'claude--coding': ClaudeCoding,
-  'sol--get_user_memory': Memory,
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

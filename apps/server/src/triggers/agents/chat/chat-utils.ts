@@ -114,7 +114,7 @@ const seeFileTool = tool({
   }),
 });
 
-const internalTools = ['sol--load_mcp', 'sol--see_file'];
+const internalTools = ['sol--load_mcp', 'sol--see_file', 'sol--get_my_memory'];
 
 async function needConfirmation(
   toolCalls: any[],

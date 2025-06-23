@@ -35,7 +35,6 @@ async function* generateClaudeMessages(
     for await (const message of query({
       prompt: enhancedPrompt,
       abortController: new AbortController(),
-
       options: {
         cwd: repoPath,
         model: LLMMappings.CLAUDESONNET,

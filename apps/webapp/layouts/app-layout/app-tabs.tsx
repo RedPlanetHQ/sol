@@ -133,7 +133,7 @@ export const AppTabs = observer(() => {
             )}
             onClick={() => (collapsed ? onOpen() : onClose())}
           >
-            <MessageSquare size={16} />
+            <MessageSquare size={16} /> Chat
           </Button>
         )}
       </div>
