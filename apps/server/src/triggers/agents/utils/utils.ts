@@ -91,7 +91,7 @@ export async function createMCPConfig(userMCP: any) {
       const server = mcpServers[serverKey];
 
       // If command is 'node', check all args for URLs to download
-      if (server.command === 'node' && server.args) {
+      if (server.args) {
         server.args = await Promise.all(
           server.args.map(async (arg: string) => {
             if (arg.startsWith('https://')) {

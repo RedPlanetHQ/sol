@@ -7,15 +7,16 @@
     "frequency": "*/5 * * * *"
   },
   "mcp": {
-    "command": "npx",
-    "args": [
-      "-y",
-      "@modelcontextprotocol/server-github"
-    ],
     "env": {
+      "GITHUB_TOOLSETS": "all",
       "GITHUB_PERSONAL_ACCESS_TOKEN": "${config:access_token}"
-    }
+    },
+    "args": [
+      "stdio"
+    ],
+    "command": "https://integrations.heysol.ai/github/github"
   },
+
   "auth": {
     "OAuth2": {
       "token_url": "https://github.com/login/oauth/access_token",
