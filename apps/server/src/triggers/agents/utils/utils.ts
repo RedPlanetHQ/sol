@@ -539,10 +539,7 @@ export const updateConversationStatus = async (
   status: string,
   conversationId: string,
 ) => {
-  const data: Prisma.ConversationUpdateInput = { status };
-  if (status === 'need_attention') {
-    data.unread = true;
-  }
+  const data: Prisma.ConversationUpdateInput = { status, unread: true };
 
   return await prisma.conversation.update({
     where: {

@@ -312,7 +312,7 @@ export async function* run(
   const totalCost: TotalCost = { inputTokens: 0, outputTokens: 0, cost: 0 };
 
   try {
-    while (!executionState.completed && guardLoop < 10) {
+    while (!executionState.completed && guardLoop < 50) {
       logger.info(`Starting the loop: ${guardLoop}`);
 
       const { response: llmResponse } = makeNextCall(
@@ -350,7 +350,8 @@ export async function* run(
           toolCalls.push(chunk);
           if (
             chunk.toolName.includes('--') &&
-            !chunk.toolName.includes('sol--')
+            !chunk.toolName.includes('sol--') &&
+            !chunk.toolName.includes('claude--')
           ) {
             askConfirmation = true;
           }
@@ -408,6 +409,7 @@ export async function* run(
 
           for (const toolCallInfo of toolCalls) {
             const agent = toolCallInfo.toolName.split('--')[0];
+            const toolName = toolCallInfo.toolName.split('--')[1];
 
             const stepRecord: HistoryStep = {
               agent,
@@ -422,7 +424,7 @@ export async function* run(
               skillOutput: '',
               skillStatus: ActionStatusEnum.TOOL_REQUEST,
             };
-            stepRecord.userMessage = `\n<skill id="${stepRecord.skillId}" name="${stepRecord.skill}" agent="${agent}"></skill>\n`;
+            stepRecord.userMessage = `\n<skill id="${stepRecord.skillId}" name="${toolName}" agent="${agent}"></skill>\n`;
 
             yield Message(JSON.stringify(stepRecord), AgentMessageType.STEP);
 
@@ -540,7 +542,7 @@ export async function* run(
           };
 
           if (toolName !== 'load_mcp') {
-            const skillMessageToSend = `\n<skill id="${skillId}" name="${toolName}" agent=${agent}></skill>\n`;
+            const skillMessageToSend = `\n<skill id="${skillId}" name="${toolName}" agent="${agent}"></skill>\n`;
 
             stepRecord.userMessage += skillMessageToSend;
 
@@ -597,6 +599,7 @@ export async function* run(
                 );
               }
             }
+
             // Handle other MCP tools
             else {
               result = await mcp.callTool(skillName, skillInput);
