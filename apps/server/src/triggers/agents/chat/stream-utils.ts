@@ -234,6 +234,7 @@ export async function* generate(
       }
       return;
     } catch (e) {
+      console.log(e);
       logger.error(e);
     }
   }

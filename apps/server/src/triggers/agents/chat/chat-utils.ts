@@ -2,7 +2,8 @@
 
 import { ActionStatusEnum, LLMMappings } from '@redplanethq/sol-sdk';
 import { logger } from '@trigger.dev/sdk/v3';
-import { CoreMessage, jsonSchema, tool, ToolSet } from 'ai';
+import { CoreMessage, DataContent, jsonSchema, tool, ToolSet } from 'ai';
+import axios from 'axios';
 import Handlebars from 'handlebars';
 import { claudeCode } from 'triggers/coding/claude-code';
 
@@ -123,27 +124,30 @@ async function needConfirmation(
   return undefined;
 }
 
-function addResources(messages: CoreMessage[], resources: Resource[]) {
-  messages.push({
-    role: 'user',
-    content: resources.map((resource) => {
-      if (resource.fileType.startsWith('image/')) {
-        return {
-          type: 'image',
-          image: new URL(resource.publicURL),
-          mimeType: resource.fileType,
-        };
-      }
+async function addResources(messages: CoreMessage[], resources: Resource[]) {
+  const resourcePromises = resources.map(async (resource) => {
+    const response = await axios.get(resource.publicURL, {
+      responseType: 'arraybuffer',
+    });
+
+    if (resource.fileType.startsWith('image/')) {
       return {
-        type: 'file',
-        data: new URL(resource.publicURL),
-        filename: resource.originalName,
-        mimeType: resource.fileType,
+        type: 'image',
+        image: response.data as DataContent,
       };
-    }),
+    }
+
+    return {
+      type: 'file',
+      data: response.data as DataContent,
+
+      mimeType: resource.fileType,
+    };
   });
 
-  return messages;
+  const content = await Promise.all(resourcePromises);
+
+  return [...messages, { role: 'user', content } as CoreMessage];
 }
 
 function toolToMessage(history: HistoryStep[], messages: CoreMessage[]) {
@@ -193,13 +197,13 @@ function toolToMessage(history: HistoryStep[], messages: CoreMessage[]) {
   return messages;
 }
 
-function makeNextCall(
+async function makeNextCall(
   executionState: ExecutionState,
   TOOLS: ToolSet,
   totalCost: TotalCost,
   availableMCPServers: string[],
   preferences: Preferences,
-): LLMOutputInterface {
+): Promise<LLMOutputInterface> {
   const { context, history, previousHistory } = executionState;
 
   const promptInfo = {
@@ -244,7 +248,7 @@ function makeNextCall(
   }
 
   if (executionState.resources && executionState.resources.length > 0) {
-    messages = addResources(messages, executionState.resources);
+    messages = await addResources(messages, executionState.resources);
   }
 
   // Get the next action from the LLM
@@ -315,7 +319,7 @@ export async function* run(
     while (!executionState.completed && guardLoop < 50) {
       logger.info(`Starting the loop: ${guardLoop}`);
 
-      const { response: llmResponse } = makeNextCall(
+      const { response: llmResponse } = await makeNextCall(
         executionState,
         tools,
         totalCost,

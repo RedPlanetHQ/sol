@@ -233,6 +233,8 @@ export const init = async (payload: InitChatPayload) => {
       config.url = `${process.env.BACKEND_HOST}${config.url.replace('/api', '')}`;
       config.headers.Authorization = `Bearer ${pat?.token}`;
       config.headers['x-updated-by'] = 'assistant';
+    } else if (config.url.includes(process.env.BACKEND_HOST)) {
+      config.headers.Authorization = `Bearer ${pat?.token}`;
     } else if (config.url?.startsWith('https://sol::core_memory')) {
       config.url = `${workspacePreferences.memory_host}/search`;
       config.headers.Authorization = `Bearer ${workspacePreferences.memory_api_key}`;

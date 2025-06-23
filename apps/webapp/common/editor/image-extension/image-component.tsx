@@ -3,6 +3,7 @@ import { Button, Loader, CrossLine, FullscreenLine } from '@redplanethq/ui';
 import { RiDownloadLine } from '@remixicon/react';
 import { NodeViewWrapper } from '@tiptap/react';
 import React from 'react';
+
 import { useIsElectron } from 'hooks/use-is-electron';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
