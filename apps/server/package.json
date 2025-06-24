@@ -70,7 +70,7 @@
     "@prisma/instrumentation": "^6.7.0",
     "@qdrant/js-client-rest": "^1.14.0",
     "@sol/editor-extensions": "workspace:*",
-    "@redplanethq/sol-sdk": "0.2.15",
+    "@redplanethq/sol-sdk": "0.2.18",
     "@trigger.dev/sdk": "3.3.17",
     "@types/multer": "^1.4.11",
     "@types/turndown": "^5.0.5",

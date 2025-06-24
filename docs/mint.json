@@ -5,7 +5,6 @@
     "dark": "/logo/logo.png",
     "light": "/logo/logo.png"
   },
-  "openapi": [ "/openapi.yml" ],
   "theme": "quill",
   "layout": "sidenav",
   "favicon": "/favicon.svg",

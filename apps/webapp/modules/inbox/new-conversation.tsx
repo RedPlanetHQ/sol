@@ -24,7 +24,8 @@ export const NewConversation = observer(() => {
   const user = React.useContext(UserContext);
 
   const { isLoading } = useGetIntegrationDefinitions();
-  const { mutate: createConversation } = useCreateConversationMutation({});
+  const { mutate: createConversation, isLoading: createConversationLoading } =
+    useCreateConversationMutation({});
   const taskIds = getTasksForToday(taskOccurrencesStore);
 
   if (isLoading) {
@@ -64,7 +65,11 @@ export const NewConversation = observer(() => {
             Hello <span className="text-primary">{user.fullname}</span>
           </h1>
 
-          <AssistantEditor onSend={onSend} placeholder="Search or Ask sol..." />
+          <AssistantEditor
+            onSend={onSend}
+            placeholder="Search or Ask sol..."
+            isLoading={createConversationLoading}
+          />
 
           {taskIds && (
             <div className="mt-4">

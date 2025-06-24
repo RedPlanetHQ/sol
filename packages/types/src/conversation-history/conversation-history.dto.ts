@@ -8,11 +8,21 @@ export class ConversationHistoryParamsDto {
   conversationHistoryId: string;
 }
 
+export interface Resource {
+  id?: string;
+  size?: number;
+  fileType: string;
+  publicURL: string;
+  originalName?: string;
+}
+
 export class ConversationContextData {
   pages?: string[];
   lists?: string[];
   tasks?: string[];
   agents?: string[];
+
+  resources?: Resource[];
   repository?: string;
 }
 

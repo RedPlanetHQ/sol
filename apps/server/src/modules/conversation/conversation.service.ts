@@ -3,6 +3,7 @@ import {
   ActionStatusEnum,
   Conversation,
   CreateConversationDto,
+  Resource,
   UserTypeEnum,
 } from '@redplanethq/sol-sdk';
 import {
@@ -120,7 +121,6 @@ export class ConversationService {
       conversationHistoryId: conversationHistory.id,
     };
   }
-
   async getConversationContext(
     conversationHistoryId: string,
   ): Promise<ConversationContext> {
@@ -140,6 +140,8 @@ export class ConversationService {
 
     // Get previous conversation history message and response
     let previousHistory = null;
+    let allResources: Resource[] = [];
+
     if (conversationHistory.conversationId) {
       previousHistory = await this.prisma.conversationHistory.findMany({
         where: {
@@ -153,12 +155,30 @@ export class ConversationService {
           createdAt: 'asc',
         },
       });
+
+      // Collect resources from all previous history
+      allResources = previousHistory.reduce((resources, history) => {
+        const historyContext = history.context as ConversationContextData;
+        if (historyContext?.resources) {
+          return [...resources, ...historyContext.resources];
+        }
+        return resources;
+      }, []);
+
+      // Add current context resources if any
+      if (context.resources) {
+        allResources = [...allResources, ...context.resources];
+      }
+
+      // Remove duplicates
+      allResources = [...new Set(allResources)];
     }
 
     return {
       previousHistory,
       agents: [],
       ...otherContextData,
+      resources: allResources,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
   }

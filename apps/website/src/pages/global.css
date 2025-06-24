@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-.text-primary {
-  color: #1a89c5;
-}
-
 strong {
   font-weight: 500 !important;
 }
