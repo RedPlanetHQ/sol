@@ -6,12 +6,13 @@ import React, {
   useState,
 } from 'react';
 
+import { getBotIcon, type IconType } from 'common/icon-utils';
 import type { PageType } from 'common/types';
 
 import { useContextStore } from 'store/global-context-provider';
 
 interface MentionListProps {
-  items: PageType[];
+  items: Array<PageType & { label?: string; key?: string }>;
   command: (args: { id: string; label: string }) => void;
 }
 
@@ -24,6 +25,15 @@ export const MentionList = forwardRef(
 
     const selectItem = (index: number) => {
       const item = props.items[index];
+
+      if (item.label === 'tool') {
+        props.command({
+          id: item.key,
+          label: 'tool',
+        });
+        return;
+      }
+
       const task = tasksStore.getTaskForPage(item.id);
       const list = listsStore.getListWithPageId(item.id);
 
@@ -76,6 +86,29 @@ export const MentionList = forwardRef(
       <div className="bg-popover border border-border rounded shadow flex flex-col gap-0.5 overflow-auto p-1 relative">
         {props.items.length > 0 ? (
           props.items.map((item, index) => {
+            if (item.label === 'tool') {
+              const Icon = getBotIcon(item.key as IconType);
+              return (
+                <button
+                  className={cn(
+                    'flex items-center gap-1 w-full text-left bg-transparent hover:bg-grayAlpha-100 p-1 px-2',
+                    index === selectedIndex
+                      ? 'bg-grayAlpha-100 rounded-sm'
+                      : '',
+                  )}
+                  key={index}
+                  onClick={() => selectItem(index)}
+                  data-selected={index === selectedIndex}
+                  data-item="mention"
+                >
+                  <Icon size={14} className="shrink-0" />
+                  <div className="inline-flex items-center justify-start shrink min-w-[0px] min-h-[24px]">
+                    <div className={cn('text-left truncate')}>{item.title}</div>
+                  </div>
+                </button>
+              );
+            }
+
             const task = tasksStore.getTaskForPage(item.id);
 
             return (

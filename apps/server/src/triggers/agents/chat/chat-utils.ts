@@ -588,7 +588,7 @@ export async function* run(
             skillInput: JSON.stringify(skillInput),
           };
 
-          if (!internalTools.includes(toolName)) {
+          if (!internalTools.includes(skillName)) {
             const skillMessageToSend = `\n<skill id="${skillId}" name="${toolName}" agent="${agent}"></skill>\n`;
 
             stepRecord.userMessage += skillMessageToSend;

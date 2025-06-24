@@ -1,4 +1,4 @@
-import { Button, cn } from '@redplanethq/ui';
+import { Button, cn, LoaderLine } from '@redplanethq/ui';
 import { Document } from '@tiptap/extension-document';
 import HardBreak from '@tiptap/extension-hard-break';
 import { Paragraph } from '@tiptap/extension-paragraph';
@@ -13,12 +13,7 @@ import { ResourceUploader, type Resource } from './resource';
 import { CustomMention, useContextSuggestions } from './suggestion-extension';
 
 interface ConversationTextareaProps {
-  onSend: (
-    value: string,
-    agents: string[],
-    title: string,
-    resources: Resource[],
-  ) => void;
+  onSend: (value: string, title: string, resources: Resource[]) => void;
   defaultValue?: string;
   placeholder?: string;
   isLoading?: boolean;
@@ -39,7 +34,6 @@ export function ConversationTextarea({
 }: ConversationTextareaProps) {
   const [text, setText] = useState(defaultValue ?? '');
   const [editor, setEditor] = useState<EditorT>();
-  const [agents, setAgents] = useState<string[]>([]);
   const [resources, setResources] = useState<Resource[]>([]);
 
   const suggestion = useContextSuggestions();
@@ -47,25 +41,6 @@ export function ConversationTextarea({
   const onUpdate = (editor: EditorT) => {
     setText(editor.getHTML());
     onChange && onChange(editor.getText());
-
-    const json = editor.getJSON();
-    const mentionAgents: string[] = [];
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const processNode = (node: any) => {
-      if (node.type === 'mention' && node.attrs && node.attrs.id) {
-        mentionAgents.push(node.attrs.id);
-      }
-      if (node.content && Array.isArray(node.content)) {
-        node.content.forEach(processNode);
-      }
-    };
-
-    if (json.content && Array.isArray(json.content)) {
-      json.content.forEach(processNode);
-    }
-
-    setAgents(mentionAgents);
   };
 
   const handleSend = useCallback(() => {
@@ -74,16 +49,17 @@ export function ConversationTextarea({
     }
 
     const title = editor.getText();
-    onSend(text, agents, title, resources);
+    onSend(text, title, resources);
     editor.commands.clearContent(true);
     setText('');
     setResources([]);
-  }, [editor, text, agents, resources, onSend]);
+  }, [editor, text, resources, onSend]);
 
   return (
     <ResourceUploader
-      onResourcesChange={setResources}
       className={cn(className)}
+      resources={resources}
+      setResources={setResources}
       actionComponent={
         <Button
           variant={isLoading ? 'secondary' : 'default'}
@@ -99,7 +75,15 @@ export function ConversationTextarea({
             }
           }}
         >
-          {isLoading ? <>Stop</> : <>Chat</>}
+          {isLoading ? (
+            <>
+              {' '}
+              <LoaderLine size={18} className="animate-spin mr-1" />
+              Stop
+            </>
+          ) : (
+            <>Chat</>
+          )}
         </Button>
       }
     >

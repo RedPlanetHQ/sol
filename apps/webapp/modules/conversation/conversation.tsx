@@ -15,6 +15,7 @@ import {
   useCreateConversationMutation,
   useGetCurrentConversationRun,
 } from 'services/conversations';
+import { useStopConversationtMutation } from 'services/conversations';
 import { useApproveOrDeclineMutation } from 'services/conversations/approve-or-decline';
 import { useGetIntegrationDefinitions } from 'services/integration-definition';
 
@@ -49,6 +50,8 @@ export const Conversation = observer(() => {
   const { mutate: createConversation, isLoading: conversationLoading } =
     useCreateConversationMutation({});
   const { mutate: approval, isLoading } = useApproveOrDeclineMutation({});
+  const { mutate: stopConversation, isLoading: stopLoading } =
+    useStopConversationtMutation({});
 
   React.useEffect(() => {
     if (initialRunResponse) {
@@ -58,7 +61,7 @@ export const Conversation = observer(() => {
 
   const onSend = (
     text: string,
-    agents: string[],
+
     title: string,
     resources?: Resource[],
   ) => {
@@ -69,7 +72,10 @@ export const Conversation = observer(() => {
     createConversation(
       {
         message: text,
-        context: { agents, resources: resources.map((res) => res.publicURL) },
+        context: {
+          agents: [],
+          resources: resources.map((res) => res.publicURL),
+        },
         title,
         conversationId: activeTab.conversation_id,
       },
@@ -180,6 +186,7 @@ export const Conversation = observer(() => {
             {conversation?.status !== 'need_approval' && (
               <ConversationTextarea
                 onSend={onSend}
+                onStop={() => stopConversation(conversation.id)}
                 defaultValue={
                   task
                     ? `<mention data-id='${task.id}' data-label='task'></mention>`
@@ -187,7 +194,9 @@ export const Conversation = observer(() => {
                       ? `<mention data-id='${list.id}' data-label='list'></mention>`
                       : undefined
                 }
-                isLoading={conversationResponse || conversationLoading}
+                isLoading={
+                  conversationResponse || conversationLoading || stopLoading
+                }
                 className="bg-background-2"
               />
             )}

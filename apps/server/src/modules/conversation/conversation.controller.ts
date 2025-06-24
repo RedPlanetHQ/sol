@@ -47,6 +47,18 @@ export class ConversationController {
     );
   }
 
+  @Post(':conversationId/stop')
+  @UseGuards(AuthGuard)
+  async stopConversation(
+    @Param() conversationParams: ConversationParamsDto,
+    @Workspace() workspaceId: string,
+  ) {
+    return await this.conversationService.stopConversation(
+      conversationParams.conversationId,
+      workspaceId,
+    );
+  }
+
   @Post()
   @UseGuards(AuthGuard, CreditsGuard)
   async createConversation(

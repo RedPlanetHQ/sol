@@ -61,7 +61,8 @@ async function* generateClaudeMessages(
       }
     }
   } catch (error) {
-    yield { type: 'complete', success: false, error: true };
+    console.log(error);
+    yield { type: 'error', success: false, error };
   }
 }
 
@@ -219,7 +220,7 @@ export async function* claudeCode(payload: ClaudeCodeParams) {
       error: error.message,
       stack: error.stack,
     });
-    throw new Error(error);
+    yield { error };
   } finally {
     // Clean up temp directory
     try {
