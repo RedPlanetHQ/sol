@@ -1,4 +1,4 @@
-import { Card, CardHeader } from '@redplanethq/ui';
+import { Card, CardHeader, LoaderLine } from '@redplanethq/ui';
 import { PlusIcon } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 
@@ -14,7 +14,7 @@ import { TabViewType } from 'store/application';
 export const ListView = observer(() => {
   const lists = useLists();
   const { changeActiveTab } = useApplication();
-  const { mutate: createList } = useCreateListMutation({});
+  const { mutate: createList, isLoading } = useCreateListMutation({});
 
   return (
     <div className="flex gap-1 px-4 mt-10 justify-center flex-wrap">
@@ -44,8 +44,12 @@ export const ListView = observer(() => {
           }}
         >
           <CardHeader>
-            <div className="">
-              <PlusIcon size={18} />
+            <div>
+              {isLoading ? (
+                <LoaderLine size={18} className="animate-spin" />
+              ) : (
+                <PlusIcon size={18} />
+              )}
             </div>
             <div className="text-md">Create list</div>
           </CardHeader>

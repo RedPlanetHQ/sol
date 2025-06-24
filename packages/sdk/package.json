@@ -1,6 +1,6 @@
 {
   "name": "@redplanethq/sol-sdk",
-  "version": "0.2.15",
+  "version": "0.2.18",
   "description": "Sol Node.JS SDK",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

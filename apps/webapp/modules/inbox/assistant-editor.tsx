@@ -88,6 +88,7 @@ export function AssistantEditor({
     editor.commands.clearContent(true);
     setText('');
     setHTML('');
+    setResources([]);
   }, [editor, text, onSend, html, resources]);
 
   const pagesCommands = () => {
@@ -113,6 +114,7 @@ export function AssistantEditor({
             editor.commands.clearContent(true);
             setText('');
             setHTML('');
+            setResources([]);
           }}
           key={`page__${pagesCommands.length + 1}`}
           className="flex gap-1 items-center py-2 aria-selected:bg-grayAlpha-100"

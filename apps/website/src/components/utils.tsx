@@ -1,5 +1,5 @@
 import { Button, Checkbox, cn } from '@redplanethq/ui';
-import { RiAppleFill, RiGithubFill } from '@remixicon/react';
+import { RiGithubFill } from '@remixicon/react';
 import Heading from '@tiptap/extension-heading';
 import { mergeAttributes } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -19,7 +19,7 @@ export function Container({
   return (
     <div
       className={cn(
-        'max-w-5xl mx-auto w-full flex flex-col pt-7 lg:pt-9',
+        'max-w-3xl mx-auto w-full flex flex-col pt-7 lg:pt-9',
         className,
       )}
       id={id}
@@ -30,27 +30,19 @@ export function Container({
 }
 
 export function Section({
-  name,
   id,
-  color,
   children,
   className,
 }: {
   name: string;
   id?: string;
-  color: string;
+  color?: string;
   children: React.ReactNode;
   className?: string;
 }) {
   return (
     <Container id={id} className={className}>
-      <div className="flex flex-col">
-        <h2 className="text-lg font-medium text-left" style={{ color }}>
-          {name}
-        </h2>
-
-        {children}
-      </div>
+      <div className="flex flex-col">{children}</div>
     </Container>
   );
 }
@@ -223,13 +215,12 @@ export const DownloadButton = () => {
 
   return (
     <Button
-      size="xl"
+      size="lg"
       variant="default"
-      className="gap-2 items-center w-fit"
+      className="gap-2 items-center w-fit !bg-white text-black"
       onClick={handleDownload}
     >
-      <RiAppleFill size={14} />
-      Download
+      Get Early Access
     </Button>
   );
 };

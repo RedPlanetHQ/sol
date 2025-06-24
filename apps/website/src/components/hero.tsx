@@ -1,65 +1,29 @@
-import { Badge, Button, Card } from '@redplanethq/ui';
-import { RiGithubFill } from '@remixicon/react';
-import Image from 'next/image';
+import { Badge } from '@redplanethq/ui';
 
 import { Container, DownloadButton } from './utils';
 
 export const Hero = () => {
   return (
     <section className="w-full">
-      <Container className="flex flex-col items-start">
-        <h1 className="text-[55px] font-bold text-left leading-tight mb-4 tracking-tight text-foreground max-w-[800px]">
-          Your{' '}
-          <span className="bg-primary bg-clip-text text-transparent">
-            Personal AI Assistant
-          </span>{' '}
-          <br /> now in a todo app
-        </h1>
-        <p className="text-lg text-left max-w-[800px] mb-8 font-normal text-muted-foreground">
-          Sigma learns your style, organizes your day, and sweeps up the
-          busywork—auto-creating tasks, drafting replies, and running routine
-          workflows—so you can focus on what truly matters.
-        </p>
+      <Container className="mt-5 flex flex-col items-center p-2 !pt-2 w-full rounded shadow bg-background-3">
+        <div className="flex flex-col bg-gradient-to-br from-[#c15e50] to-[#c15042]/90 rounded w-full items-center rounded p-7 py-10 justify-center h-full">
+          <h1 className="text-[40px] font-normal text-center leading-tight mb-4 tracking-tight text-white max-w-[83%] md:max-w-[65%] rounded font-mono">
+            Your 25-Hour-Day <br /> Personal Assistant
+          </h1>
+          <p className="text-lg text-center mb-8 font-normal text-white max-w-[83%] md:max-w-[65%]">
+            SOL funnels Slack, Linear, Gmail & more into one feed flags what’s
+            urgent and automates busywork.
+          </p>
 
-        <Container className="!pt-0 pb-7">
-          <Card className="w-full max-w-6xl mx-auto border-border border-1 shadow-1 rounded">
-            <div className="flex justify-center">
-              <Image
-                src="/main.png"
-                alt="logo"
-                width={1080}
-                height={720}
-                className="sm:w-40 sm:h-40 md:w-60 md:h-60 lg:w-80 lg:h-80 rounded"
-                style={{
-                  width: 'auto',
-                  height: 'auto',
-                }}
-              />
+          <div className="flex flex-col md:flex-row gap-2">
+            <DownloadButton />
+
+            <div className="flex items-center ml-1 gap-1 text-white">
+              Backed by{' '}
+              <Badge className="bg-[#FF6600] text-white text-base font-mono">
+                Y
+              </Badge>
             </div>
-          </Card>
-        </Container>
-      </Container>
-
-      <Container className="gap-2">
-        <div className="flex flex-col md:flex-row gap-2">
-          <DownloadButton />
-
-          <Button
-            size="xl"
-            variant="secondary"
-            className="gap-2 items-center w-fit"
-            onClick={() =>
-              window.open('https://github.com/tegonhq/sigma', '_blank')
-            }
-          >
-            <RiGithubFill size={16} />
-            Star us
-          </Button>
-          <div className="flex items-center ml-1 gap-1">
-            Backed by{' '}
-            <Badge className="bg-[#FF6600] text-white text-base font-mono">
-              Y
-            </Badge>
           </div>
         </div>
       </Container>
