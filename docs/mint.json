@@ -1,21 +1,21 @@
 {
   "$schema": "https://mintlify.com/schema.json",
-  "name": "Docs",
+  "name": "SOL Documentation",
   "logo": {
-    "dark": "/logo/dark.svg",
-    "light": "/logo/light.svg"
+    "dark": "/logo/logo.png",
+    "light": "/logo/logo.png"
   },
   "openapi": [ "/openapi.yml" ],
   "theme": "quill",
   "layout": "sidenav",
   "favicon": "/favicon.svg",
   "colors": {
-    "primary": "#4b61d5",
-    "light": "#4b61d5",
-    "dark": "#4b61d5",
+    "primary": "#c15e50",
+    "light": "#c15e50",
+    "dark": "#c15e50",
     "anchors": {
-      "from": "#4b61d5",
-      "to": "#4b61d5"
+      "from": "#c15e50",
+      "to": "#c15e50"
     },
     "background": {
       "light": "#fff",
@@ -42,31 +42,13 @@
   ],
   "topbarCtaButton": {
     "type": "github",
-    "url": "https://github.com/tegonhq/sigma"
+    "url": "https://github.com/RedPlanetHQ/sol"
   },
-  "redirects": [
-    {
-      "source": "/fundamentals/todo",
-      "destination": "/fundamentals/todo"
-    },
-    {
-      "source": "/fundamentals/issues",
-      "destination": "/guides/issues"
-    },
-    {
-      "source": "/fundamentals/triage",
-      "destination": "/guides/triage"
-    },
-    {
-      "source": "/fundamentals/cycles",
-      "destination": "/guides/cycles"
-    }
-  ],
   "anchors": [
     {
-      "name": "Integrations",
-      "icon": "brackets-curly",
-      "url": "integrations"
+      "name": "C.O.R.E.",
+      "icon": "brain",
+      "url": "core"
     }
   ],
   "navigation": [
@@ -74,23 +56,15 @@
       "group": "Get Started",
       "pages": [
         "introduction",
-        "changelog"
+        "getting-started"
       ]
     },
     {
-      "group": "Fundamentals",
+      "group": "Concepts",
       "pages": [
-        "fundamentals/todo",
-        "fundamentals/chat",
-        "fundamentals/shortcuts"
-      ]
-    },
-    {
-      "group": "Personalisation",
-      "pages": [
-        "personalisation/automations",
-        "personalisation/memory",
-        "personalisation/sync"
+        "concepts/home",
+        "concepts/tasks",
+        "concepts/lists"
       ]
     },
     {
@@ -98,11 +72,31 @@
       "pages": [
         "integrations/overview"
       ]
+    },
+    {
+      "group": "Automations",
+      "pages": [
+        "automations/rules"
+      ]
+    },
+    {
+      "group": "MCP",
+      "pages": [
+        "mcp/overview",
+        "mcp/setup",
+        "mcp/usage"
+      ]
+    },
+    {
+      "group": "CORE",
+      "pages": [
+        "core/overview",
+        "core/local-setup"
+      ]
     }
-
   ],
   "footerSocials": {
-    "twitter": "https://x.com/mysigmahq",
-    "linkedin": "https://www.linkedin.com/company/sigmahq"
+    "twitter": "https://x.com/heysol_ai",
+    "linkedin": "https://www.linkedin.com/company/redplanethq"
   }
 }

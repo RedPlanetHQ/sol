@@ -1,0 +1,108 @@
+---
+title: "Automations"
+description: "How to use SOL Automations"
+---
+
+## Overview
+
+SOL Automations let you streamline and manage your manual workflows using plain English. By defining automation rules, you can minimize repetitive work, reduce noise, and focus on what matters most.
+
+## Why Use Automations?
+
+Modern workflows involve countless apps, notifications, and manual steps. SOL Automations filter this noise by letting you set preferences and receive actionable alerts for the items that truly matter—helping you work smarter, not harder.
+
+## What Can You Automate with SOL?
+
+- **Automate Task Creation:** Instantly create SOL tasks from external events, such as:
+
+  - Automatically generate a SOL task whenever a Linear or Jira issue is assigned to you.
+  - Create a task in SOL when a pull request (PR) is assigned to you in GitHub.
+  - Trigger SOL tasks when important emails arrive—define what counts as "important" based on your criteria.
+  - Create actionable SOL tasks when you're mentioned or tagged in Slack, highlighting key action items from the conversation.
+
+- **Perform Actions in Third-Party Apps:**
+
+  - When a SOL task is marked as done, automatically update its status in Linear or Jira.
+  - Send Slack or email replies once a corresponding SOL task is completed.
+
+- **Create Custom Workflows:**
+  - Example: Automatically close support tickets that are reopened just for a "thank you" response—no further action required. Once closed, notify you via SOL chat.
+
+## How SOL Automations Work
+
+The best way to write an automation rule is:
+
+```
+When [TRIGGER] happens, if [CONDITIONS] are met, then do [ACTIONS]
+```
+
+- **Triggers:** Events that start the automation (e.g., receiving an email, being assigned a PR)
+- **Conditions:** Optional criteria that must be true for the rule to run (e.g., sender is VIP, subject contains "urgent")
+- **Actions:** What happens when the rule executes (e.g., create a task, send a notification)
+
+## Common Use Cases for Automations
+
+### Development Workflow Automation
+
+- **PR Review Management:**
+
+  - Trigger: You're tagged for review on a GitHub PR
+  - Action: Create a SOL task with PR details and set schedule it for tomorrow
+
+- **Issue Tracking:**
+
+  - Trigger: You're assigned an issue in Linear or Jira
+  - Action: Create a task in SOL, add relevant context, tag it in relevant list.
+
+- **Build Failure Alerts:**
+  - Trigger: Email received from CI system about build failure
+  - Action: Create high-priority task, include error details, notify in Slack
+
+### Communication Automation
+
+- **Customer Support Triage:**
+
+  - Trigger: Email from support@company.com
+  - Condition: Contains specific customer name or project
+  - Action: Create task, draft response, set priority based on customer tier
+
+- **Meeting Follow-ups:**
+
+  - Trigger: Calendar event ends
+  - Condition: Meeting had specific tags or participants
+  - Action: Create follow-up tasks for action items, draft summary email
+
+- **Slack Mention Tracking:**
+  - Trigger: You're mentioned in Slack in specific channels
+  - Condition: Message contains keywords like "urgent" or "deadline"
+  - Action: Create high-priority task with context
+
+### Personal Productivity
+
+- **Morning Prep:**
+
+  - Trigger: Time-based (8:00 AM weekdays)
+  - Action: Generate daily brief, create planning task, show calendar events
+
+- **Email Batch Processing:**
+
+  - Trigger: Time-based (twice daily)
+  - Action: Summarize non-urgent emails, create tasks for ones needing response
+
+- **Focus Time Protection:**
+  - Trigger: Calendar event with "Focus" tag starts
+  - Action: Set Slack to Do Not Disturb, disable notifications, log start time
+
+## Creating Your First Rule
+
+1. Navigate to Automations > Rules in SOL
+2. Click "New Rule"
+3. Write the rule in natural language and follow this format `When [TRIGGER] happens, if [CONDITIONS] are met, then do [ACTIONS]`
+
+## Troubleshooting Rules
+
+- Because rules in SOL are written in natural language, sometimes they may not work exactly as intended.
+- If a rule isn't triggering as expected, the simplest way to debug is to ask the SOL assistant for help.
+- The assistant can explain why the rule didn't work and guide you on how to rephrase it so that SOL recognizes the correct trigger and performs the desired actions when conditions are met.
+
+---

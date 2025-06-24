@@ -1,0 +1,29 @@
+---
+title: "MCP Setup"
+description: "Setting up the Model Control Plane"
+---
+
+## MCP Configuration
+
+If you're integrating a custom tool, you can manually register MCP servers via the config file. Here's an example using a Node.js-based server with the stdio interface:
+
+```json
+{
+  "mcpServers": {
+    "custom-tool": {
+      "command": "npx",
+      "args": ["-y", "mcp-server"],
+      "env": {
+        "API_KEY": "your-api-key"
+      }
+    }
+  }
+}
+```
+
+🛠️ SOL handles the runtime, so all you need to define is the setup. See below steps:
+
+1. Navigate to Settings > MCP
+2. Add MCP configurations manully
+3. Update it
+4. Start using it in SOL chat

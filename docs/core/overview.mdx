@@ -1,0 +1,47 @@
+---
+title: "Overview"
+description: "Memory layer for LLMs"
+---
+
+## Contextual Observation & Recall Engine (C.O.R.E)
+
+C.O.R.E provides a private, portable, open-source memory engine for LLMs and AI agents—built entirely for user data control. You choose what to keep private, what to share, and what to connect with other tools, so you’re always in command of your data footprint.
+
+## Why we build C.O.R.E as a separate service?
+
+- **User Ownership:** Give you full control over your own memory, locally stored and accessible by any app or LLM that needs context—no vendor lock-in, no SaaS dependency.
+- **Smarter AI Assistance:** Let SOL (your AI assistant) access your context, facts, and preferences, so its responses are always relevant, accurate, and tailored to you.
+
+## How C.O.R.E is Different?
+
+Unlike most memory systems—which act like basic sticky notes, only showing what’s true right now—C.O.R.E is built as a dynamic, living temporal knowledge graph:
+
+- Every fact is a first-class “Statement” with full history, not just a static edge between entities.
+- Each statement includes what was said, who said it, when it happened, and why it matters.
+- You get full transparency: you can always trace the source, see what changed, and explore why the system “believes” something.
+
+## Use Case Example: Real Change Auditing
+
+Imagine you ask SOL: "What changed in our pricing since Q1?"
+With C.O.R.E, you see exactly what prices changed, who approved them, the context (meeting, email, document), and when each update happened—enabling true compliance, auditability, and insight across products, teams, and time.
+
+Or ask: “What does Mike know about Project Phoenix?” and get a timeline of meetings, decisions, and facts Mike was involved in, with full traceability to those specific events.
+
+## Key Features of C.O.R.E
+
+- **Reified Statement Nodes**: Each fact is a Statement linked to subject, predicate, and object, supporting annotations and meta-reasoning.
+- **Temporal Tracking**: Track when facts are valid or outdated—run historical queries (“what was true last month?”), spot trends, and audit change history.
+- **Provenance Awareness**: Every fact is tied to its source (conversation, doc, code, etc.), guaranteeing explainability and trust.
+- **Contradiction Detection**: The system can surface and help resolve knowledge conflicts over time.
+- **Semantic Search**: Entities and statements are vectorized for advanced, context-rich recall—find info even when you don’t know the exact words.
+- **Powerful Analytics**: Answer “why”, “when”, and “how” knowledge evolved—enabling compliance, learning, and robust AI behaviors.
+
+## Integration with SOL
+
+CORE powers various SOL capabilities:
+
+- **Personalized Interactions**: Tailoring responses based on user preferences and history
+- **Contextual Assistance**: Providing help that considers the full working context
+- **Workflow Awareness**: Understanding how tasks relate to broader objectives
+- **Proactive Suggestions**: Anticipating needs based on patterns and context
+- **Learning Preferences**: Adapting to individual working styles over time
