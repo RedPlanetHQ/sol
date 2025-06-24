@@ -5,6 +5,7 @@ import tippy, { type Instance as TippyInstance } from 'tippy.js';
 import { useContextStore } from 'store/global-context-provider';
 
 import { MentionList } from './mention-list';
+import { useMCPServers } from './use-context';
 
 interface SuggestionProps {
   editor: Editor;
@@ -18,10 +19,25 @@ interface SuggestionProps {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const useContextSuggestions = (): any => {
   const { pagesStore } = useContextStore();
+  const servers = useMCPServers();
 
   return {
     items: async ({ query }: { query: string }) => {
-      return pagesStore.searchPages(query, true).slice(0, 5);
+      const pages = pagesStore.searchPages(query, true);
+      const filteredServers = servers.filter((server) =>
+        server.name.toLowerCase().includes(query.toLowerCase()),
+      );
+
+      // Combine and limit results
+      return [
+        ...filteredServers.map((server) => ({
+          id: server.key,
+          label: 'tool',
+          title: server.name,
+          key: server.key,
+        })),
+        ...pages.slice(0, 5),
+      ].slice(0, 5);
     },
     render: () => {
       let reactRenderer: ReactRenderer | null = null;

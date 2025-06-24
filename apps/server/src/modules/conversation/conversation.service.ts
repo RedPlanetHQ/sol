@@ -205,6 +205,44 @@ export class ConversationService {
     };
   }
 
+  async stopConversation(conversationId: string, workspaceId: string) {
+    const conversationHistory = await this.prisma.conversationHistory.findFirst(
+      {
+        where: {
+          conversationId,
+          conversation: {
+            workspaceId,
+          },
+        },
+        orderBy: {
+          updatedAt: 'desc',
+        },
+      },
+    );
+
+    const response = await runs.list({
+      tag: [conversationId, conversationHistory.id],
+      status: ['QUEUED', 'EXECUTING'],
+      limit: 1,
+    });
+
+    const run = response.data[0];
+    if (!run) {
+      await this.prisma.conversation.update({
+        where: {
+          id: conversationId,
+        },
+        data: {
+          status: 'failed',
+        },
+      });
+
+      return undefined;
+    }
+
+    return await runs.cancel(run.id);
+  }
+
   async getConversation(conversationId: string): Promise<Conversation> {
     return this.prisma.conversation.findUnique({
       where: { id: conversationId },

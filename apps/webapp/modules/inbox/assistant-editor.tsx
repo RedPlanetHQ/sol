@@ -21,12 +21,7 @@ import { EditorRoot, lowlight, type EditorT } from 'common/editor';
 import { SCOPES } from 'common/shortcut-scopes';
 
 interface ConversationTextareaProps {
-  onSend: (
-    value: string,
-    agents: string[],
-    title: string,
-    resources?: Resource[],
-  ) => void;
+  onSend: (value: string, title: string, resources?: Resource[]) => void;
   defaultValue?: string;
   placeholder?: string;
   isLoading?: boolean;
@@ -52,7 +47,7 @@ export function AssistantEditor({
   const [text, setText] = useState(defaultValue ?? '');
   const [html, setHTML] = useState(defaultValue ?? '');
   const [editor, setEditor] = React.useState<EditorT>();
-  const [agents, setAgents] = React.useState<string[]>([]);
+
   const [resources, setResources] = React.useState<Resource[]>([]);
 
   const commands = useSearchCommands(
@@ -83,44 +78,17 @@ export function AssistantEditor({
     setHTML(editor.getHTML());
     setText(editor.getText());
     onChange && onChange(editor.getText());
-
-    const json = editor.getJSON();
-
-    // Extract agent IDs from mentions
-    const mentionAgents: string[] = [];
-
-    // Process JSON to find mention nodes
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const processNode = (node: any) => {
-      // Check if this is a mention node
-      if (node.type === 'mention' && node.attrs && node.attrs.id) {
-        mentionAgents.push(node.attrs.id);
-      }
-
-      // Recursively process child nodes if they exist
-      if (node.content && Array.isArray(node.content)) {
-        node.content.forEach(processNode);
-      }
-    };
-
-    // Start processing from the root
-    if (json.content && Array.isArray(json.content)) {
-      json.content.forEach(processNode);
-    }
-
-    // Update the agents state with the found mention IDs
-    setAgents(mentionAgents);
   };
 
   const handleSend = useCallback(() => {
     if (!editor || !text) {
       return;
     }
-    onSend(html, agents, text, resources);
+    onSend(html, text, resources);
     editor.commands.clearContent(true);
     setText('');
     setHTML('');
-  }, [editor, text, onSend, html, agents, resources]);
+  }, [editor, text, onSend, html, resources]);
 
   const pagesCommands = () => {
     const pagesCommands = commands['Pages'];
@@ -141,7 +109,7 @@ export function AssistantEditor({
       <>
         <CommandItem
           onSelect={() => {
-            onSend(html, agents, text, resources);
+            onSend(html, text, resources);
             editor.commands.clearContent(true);
             setText('');
             setHTML('');
@@ -191,8 +159,9 @@ export function AssistantEditor({
   return (
     <Command className="rounded-lg border bg-background-3 mt-0 w-full p-1 rounded-xl border-gray-300 border-1 !h-auto">
       <ResourceUploader
-        onResourcesChange={setResources}
         className={className}
+        resources={resources}
+        setResources={setResources}
         inHome
         actionComponent={
           <Button

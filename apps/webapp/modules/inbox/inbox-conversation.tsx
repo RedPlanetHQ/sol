@@ -22,6 +22,7 @@ import { useScope } from 'hooks/use-scope';
 import {
   useCreateConversationMutation,
   useGetCurrentConversationRun,
+  useStopConversationtMutation,
 } from 'services/conversations';
 import { useApproveOrDeclineMutation } from 'services/conversations/approve-or-decline';
 
@@ -50,6 +51,8 @@ export const InboxConversation = observer(
     const { conversationHistory } = useConversationHistory(conversation?.id);
     useConversationRead(conversationId);
     const { mutate: approval, isLoading } = useApproveOrDeclineMutation({});
+    const { mutate: stopConversation, isLoading: stopLoading } =
+      useStopConversationtMutation({});
 
     React.useEffect(() => {
       if (initialRunResponse) {
@@ -67,7 +70,7 @@ export const InboxConversation = observer(
 
     const onSend = (
       text: string,
-      agents: string[],
+
       title: string,
       resources: Resource[],
     ) => {
@@ -78,7 +81,10 @@ export const InboxConversation = observer(
       createConversation(
         {
           message: text,
-          context: { agents, resources: resources.map((res) => res.publicURL) },
+          context: {
+            agents: [],
+            resources: resources.map((res) => res.publicURL),
+          },
           title,
           conversationId: conversation?.id,
         },
@@ -186,9 +192,12 @@ export const InboxConversation = observer(
               {conversation?.status !== 'need_approval' && (
                 <ConversationTextarea
                   onSend={onSend}
+                  onStop={() => stopConversation(conversation.id)}
                   className="bg-background-3 w-full border-gray-300 border-1"
                   isLoading={
-                    !!conversationResponse || conversation?.status === 'running'
+                    !!conversationResponse ||
+                    conversation?.status === 'running' ||
+                    stopLoading
                   }
                 />
               )}

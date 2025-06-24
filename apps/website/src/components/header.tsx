@@ -1,5 +1,12 @@
-import { Button } from '@redplanethq/ui';
+import {
+  Button,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@redplanethq/ui';
 import Image from 'next/image';
+
+import { DownloadButton } from './utils';
 
 export const Header = () => {
   // Scroll handler for feature buttons

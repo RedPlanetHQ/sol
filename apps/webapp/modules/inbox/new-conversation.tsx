@@ -31,16 +31,14 @@ export const NewConversation = observer(() => {
     return null;
   }
 
-  const onSend = (
-    text: string,
-    agents: string[],
-    title: string,
-    resources: Resource[],
-  ) => {
+  const onSend = (text: string, title: string, resources: Resource[]) => {
     createConversation(
       {
         message: text,
-        context: { agents, resources: resources.map((res) => res.publicURL) },
+        context: {
+          agents: [],
+          resources: resources.map((res) => res.publicURL),
+        },
         title,
       },
       {

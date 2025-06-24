@@ -47,6 +47,7 @@ export const useMCPServers = () => {
     );
 
     return {
+      id: integrationDefinition.id,
       key: integrationDefinition.slug,
       name: integrationDefinition.name,
     };
@@ -54,7 +55,11 @@ export const useMCPServers = () => {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   return React.useMemo(
-    () => [...getMCPServers(mcp), ...preloadMCPs],
+    () => [
+      ...getMCPServers(mcp),
+      ...preloadMCPs,
+      { id: 'claude', key: 'claude--coding', name: 'Claude code' },
+    ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [mcp, integrationAccountsStore.integrationAccounts.length],
   );

@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import { AddLine, Button, Close, cn } from '@redplanethq/ui';
-import { useCallback, useState, type ReactNode } from 'react';
+import { useCallback, type ReactNode } from 'react';
 import React from 'react';
 import { useDropzone } from 'react-dropzone';
 
@@ -18,10 +18,12 @@ export interface Resource {
 
 interface ResourceUploaderProps {
   children: React.ReactNode;
-  onResourcesChange?: (resources: Resource[]) => void;
+
   className?: string;
   actionComponent?: ReactNode;
-
+  resources: Resource[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setResources: (resources: any) => void;
   // remove later
   inHome?: boolean;
 }
@@ -29,13 +31,13 @@ interface ResourceUploaderProps {
 // Resource uploader HOC component
 export function ResourceUploader({
   children,
-  onResourcesChange,
+
   className,
   actionComponent,
   inHome,
+  resources,
+  setResources,
 }: ResourceUploaderProps) {
-  const [resources, setResources] = useState<Resource[]>([]);
-
   const handleDrop = useCallback(
     async (acceptedFiles: File[]) => {
       for (const file of acceptedFiles) {
@@ -60,32 +62,34 @@ export function ResourceUploader({
 
           const newResources = [...resources, resource];
           setResources(newResources);
-          onResourcesChange?.(newResources);
 
           const publicURL = await onUploadFile(file, (progress) => {
-            setResources((prev) => {
-              const updated = prev.map((r) =>
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            setResources((prev: any) => {
+              const updated = prev.map((r: Resource) =>
                 r.data === base64 ? { ...r, uploadProgress: progress } : r,
               );
-              onResourcesChange?.(updated);
+
               return updated;
             });
           });
 
-          setResources((prev) => {
-            const updated = prev.map((r) =>
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          setResources((prev: any) => {
+            const updated = prev.map((r: Resource) =>
               r.data === base64
                 ? { ...r, publicURL, isUploading: false, uploadProgress: 100 }
                 : r,
             );
-            onResourcesChange?.(updated);
+
             return updated;
           });
         };
         reader.readAsDataURL(file);
       }
     },
-    [resources, onResourcesChange],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [resources],
   );
 
   const { getRootProps, getInputProps, isDragActive, inputRef } = useDropzone({
@@ -98,9 +102,9 @@ export function ResourceUploader({
   });
 
   const removeResource = (index: number) => {
-    setResources((prev) => {
-      const updated = prev.filter((_, i) => i !== index);
-      onResourcesChange?.(updated);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    setResources((prev: any) => {
+      const updated = prev.filter((_: Resource, i: number) => i !== index);
       return updated;
     });
   };
