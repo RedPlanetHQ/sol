@@ -91,7 +91,7 @@
       "group": "CORE",
       "pages": [
         "core/overview",
-        "core/features"
+        "core/local-setup"
       ]
     }
   ],

@@ -1,87 +1,40 @@
 ---
-title: 'CORE Overview'
-description: 'CORE system overview'
+title: "Overview"
+description: "Memory layer for LLMs"
 ---
 
-# CORE System Overview
+## Contextual Observation & Recall Engine (C.O.R.E)
 
-The Context-Oriented Reasoning Engine (CORE) is SOL's fundamental system for managing, processing, and utilizing contextual information. CORE serves as the "brain" behind SOL's ability to provide personalized, relevant assistance across various workflows.
+C.O.R.E provides a private, portable, open-source memory engine for LLMs and AI agents—built entirely for user data control. You choose what to keep private, what to share, and what to connect with other tools, so you’re always in command of your data footprint.
 
-## What is CORE?
+## Why we build C.O.R.E as a separate service?
 
-CORE is a specialized system designed to:
+- **User Ownership:** Give you full control over your own memory, locally stored and accessible by any app or LLM that needs context—no vendor lock-in, no SaaS dependency.
+- **Smarter AI Assistance:** Let SOL (your AI assistant) access your context, facts, and preferences, so its responses are always relevant, accurate, and tailored to you.
 
-1. **Collect and organize context** from multiple sources
-2. **Analyze relationships** between different pieces of information
-3. **Apply reasoning capabilities** to derive insights and actions
-4. **Maintain memory** of important facts and preferences
-5. **Learn from interactions** to improve over time
+## How C.O.R.E is Different?
 
-## CORE Architecture
+Unlike most memory systems—which act like basic sticky notes, only showing what’s true right now—C.O.R.E is built as a dynamic, living temporal knowledge graph:
 
-### Conceptual Layers
+- Every fact is a first-class “Statement” with full history, not just a static edge between entities.
+- Each statement includes what was said, who said it, when it happened, and why it matters.
+- You get full transparency: you can always trace the source, see what changed, and explore why the system “believes” something.
 
-CORE operates through several interconnected layers:
+## Use Case Example: Real Change Auditing
 
-1. **Ingestion Layer**: Captures raw data from integrations, user interactions, and system events
-2. **Processing Layer**: Transforms raw data into structured information
-3. **Context Layer**: Organizes information into a knowledge graph
-4. **Reasoning Layer**: Applies logic and inference to derive meaning and actions
-5. **Memory Layer**: Stores persistent information about users, preferences, and patterns
-6. **Expression Layer**: Translates internal representations into user-facing responses
+Imagine you ask SOL: "What changed in our pricing since Q1?"
+With C.O.R.E, you see exactly what prices changed, who approved them, the context (meeting, email, document), and when each update happened—enabling true compliance, auditability, and insight across products, teams, and time.
 
-### Key Components
+Or ask: “What does Mike know about Project Phoenix?” and get a timeline of meetings, decisions, and facts Mike was involved in, with full traceability to those specific events.
 
-CORE consists of several critical components:
+## Key Features of C.O.R.E
 
-- **Context Manager**: Maintains the active working context for current operations
-- **Knowledge Graph**: Represents entities and relationships between information
-- **Memory System**: Stores long-term information about users and workflows
-- **Reasoning Engine**: Applies logical operations to derive conclusions and actions
-- **Pattern Recognizer**: Identifies recurring patterns in user behavior and data
-- **Learning Module**: Improves system behavior based on interactions
-
-## How CORE Works
-
-### Context Collection
-
-CORE continuously gathers context from:
-
-- Direct user interactions (chat, commands, actions)
-- Connected platform data (emails, messages, code, issues)
-- System events and signals
-- Explicit memory entries
-- Previous interactions and outcomes
-
-### Information Processing
-
-Raw data is processed through:
-
-1. **Entity Extraction**: Identifying key elements like people, projects, dates
-2. **Relationship Mapping**: Determining how entities relate to each other
-3. **Semantic Analysis**: Understanding the meaning and intent behind text
-4. **Temporal Organization**: Placing information in chronological context
-5. **Priority Assessment**: Determining importance and urgency
-
-### Reasoning Capabilities
-
-CORE applies multiple reasoning approaches:
-
-- **Deductive Reasoning**: Drawing logical conclusions from known facts
-- **Inductive Reasoning**: Identifying patterns and making generalizations
-- **Abductive Reasoning**: Forming likely explanations for observations
-- **Temporal Reasoning**: Understanding sequences and cause-effect relationships
-- **Counterfactual Reasoning**: Exploring hypothetical scenarios
-
-### Memory Management
-
-CORE's memory system includes:
-
-- **Working Memory**: Temporary context for current operations
-- **Short-term Memory**: Recent interactions and information
-- **Long-term Memory**: Persistent facts, preferences, and patterns
-- **Episodic Memory**: Records of specific interactions and outcomes
-- **Semantic Memory**: General knowledge and conceptual understanding
+- **Reified Statement Nodes**: Each fact is a Statement linked to subject, predicate, and object, supporting annotations and meta-reasoning.
+- **Temporal Tracking**: Track when facts are valid or outdated—run historical queries (“what was true last month?”), spot trends, and audit change history.
+- **Provenance Awareness**: Every fact is tied to its source (conversation, doc, code, etc.), guaranteeing explainability and trust.
+- **Contradiction Detection**: The system can surface and help resolve knowledge conflicts over time.
+- **Semantic Search**: Entities and statements are vectorized for advanced, context-rich recall—find info even when you don’t know the exact words.
+- **Powerful Analytics**: Answer “why”, “when”, and “how” knowledge evolved—enabling compliance, learning, and robust AI behaviors.
 
 ## Integration with SOL
 
@@ -92,21 +45,3 @@ CORE powers various SOL capabilities:
 - **Workflow Awareness**: Understanding how tasks relate to broader objectives
 - **Proactive Suggestions**: Anticipating needs based on patterns and context
 - **Learning Preferences**: Adapting to individual working styles over time
-
-## CORE vs. Traditional AI Systems
-
-CORE differs from typical AI assistants in several ways:
-
-- **Persistent Context**: Maintains longer-term understanding beyond single conversations
-- **Relationship-Aware**: Understands how different pieces of information relate
-- **Workflow-Oriented**: Designed specifically for professional work contexts
-- **Integration-First**: Built to work with multiple data sources and platforms
-- **Memory-Augmented**: Uses structured memory to improve reasoning
-
-## Next Steps
-
-To learn more about CORE's capabilities:
-
-- Explore [CORE Features](/core/features) for specific use cases
-- See how CORE works with [MCP](/mcp/overview) for model orchestration
-- Learn how CORE supports [Tasks](/concepts/tasks) and [Automations](/automations/rules)
