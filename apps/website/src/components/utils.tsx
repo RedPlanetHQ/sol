@@ -78,50 +78,6 @@ export const TaskItem = ({
   );
 };
 
-export const TaskItemBig = ({
-  number,
-  title,
-  github,
-  google,
-  checked,
-}: {
-  number: string;
-  title: string;
-  github?: boolean;
-  google?: boolean;
-  checked?: boolean;
-}) => {
-  return (
-    <button
-      className={cn(
-        'inline-flex max-w-[300px] h-7 items-center text-left mr-1 hover:bg-grayAlpha-100 p-1 text-sm rounded-sm relative top-[2px]',
-      )}
-    >
-      <Checkbox
-        className="shrink-0 h-[18px] w-[18px] ml-1 mr-2 rounded-[6px]"
-        checked={checked}
-      />
-      <span className="text-muted-foreground font-mono shrink-0 mr-1">
-        T-{number}
-      </span>
-
-      <div className="inline-flex items-center justify-start shrink min-w-[0px] min-h-[24px]">
-        <div
-          className={cn(
-            'text-left truncate text-sm',
-            checked &&
-              'line-through opacity-60 decoration-[1px] decoration-muted-foreground',
-          )}
-        >
-          {title}
-        </div>
-        {github && <RiGithubFill size={14} className="ml-1 shrink-0" />}
-        {google && <Gmail size={14} className="ml-1 shrink-0" />}
-      </div>
-    </button>
-  );
-};
-
 const heading = Heading.extend({
   renderHTML({ node, HTMLAttributes }) {
     const hasLevel = this.options.levels.includes(node.attrs.level);
@@ -189,27 +145,8 @@ export const contextExtensions = [starterKit, heading];
 export const CONTENT = `<h2 class="heading-node h2-style text-xl mt-[1rem] font-medium">Work and projects</h2><ul class="list-disc list-outside pl-4 leading-1 my-1 mb-1.5"><li class="mt-1.5"><p class="leading-[24px] mt-[1rem] paragraph-node">Building sigma, a todo app with personal assistant</p></li><li class="mt-1.5"><p class="leading-[24px] mt-[1rem] paragraph-node">Into coding in typescript</p><p class="leading-[24px] mt-[1rem] paragraph-node"></p></li></ul><h1 class="heading-node h1-style text-2xl mt-[1rem] font-medium">Automation</h1><p class="leading-[24px] mt-[1rem] paragraph-node">When an email with Meeting summary is received create actionable items for me out of that summary</p><p class="leading-[24px] mt-[1rem] paragraph-node">When I get an email from my CA (Akash) create actionable items and add them to \`Tax Documentation\`</p>`;
 
 export const DownloadButton = () => {
-  const [latestVersion, setLatestVersion] = React.useState('0.1.24'); // Default fallback version
-
-  React.useEffect(() => {
-    // Fetch the latest release version from GitHub API
-    fetch('https://api.github.com/repos/RedPlanetHQ/sol/releases/latest')
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.tag_name) {
-          // Remove 'v' prefix if present
-          const version = data.tag_name.replace(/^v/, '');
-          setLatestVersion(version);
-        }
-      })
-      .catch((error) => {
-        console.error('Failed to fetch latest version:', error);
-        // Keep using the default version on error
-      });
-  }, []);
-
   const handleDownload = () => {
-    const downloadUrl = `https://github.com/RedPlanetHQ/sol/releases/download/${latestVersion}/sol-${latestVersion}-universal.dmg`;
+    const downloadUrl = `https://tally.so/r/mOKOp8`;
     window.open(downloadUrl, '_blank');
   };
 

@@ -1,9 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { ScrollArea } from '@redplanethq/ui';
 
-import { Personalisation } from 'src/features/personalisation';
-
-import { Container, Header, Hero, Section } from '../components';
+import { Container, Footer, Header, Hero, Section } from '../components';
 
 const Video = () => {
   return (
@@ -31,14 +29,8 @@ const Index = () => {
           <Header />
           <Hero />
           <Video />
-          <Personalisation />
-          {/* <TaskManagement /> */}
         </div>
-        <img
-          src="/footer.svg"
-          alt="logo"
-          className="w-full bg-transparent opacity-70"
-        />
+        <Footer />
       </ScrollArea>
     </div>
   );
