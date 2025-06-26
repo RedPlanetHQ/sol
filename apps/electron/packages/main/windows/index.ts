@@ -1,4 +1,4 @@
-import {globalShortcut, Menu, nativeImage, Tray, type BrowserWindow} from 'electron';
+import {globalShortcut, Menu, nativeImage, Tray, type BrowserWindow, screen} from 'electron';
 import {createMainWindow} from './main';
 import {createQuickWindow, registerQuickStates} from './quick';
 
@@ -47,7 +47,6 @@ export async function restoreOrCreateWindow() {
   appWindows.main.focus();
 
   //Getting user devices:
-
   return appWindows.main;
 }
 
@@ -69,9 +68,9 @@ export function registerShortcut() {
  */
 export async function restoreOrCreateQuickWindow(show = false) {
   if (!appWindows.quick || appWindows.quick.isDestroyed()) {
-    const {window, state} = await createQuickWindow(show);
+    // Always create the quick window centered on the current display
+    const {window} = await createQuickWindow(show);
     appWindows.quick = window;
-    appWindows.quickState = state;
     registerQuickStates(appWindows.quick);
 
     if (!show) {
@@ -79,17 +78,30 @@ export async function restoreOrCreateQuickWindow(show = false) {
     }
   }
 
-  // Reposition window based on current cursor position
-
-  // Update window position based on current display bounds
-  appWindows.quick.setPosition(appWindows.quickState.x, appWindows.quickState.y);
-
-  // Ensure it remains on top
-  appWindows.quick.setAlwaysOnTop(true, 'screen-saver', 2);
-
   if (!appWindows.quick.isVisible()) {
+    // Move the window to the current display and ensure it is visible on all workspaces
+    const cursorPoint = screen.getCursorScreenPoint();
+    const currentDisplay = screen.getDisplayNearestPoint(cursorPoint);
+    const {workArea} = currentDisplay;
+
+    console.log(cursorPoint, currentDisplay);
+    // Center the window in the current workArea
+    const windowWidth = 400;
+    const windowHeight = 200;
+    const x = Math.round(workArea.x + (workArea.width - windowWidth) / 2);
+    const y = Math.round(workArea.y + (workArea.height - windowHeight) / 2);
+
+    console.log(x, y, windowHeight, windowWidth);
+    appWindows.quick.setBounds({x, y, width: windowWidth, height: windowHeight});
+
+    appWindows.quick.setAlwaysOnTop(true, 'floating');
+    appWindows.quick.setVisibleOnAllWorkspaces(true, {
+      visibleOnFullScreen: true,
+    });
+    appWindows.quick.setFullScreenable(false);
+
+    console.log('coming here');
     appWindows.quick.show();
-    appWindows.quick.focus();
   }
 }
 

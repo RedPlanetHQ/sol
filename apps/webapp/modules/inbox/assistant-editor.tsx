@@ -2,6 +2,7 @@ import { Button, cn } from '@redplanethq/ui';
 import { Command, CommandItem, CommandList } from '@redplanethq/ui';
 import { Document } from '@tiptap/extension-document';
 import HardBreak from '@tiptap/extension-hard-break';
+import { History } from '@tiptap/extension-history';
 import { Paragraph } from '@tiptap/extension-paragraph';
 import { Text } from '@tiptap/extension-text';
 import { MessageSquare } from 'lucide-react';
@@ -210,6 +211,7 @@ export function AssistantEditor({
                 CodeBlockLowlight.configure({
                   lowlight,
                 }),
+                History,
                 HardBreak.configure({
                   keepMarks: true,
                 }),

@@ -31,7 +31,7 @@
     "@eslint/eslintrc": "3.1.0",
     "@types/node": "20.16.11",
     "cross-env": "7.0.3",
-    "electron": "34.2.0",
+    "electron": "37.0.0",
     "electron-builder": "25.1.8",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "9.1.0",

@@ -19,15 +19,6 @@ export function listeners(window: BrowserWindow) {
     return path.join(app.getPath('userData'), 'integrations');
   });
 
-  // Window Fullscreen events
-  window.on('enter-full-screen', () => {
-    window.webContents.send('fullscreen-changed', true);
-  });
-
-  window.on('leave-full-screen', () => {
-    window.webContents.send('fullscreen-changed', false);
-  });
-
   // Main window communication
   // Handle window-to-window communication
   ipcMain.on('from-quick-window', (_event, message) => {

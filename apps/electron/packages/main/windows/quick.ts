@@ -1,89 +1,109 @@
 import {app, BrowserWindow, ipcMain, screen} from 'electron';
-import windowStateKeeper from 'electron-window-state';
 import path, {dirname, join} from 'node:path';
-
 import {fileURLToPath} from 'node:url';
 import {PORT} from '../utils';
 
-// Initialize Fastify
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-export async function createQuickWindow(show = true) {
+// Always center the window on the current display when shown
+export function centerOnCurrentDisplay(quickWindow: BrowserWindow) {
+  const windowWidth = 400;
+  const windowHeight = 200;
+
   const cursorPoint = screen.getCursorScreenPoint();
   const currentDisplay = screen.getDisplayNearestPoint(cursorPoint);
-  const {width} = currentDisplay.workArea;
-  const {bounds} = currentDisplay; // Use bounds of current display with cursor
 
-  // Load the previous state with fallback to defaults
-  const quickWindowState = windowStateKeeper({
-    defaultWidth: 500,
-    defaultHeight: 500,
-  });
+  const {bounds} = currentDisplay;
+  const x = Math.round(bounds.x + (bounds.width - windowWidth) / 2);
+  const y = Math.round(bounds.y + (bounds.height - windowHeight) / 2);
+  quickWindow.setBounds({x, y, width: windowWidth, height: windowHeight});
+}
 
-  const smallerWindow = new BrowserWindow({
-    show: false, // Use the 'ready-to-show' event to show the instantiated BrowserWindow.
-    width: 500, // Set minimum width
-    height: 500, // Set minimum height
+export async function createQuickWindow(show = false) {
+  // Desired input box size
+  const windowWidth = 400;
+  const windowHeight = 200;
+
+  // Get the current display nearest to the cursor
+  const cursorPoint = screen.getCursorScreenPoint();
+  const currentDisplay = screen.getDisplayNearestPoint(cursorPoint);
+  const {bounds} = currentDisplay;
+
+  // Center the window on the current display
+  const x = Math.round(bounds.x + (bounds.width - windowWidth) / 2);
+  const y = Math.round(bounds.y + (bounds.height - windowHeight) / 2);
+
+  const quickWindow = new BrowserWindow({
+    show: false,
+    width: windowWidth,
+    height: windowHeight,
     icon: path.join(__dirname, '/../../../buildResources/icon.png'),
     resizable: false,
-    x: quickWindowState.x ?? bounds.x + width - 500,
-    y: quickWindowState.y ?? 10,
-    movable: true,
+    x,
+    y,
+    movable: false, // Not movable, always centered
     minimizable: false,
+    modal: true,
+    visualEffectState: 'active',
     maximizable: false,
-    fullscreenable: false,
     autoHideMenuBar: true,
     frame: false,
-    transparent: true,
-    useContentSize: true,
     skipTaskbar: true,
-    hasShadow: true,
-    type: process.platform === 'darwin' ? 'panel' : 'toolbar',
+    hasShadow: false,
+    type: process.platform === 'darwin' ? 'toolbar' : 'toolbar',
     alwaysOnTop: true,
     center: false,
     webPreferences: {
       nodeIntegration: true,
+      backgroundThrottling: false,
       preload: join(app.getAppPath(), 'packages/preload/dist/index.mjs'),
     },
-
     vibrancy: 'fullscreen-ui',
+    transparent: true,
   });
 
-  smallerWindow.setAlwaysOnTop(true, 'screen-saver', 2);
-  smallerWindow.setVibrancy('fullscreen-ui');
-  smallerWindow.setVisibleOnAllWorkspaces(true, {
+  quickWindow.setAlwaysOnTop(true, 'floating');
+  quickWindow.setVibrancy('fullscreen-ui');
+  quickWindow.setVisibleOnAllWorkspaces(true, {
     visibleOnFullScreen: true,
   });
-
-  quickWindowState.manage(smallerWindow);
+  quickWindow.setFullScreenable(false);
 
   if (app.dock) app.dock.show();
 
-  /**
-   * If the 'show' property of the BrowserWindow's constructor is omitted from the initialization options,
-   * it then defaults to 'true'. This can cause flickering as the window loads the html content,
-   * and it also has show problematic behaviour with the closing of the window.
-   * Use `show: false` and listen to the  `ready-to-show` event to show the window.
-   *
-   * @see https://github.com/electron/electron/issues/25012 for the afford mentioned issue.
-   */
-  smallerWindow.on('ready-to-show', () => {
+  quickWindow.on('ready-to-show', () => {
     if (show) {
-      smallerWindow.show();
-
+      quickWindow.show();
       if (import.meta.env.DEV) {
-        // smallerWindow?.webContents.openDevTools();
+        // quickWindow?.webContents.openDevTools();
       }
     }
   });
 
-  /**
-   * Load the main page of the main window.
-   */
-  smallerWindow.loadURL(`http://localhost:${PORT}/quick`);
+  // Hide the window when it loses focus (blur)
+  quickWindow.on('blur', () => {
+    quickWindow.hide();
+  });
 
-  return {window: smallerWindow, state: quickWindowState};
+  // Hide the window if it is moved out of the current screen
+  quickWindow.on('move', () => {
+    // Get the current window bounds and the display it's supposed to be on
+    const winBounds = quickWindow.getBounds();
+    const display = screen.getDisplayMatching(winBounds);
+    const cursorDisplay = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
+    // If the window is not on the same display as the cursor, hide it
+    if (display.id !== cursorDisplay.id) {
+      quickWindow.hide();
+    }
+  });
+
+  /**
+   * Load the main page of the quick window.
+   */
+  quickWindow.loadURL(`http://localhost:${PORT}/dashboard`);
+
+  return {window: quickWindow, state: null};
 }
 
 export function registerQuickStates(window: BrowserWindow) {
