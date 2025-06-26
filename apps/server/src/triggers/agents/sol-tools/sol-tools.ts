@@ -2,7 +2,13 @@ import { tool } from 'ai';
 import { z } from 'zod';
 
 import { formatSolError, isSolError } from './errors';
-import { createList, getList, getLists, updateList } from './operations/list';
+import {
+  createList,
+  getList,
+  getLists,
+  updateList,
+  updateListPartial,
+} from './operations/list';
 import { retrieveMemory } from './operations/memory';
 import {
   createTask,
@@ -10,6 +16,7 @@ import {
   getTaskById,
   searchTasks,
   updateTask,
+  updateTaskPartial,
 } from './operations/task';
 import { createAssistantTask, updateAssistantTask } from './operations/task';
 import {
@@ -17,6 +24,7 @@ import {
   GetListsSchema,
   ListSchema,
   UpdateListSchema,
+  UpdatePartialListDescriptionSchema,
 } from './types/list';
 import { RetrieveMemorySchema } from './types/memory';
 import {
@@ -26,6 +34,7 @@ import {
   GetTaskSchema,
   SearchTasksSchema,
   updateAssistantTaskSchema,
+  UpdatePartialTaskDescriptionSchema,
   UpdateTaskSchema,
 } from './types/task';
 
@@ -53,6 +62,12 @@ export function getSolTools(isMemoryConfigured = false) {
       description:
         'Updates an existing list with specified title and optional icon. Use when user explicitly asks to update a list. NOT for adding items to existing lists (use update_page for that). REQUIRES title parameter, icon is optional.',
       parameters: UpdateListSchema,
+    }),
+
+    'sol--update_list_partial_content': tool({
+      description:
+        'Makes targeted updates to list page HTML content using position-based operations. Perfect for inserting, replacing, or deleting specific portions of content without modifying the entire page. Supports operations by character offset or text search. REQUIRES listId parameter and operation type (insert/replace/append/prepend/delete).',
+      parameters: UpdatePartialListDescriptionSchema,
     }),
 
     'sol--search_tasks': tool({
@@ -96,6 +111,12 @@ Combine multiple filters with spaces, e.g.:
       description:
         'Permanently deletes a task. DESTRUCTIVE ACTION - use with caution and confirmation. REQUIRES task_id parameter.',
       parameters: DeleteTaskSchema,
+    }),
+
+    'sol--update_task_partial_content': tool({
+      description:
+        'Makes targeted updates to task page HTML content using position-based operations. Perfect for inserting, replacing, or deleting specific portions of content without modifying the entire page. Supports operations by character offset or text search. REQUIRES taskId parameter and operation type (insert/replace/append/prepend/delete).',
+      parameters: UpdatePartialTaskDescriptionSchema,
     }),
 
     'sol--create_assistant_task': tool({
@@ -157,6 +178,11 @@ export async function callSolTool(name: string, parameters: any) {
         const result = await updateList(args);
         return JSON.stringify(result, null, 2);
       }
+      case 'update_list_partial_content': {
+        const args = UpdatePartialListDescriptionSchema.parse(parameters);
+        const result = await updateListPartial(args);
+        return JSON.stringify(result, null, 2);
+      }
       case 'get_task_by_id': {
         const args = GetTaskSchema.parse(parameters);
         const result = await getTaskById(args);
@@ -175,6 +201,11 @@ export async function callSolTool(name: string, parameters: any) {
       case 'delete_task': {
         const args = DeleteTaskSchema.parse(parameters);
         const result = await deleteTask(args);
+        return JSON.stringify(result, null, 2);
+      }
+      case 'update_task_partial': {
+        const args = UpdatePartialTaskDescriptionSchema.parse(parameters);
+        const result = await updateTaskPartial(args);
         return JSON.stringify(result, null, 2);
       }
       case 'get_my_memory': {

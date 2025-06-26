@@ -4,7 +4,6 @@ import { logger, metadata, task } from '@trigger.dev/sdk/v3';
 import { format } from 'date-fns';
 
 import { run } from './chat-utils';
-import { addToMemory } from './memory-utils';
 import { callSolTool } from '../sol-tools/sol-tools';
 import { MCP } from '../utils/mcp';
 import { HistoryStep } from '../utils/types';
@@ -166,13 +165,13 @@ export const chat = task({
         payload.conversationId,
       );
 
-      await addToMemory(
-        init.conversation.id,
-        message,
-        agentUserMessage,
-        init.preferences,
-        init.userName,
-      );
+      // await addToMemory(
+      //   init.conversation.id,
+      //   message,
+      //   agentUserMessage,
+      //   init.preferences,
+      //   init.userName,
+      // );
     } catch (e) {
       await updateConversationStatus('failed', payload.conversationId);
       throw new Error(e);

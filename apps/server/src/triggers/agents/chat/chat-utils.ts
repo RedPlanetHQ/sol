@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import fs from 'fs';
+import path from 'path';
+
 import { ActionStatusEnum, LLMMappings } from '@redplanethq/sol-sdk';
 import { logger } from '@trigger.dev/sdk/v3';
 import { CoreMessage, DataContent, jsonSchema, tool, ToolSet } from 'ai';
@@ -114,7 +117,28 @@ const seeFileTool = tool({
   }),
 });
 
-const internalTools = ['sol--load_mcp', 'sol--see_file', 'sol--get_my_memory'];
+const progressUpdateTool = tool({
+  description:
+    'Send a progress update to the user about what has been discovered or will be done next in a crisp and user friendly way no technical terms',
+  parameters: jsonSchema({
+    type: 'object',
+    properties: {
+      message: {
+        type: 'string',
+        description: 'The progress update message to send to the user',
+      },
+    },
+    required: ['message'],
+    additionalProperties: false,
+  }),
+});
+
+const internalTools = [
+  'sol--load_mcp',
+  'sol--see_file',
+  'sol--get_my_memory',
+  'sol--progress_update',
+];
 
 async function needConfirmation(
   toolCalls: any[],
@@ -137,6 +161,7 @@ async function needConfirmation(
 
   const response = generate(
     messages,
+    false,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (_event) => {},
     {
@@ -244,6 +269,7 @@ async function makeNextCall(
   totalCost: TotalCost,
   availableMCPServers: string[],
   preferences: Preferences,
+  guardLoop: number,
 ): Promise<LLMOutputInterface> {
   const { context, history, previousHistory } = executionState;
 
@@ -292,9 +318,27 @@ async function makeNextCall(
     messages = await addResources(messages, executionState.resources);
   }
 
+  // Store the composed messages in a file for debugging/auditing
+  try {
+    const filePath = path.join(
+      process.cwd(),
+      'logs',
+      `chat-messages-${Date.now()}.json`,
+    );
+    fs.promises
+      .mkdir(path.dirname(filePath), { recursive: true })
+      .catch(() => {});
+    fs.promises
+      .writeFile(filePath, JSON.stringify(messages, null, 2))
+      .catch(() => {});
+  } catch (err) {
+    logger.warn('Failed to write chat messages to file', err);
+  }
+
   // Get the next action from the LLM
   const response = generate(
     messages,
+    guardLoop > 0 && guardLoop % 3 === 0,
     (event) => {
       const usage = event.usage;
       totalCost.inputTokens += usage.promptTokens;
@@ -330,6 +374,7 @@ export async function* run(
     'sol--load_mcp': loadMCPTools,
     'claude--coding': claudeCodeTool,
     'sol--see_file': seeFileTool,
+    'sol--progress_update': progressUpdateTool,
   };
 
   logger.info('Tools have been formed');
@@ -367,6 +412,7 @@ export async function* run(
         totalCost,
         Object.keys(availableMCPServers.mcpServers),
         preferences,
+        guardLoop,
       );
 
       let toolCallInfo;
@@ -442,7 +488,7 @@ export async function* run(
       if (askConfirmation) {
         const confirmation = await needConfirmation(
           toolCalls,
-          preferences.autonomy,
+          preferences.autonomy ?? 50,
           message,
         );
 
@@ -471,7 +517,7 @@ export async function* run(
               skillOutput: '',
               skillStatus: ActionStatusEnum.TOOL_REQUEST,
             };
-            stepRecord.userMessage = `\n<skill id="${stepRecord.skillId}" name="${toolName}" agent="${agent}"></skill>\n`;
+            stepRecord.userMessage = `\n${confirmation.args.message}\n<skill id="${stepRecord.skillId}" name="${toolName}" agent="${agent}"></skill>\n`;
 
             yield Message(JSON.stringify(stepRecord), AgentMessageType.STEP);
 
@@ -631,6 +677,15 @@ export async function* run(
                   },
                 );
                 result = 'File content added to resources';
+              } else if (toolName === 'progress_update') {
+                yield Message('', AgentMessageType.MESSAGE_START);
+                yield Message(
+                  skillInput.message,
+                  AgentMessageType.MESSAGE_CHUNK,
+                );
+                stepRecord.userMessage += skillInput.message;
+                yield Message('', AgentMessageType.MESSAGE_END);
+                result = 'Progress update sent successfully';
               } else {
                 // Execute standard SOL tool
                 result = await callSolTool(skillName, skillInput);

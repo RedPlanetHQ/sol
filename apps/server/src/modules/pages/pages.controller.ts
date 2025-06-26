@@ -20,6 +20,7 @@ import { AuthGuard } from 'modules/auth/auth.guard';
 import { Workspace } from 'modules/auth/session.decorator';
 
 import { PagesService } from './pages.service';
+import { UpdatePartialPageDto } from './pages.utils';
 
 @Controller({
   version: '1',
@@ -73,6 +74,18 @@ export class PagesController {
     @Body() pageData: UpdatePageDto,
   ): Promise<PublicPage> {
     return await this.pagesService.updatePage(pageData, pageParams.pageId);
+  }
+
+  @Post(':pageId/partial')
+  @UseGuards(AuthGuard)
+  async updatePartialPage(
+    @Param() pageParams: PageRequestParamsDto,
+    @Body() pageData: UpdatePartialPageDto,
+  ): Promise<PublicPage> {
+    return await this.pagesService.updatePartialPage(
+      pageParams.pageId,
+      pageData,
+    );
   }
 
   @Delete(':pageId')

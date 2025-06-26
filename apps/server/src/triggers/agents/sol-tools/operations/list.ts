@@ -6,6 +6,7 @@ import {
   GetListsParams,
   ListParams,
   UpdateListParams,
+  UpdatePartialListDescriptionParams,
 } from '../types/list.js';
 
 /**
@@ -30,6 +31,26 @@ export async function updateList(params: UpdateListParams) {
     htmlDescription: params.htmlDescription,
   });
   return response.data;
+}
+
+export async function updateListPartial(
+  params: UpdatePartialListDescriptionParams,
+) {
+  const { listId, ...data } = params;
+  const response = await axios.get(`/api/v1/lists/${listId}`);
+  const list = response.data;
+
+  const pageData = {
+    htmlContent: data.pageDescription,
+    ...data,
+  };
+
+  const pageResponse = await axios.post(
+    `/api/v1/pages/${list.pageId}/partial`,
+    pageData,
+  );
+  list.pageDescription = pageResponse.data;
+  return list;
 }
 
 export async function deleteList(params: DeleteListParams) {
