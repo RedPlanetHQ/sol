@@ -15,6 +15,9 @@ export function Footer() {
             <Image src="/logo_light.svg" alt="logo" width={48} height={48} />
           </div>
 
+          <div className="text-base mx-4 mb-1 text-center font-mono">
+            Be among the first explorers—join our crew and get early access
+          </div>
           <div className="text-sm mx-4">
             © {new Date().getFullYear()} RedplanetHQ. All rights reserved.
           </div>

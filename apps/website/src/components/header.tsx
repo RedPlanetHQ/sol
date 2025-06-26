@@ -22,7 +22,7 @@ export const Header = () => {
             variant="secondary"
             className="gap-2 items-center w-fit"
             onClick={() =>
-              window.open('https://github.com/tegonhq/sigma', '_blank')
+              window.open('https://github.com/RedPlanetHQ/sol', '_blank')
             }
           >
             <RiGithubFill size={20} />

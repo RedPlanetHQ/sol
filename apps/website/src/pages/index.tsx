@@ -2,6 +2,8 @@
 import { ScrollArea } from '@redplanethq/ui';
 
 import { Container, Footer, Header, Hero, Section } from '../components';
+import { Personalisation } from '../features/personalisation';
+import { MemorySection } from '../features/memory';
 
 const Video = () => {
   return (
@@ -10,7 +12,7 @@ const Video = () => {
         <div className="w-full aspect-video">
           <iframe
             className="w-full h-full rounded"
-            src="https://www.youtube.com/embed/LEyjZutXA38"
+            src="https://www.youtube.com/embed/CvR5kIGsqns"
             title="SOL Demo Video"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
@@ -28,7 +30,9 @@ const Index = () => {
         <div className="p-6">
           <Header />
           <Hero />
-          <Video />
+          {/* <Video /> */}
+          <Personalisation />
+          <MemorySection />
         </div>
         <Footer />
       </ScrollArea>

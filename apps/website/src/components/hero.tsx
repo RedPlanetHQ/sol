@@ -11,8 +11,8 @@ export const Hero = () => {
             Your 25-Hour-Day <br /> Personal Assistant
           </h1>
           <p className="text-lg text-center mb-8 font-normal text-white max-w-[83%] md:max-w-[65%]">
-            SOL funnels Slack, Linear, Gmail & more into one feed flags what’s
-            urgent and automates busywork.
+          Sol unifies tasks from Slack, GitHub, Linear;
+          learns your workflow, and acts as your AI peer programmer.
           </p>
 
           <div className="flex flex-col md:flex-row gap-2">
