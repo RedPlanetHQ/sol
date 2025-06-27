@@ -66,6 +66,11 @@ const ISSUE_FRAGMENT = `
     creator {
       ...UserFields
     }
+    subscribers {
+      nodes {
+        ...UserFields
+      }
+    }
     priority
   }
   ${USER_FRAGMENT}
@@ -262,7 +267,10 @@ async function processIssueActivities(
       const isAssignee = issue.assignee?.id === userId;
       const isCreatedByUser = issue.creator?.id === userId;
       
-      if (!isAssignee && !isCreatedByUser && !isCreator) {
+      // Check if user is subscribed to the issue
+      const isSubscribed = issue.subscribers?.nodes?.some((subscriber: any) => subscriber.id === userId) || false;
+      
+      if (!isAssignee && !isCreatedByUser && !isCreator && !isSubscribed) {
         continue;
       }
 
@@ -287,13 +295,24 @@ async function processIssueActivities(
           integrationAccountId: integrationAccount.id,
         });
       }
+      
+      // Process issues where the user is subscribed (if not creator or assignee)
+      if (isSubscribed && !isCreatedByUser && !isAssignee) {
+        activities.push({
+          url: `https://api.linear.app/issue/${issue.id}`,
+          title: `Update on issue ${issue.identifier} you're subscribed to: ${issue.title}`,
+          sourceId: `linear-issue-subscribed-${issue.id}`,
+          sourceURL: issue.url,
+          integrationAccountId: integrationAccount.id,
+        });
+      }
 
       // Process status changes
       if (issue.history && issue.history.nodes) {
         for (const historyItem of issue.history.nodes) {
           if (historyItem.toStateId && historyItem.fromStateId !== historyItem.toStateId) {
             // Skip if not relevant to the user
-            if (!isAssignee && !isCreatedByUser) {
+            if (!isAssignee && !isCreatedByUser && !isSubscribed) {
               continue;
             }
 
@@ -312,9 +331,14 @@ async function processIssueActivities(
               statusText = 'reopened';
             }
 
-            const title = isCreatedByUser || isAssignee
-              ? `You ${statusText} issue ${issue.identifier}: ${issue.title}`
-              : `${issue.assignee?.name || 'Someone'} ${statusText} issue ${issue.identifier}: ${issue.title}`;
+            let title;
+            if (isCreatedByUser || isAssignee) {
+              title = `You ${statusText} issue ${issue.identifier}: ${issue.title}`;
+            } else if (isSubscribed) {
+              title = `Issue ${issue.identifier} you're subscribed to was ${statusText}: ${issue.title}`;
+            } else {
+              title = `${issue.assignee?.name || 'Someone'} ${statusText} issue ${issue.identifier}: ${issue.title}`;
+            }
 
             activities.push({
               url: `https://api.linear.app/issue/${issue.id}`,
@@ -328,7 +352,7 @@ async function processIssueActivities(
           // Process priority changes
           if (historyItem.toPriority && historyItem.fromPriority !== historyItem.toPriority) {
             // Skip if not relevant to the user
-            if (!isAssignee && !isCreatedByUser) {
+            if (!isAssignee && !isCreatedByUser && !isSubscribed) {
               continue;
             }
 
@@ -342,9 +366,16 @@ async function processIssueActivities(
             
             const newPriority = priorityMap[historyItem.toPriority] || 'a new priority';
             
-            const title = isCreatedByUser
-              ? `You changed priority of issue ${issue.identifier} to ${newPriority}`
-              : `${issue.creator?.name || 'Someone'} changed priority of issue ${issue.identifier} to ${newPriority}`;
+            let title;
+            if (isCreatedByUser) {
+              title = `You changed priority of issue ${issue.identifier} to ${newPriority}`;
+            } else if (isAssignee) {
+              title = `${issue.creator?.name || 'Someone'} changed priority of your assigned issue ${issue.identifier} to ${newPriority}`;
+            } else if (isSubscribed) {
+              title = `Priority of issue ${issue.identifier} you're subscribed to changed to ${newPriority}`;
+            } else {
+              title = `${issue.creator?.name || 'Someone'} changed priority of issue ${issue.identifier} to ${newPriority}`;
+            }
             
             activities.push({
               url: `https://api.linear.app/issue/${issue.id}`,
@@ -405,8 +436,11 @@ async function processCommentActivities(
       const isIssueCreator = comment.issue?.creator?.id === userId;
       const isAssignee = comment.issue?.assignee?.id === userId;
       
+      // Check if user is subscribed to the issue
+      const isSubscribed = comment.issue?.subscribers?.nodes?.some((subscriber: any) => subscriber.id === userId) || false;
+      
       // Skip if not relevant to user
-      if (!isCommenter && !isIssueCreator && !isAssignee) {
+      if (!isCommenter && !isIssueCreator && !isAssignee && !isSubscribed) {
         // TODO: Check for mentions in the comment body
         continue;
       }
@@ -418,9 +452,16 @@ async function processCommentActivities(
         // Comment created by the user
         title = `You commented on issue ${comment.issue.identifier}: ${truncateText(comment.body, 100)}`;
         sourceId = `linear-comment-created-${comment.id}`;
-      } else if (isAssignee || isIssueCreator) {
-        // Comment on issue where user is assignee or creator
-        const relation = isAssignee ? 'your assigned issue' : 'your issue';
+      } else if (isAssignee || isIssueCreator || isSubscribed) {
+        // Comment on issue where user is assignee, creator, or subscriber
+        let relation = 'an issue';
+        if (isAssignee) {
+          relation = 'your assigned issue';
+        } else if (isIssueCreator) {
+          relation = 'your issue';
+        } else if (isSubscribed) {
+          relation = 'an issue you\'re subscribed to';
+        }
         title = `${comment.user?.name || 'Someone'} commented on ${relation} ${comment.issue.identifier}: ${truncateText(comment.body, 100)}`;
         sourceId = `linear-comment-received-${comment.id}`;
       }
