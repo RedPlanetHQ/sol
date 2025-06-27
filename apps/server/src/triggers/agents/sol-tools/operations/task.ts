@@ -9,6 +9,7 @@ import {
   Task,
   CreateAssistantTaskParams,
   UpdateAssistantTaskParams,
+  UpdatePartialTaskDescriptionParams,
 } from '../types/task.js';
 
 /**
@@ -60,6 +61,26 @@ export async function updateTask(params: UpdateTaskParams) {
     updateData,
   );
   return response.data;
+}
+
+export async function updateTaskPartial(
+  params: UpdatePartialTaskDescriptionParams,
+) {
+  const { taskId, ...data } = params;
+  const response = await axios.get(`/api/v1/tasks/${taskId}`);
+  const task = response.data;
+
+  const pageData = {
+    htmlContent: data.pageDescription,
+    ...data,
+  };
+
+  const pageResponse = await axios.post(
+    `/api/v1/pages/${task.pageId}/partial`,
+    pageData,
+  );
+  task.pageDescription = pageResponse.data;
+  return task;
 }
 
 /**

@@ -28,10 +28,13 @@ import { TransactionClient } from 'modules/tasks/tasks.utils';
 
 import {
   dataChanged,
+  findTextPosition,
   getOutlinksTaskId,
   getTaskItemContent,
   getTaskListsInPage,
   removeTasksFromPage,
+  updateHtmlContent,
+  UpdatePartialPageDto,
   updateTaskListsInPage,
   upsertTasksInPage,
 } from './pages.utils';
@@ -218,6 +221,54 @@ export class PagesService {
     }
 
     return page;
+  }
+
+  async updatePartialPage(
+    pageId: string,
+    data: UpdatePartialPageDto,
+  ): Promise<PublicPage> {
+    // Get the current page
+    const page = await this.prisma.page.findUnique({
+      where: { id: pageId },
+      select: { description: true, ...PageSelect },
+    });
+
+    if (!page?.description) {
+      throw new Error(`Page ${pageId} not found or has no content`);
+    }
+
+    // Parse the current description JSON and convert to HTML
+    const descriptionJson = JSON.parse(page.description);
+    const currentHtml = convertTiptapJsonToHtml(descriptionJson);
+
+    // If findText is provided, find its position in the HTML
+    if (data.findText && data.startOffset === undefined) {
+      const offset = findTextPosition(
+        currentHtml,
+        data.findText.text,
+        data.findText.ignoreCase,
+      );
+
+      if (offset === -1) {
+        throw new Error(
+          `Text "${data.findText.text}" not found in page content`,
+        );
+      }
+
+      data.startOffset = offset;
+
+      // If it's a replace operation and no endOffset/length is provided,
+      // set the length to the length of the found text
+      if (data.endOffset === undefined && data.length === undefined) {
+        data.length = data.findText.text.length;
+      }
+    }
+
+    // Update the HTML content
+    const updatedHtml = updateHtmlContent(currentHtml, data);
+
+    // Update the page with the modified content
+    return await this.updatePage({ htmlDescription: updatedHtml }, pageId);
   }
 
   async deletePage(pageId: string): Promise<PublicPage> {

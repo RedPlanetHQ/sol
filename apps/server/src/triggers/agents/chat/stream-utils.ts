@@ -112,6 +112,7 @@ export async function* processTag(
 
 export async function* generate(
   messages: CoreMessage[],
+  isProgressUpdate: boolean = false,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onFinish?: (event: any) => void,
   tools?: ToolSet,
@@ -192,6 +193,9 @@ export async function* generate(
         temperature: modelTemperature,
         maxSteps: 10,
         tools,
+        ...(isProgressUpdate
+          ? { toolChoice: { type: 'tool', toolName: 'sol--progress_update' } }
+          : {}),
         toolCallStreaming: true,
         onFinish,
         ...(system ? { system } : {}),

@@ -71,8 +71,8 @@ export const taskRunSchedule = schedules.task({
       workspaceId: task.workspaceId,
     });
 
-    // Delete this schedule once it ran
-    if (task.recurrence && task.recurrence.length > 0) {
+    // Delete this schedule once it ran for non-recurring tasks
+    if (!task.recurrence || task.recurrence.length === 0) {
       await schedules.del(data.scheduleId);
     }
 

@@ -78,6 +78,28 @@ export const UpdateTaskSchema = z.object({
     ),
 });
 
+export const UpdatePartialTaskDescriptionSchema = z.object({
+  taskId: z.string().uuid().describe('Unique identifier of the task to update'),
+  pageDescription: z
+    .string()
+    .optional()
+    .describe('Description for the task page in tiptap HTML format'),
+  operation: z
+    .enum(['insert', 'replace', 'append', 'prepend', 'delete'])
+    .describe('Operation to perform on the task page'),
+  startOffset: z.number().optional().describe('Start offset for the operation'),
+  endOffset: z.number().optional().describe('End offset for the operation'),
+  findText: z
+    .object({
+      text: z.string().describe('Text to find in the task page'),
+      ignoreCase: z
+        .boolean()
+        .optional()
+        .describe('Ignore case when finding text'),
+    })
+    .optional(),
+});
+
 export const DeleteTaskSchema = z.object({
   task_id: z
     .string()
@@ -144,6 +166,9 @@ export type TaskStatus = z.infer<typeof TaskStatusEnum>;
 export type GetTaskParams = z.infer<typeof GetTaskSchema>;
 export type CreateTaskParams = z.infer<typeof CreateTaskSchema>;
 export type UpdateTaskParams = z.infer<typeof UpdateTaskSchema>;
+export type UpdatePartialTaskDescriptionParams = z.infer<
+  typeof UpdatePartialTaskDescriptionSchema
+>;
 export type DeleteTaskParams = z.infer<typeof DeleteTaskSchema>;
 export type SearchTasksParams = z.infer<typeof SearchTasksSchema>;
 export type CreateAssistantTaskParams = z.infer<

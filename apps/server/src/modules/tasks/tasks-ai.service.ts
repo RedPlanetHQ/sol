@@ -98,6 +98,7 @@ export default class TasksAIService {
             .replace('{{currentTime}}', reccurenceInput.currentTime),
         },
       ],
+      false,
       () => {},
       undefined,
       '',

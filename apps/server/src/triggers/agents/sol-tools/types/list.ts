@@ -22,6 +22,32 @@ export const UpdateListSchema = z.object({
 
 export type UpdateListParams = z.infer<typeof UpdateListSchema>;
 
+export const UpdatePartialListDescriptionSchema = z.object({
+  listId: z.string().uuid().describe('Unique identifier of the list to update'),
+  pageDescription: z
+    .string()
+    .optional()
+    .describe('Description for the list page in tiptap HTML format'),
+  operation: z
+    .enum(['insert', 'replace', 'append', 'prepend', 'delete'])
+    .describe('Operation to perform on the list page'),
+  startOffset: z.number().optional().describe('Start offset for the operation'),
+  endOffset: z.number().optional().describe('End offset for the operation'),
+  findText: z
+    .object({
+      text: z.string().describe('Text to find in the list page'),
+      ignoreCase: z
+        .boolean()
+        .optional()
+        .describe('Ignore case when finding text'),
+    })
+    .optional(),
+});
+
+export type UpdatePartialListDescriptionParams = z.infer<
+  typeof UpdatePartialListDescriptionSchema
+>;
+
 export const DeleteListSchema = z.object({
   listId: z.string().uuid().describe('Unique identifier of the list to delete'),
 });

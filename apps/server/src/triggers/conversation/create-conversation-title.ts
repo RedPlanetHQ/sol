@@ -18,6 +18,7 @@ export const createConversationTitle = task({
           ),
         },
       ],
+      false,
       () => {},
       undefined,
       '',

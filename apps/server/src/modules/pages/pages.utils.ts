@@ -1,5 +1,120 @@
 import { JsonValue, Page, PublicPage, Task } from '@redplanethq/sol-sdk';
-import { convertTiptapJsonToHtml } from '@sol/editor-extensions';
+import {
+  convertHtmlToTiptapJson,
+  convertTiptapJsonToHtml,
+} from '@sol/editor-extensions';
+
+export interface UpdatePartialPageDto {
+  // HTML content to insert/replace
+  htmlContent?: string;
+  // Operation type
+  operation: 'insert' | 'replace' | 'append' | 'prepend' | 'delete';
+  // Start position for the operation (character offset)
+  startOffset?: number;
+  // End position for replace/delete operations (character offset)
+  endOffset?: number;
+  // Number of characters to delete/replace
+  length?: number;
+  // Text to find and position the operation at
+  findText?: {
+    text: string;
+    ignoreCase?: boolean;
+  };
+}
+
+/**
+ * Updates HTML content based on position and operation
+ * @param html - Original HTML content
+ * @param options - Update options
+ * @returns Updated HTML content
+ */
+export function updateHtmlContent(
+  html: string,
+  options: UpdatePartialPageDto,
+): string {
+  const {
+    operation,
+    htmlContent = '',
+    startOffset = 0,
+    endOffset,
+    length,
+  } = options;
+
+  // Calculate end offset for replace/delete operations
+  let finalEndOffset = endOffset;
+  if (!finalEndOffset && length !== undefined) {
+    finalEndOffset = startOffset + length;
+  } else if (!finalEndOffset) {
+    finalEndOffset = startOffset;
+  }
+
+  // Apply the operation
+  switch (operation) {
+    case 'insert':
+      let finalStartOffset = startOffset;
+      if (length) {
+        finalStartOffset += length;
+      }
+      return (
+        html.slice(0, finalStartOffset) +
+        htmlContent +
+        html.slice(finalStartOffset)
+      );
+
+    case 'replace':
+      return (
+        html.slice(0, startOffset) + htmlContent + html.slice(finalEndOffset)
+      );
+
+    case 'append':
+      return html + htmlContent;
+
+    case 'prepend':
+      return htmlContent + html;
+
+    case 'delete':
+      return html.slice(0, startOffset) + html.slice(finalEndOffset);
+
+    default:
+      throw new Error(`Unsupported operation: ${operation}`);
+  }
+}
+
+/**
+ * Updates HTML content and ensures it remains valid Tiptap JSON
+ * @param html - Original HTML content
+ * @param options - Update options
+ * @returns Valid HTML content after update
+ */
+export function updateHtmlContentSafely(
+  html: string,
+  options: UpdatePartialPageDto,
+): string {
+  // First perform the raw HTML update
+  const updatedHtml = updateHtmlContent(html, options);
+
+  // Then convert to Tiptap JSON and back to ensure validity
+  const json = convertHtmlToTiptapJson(updatedHtml);
+  return convertTiptapJsonToHtml(json);
+}
+
+/**
+ * Finds the position of a text pattern in the HTML content
+ * @param html - HTML content to search in
+ * @param pattern - Text pattern to find
+ * @param ignoreCase - Whether to ignore case when matching
+ * @returns Character offset of the match or -1 if not found
+ */
+export function findTextPosition(
+  html: string,
+  pattern: string,
+  ignoreCase = false,
+): number {
+  const searchHtml = ignoreCase ? html.toLowerCase() : html;
+  const searchPattern = ignoreCase ? pattern.toLowerCase() : pattern;
+
+  return searchHtml.indexOf(searchPattern);
+}
 
 export function getTaskListsInPage(page: PublicPage) {
   const description = page.description;

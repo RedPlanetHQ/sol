@@ -90,6 +90,7 @@ export const beautifyTask = task({
               .replace('{{lists}}', lists.join('\n')),
           },
         ],
+        false,
         () => {},
         undefined,
         '',
