@@ -1,0 +1,17 @@
+{
+  "name": "Linear extension",
+  "key": "linear",
+  "description": "Plan, track, and manage your agile and software development projects in Linear. Customize your workflow, collaborate, and release great software.",
+  "icon": "linear",
+  "auth": {
+    "OAuth2": {
+      "token_url": "https://linear.app/oauth/token",
+      "authorization_url": "https://linear.app/oauth/authorize",
+      "scopes": [
+        "read",
+        "write"
+      ],
+      "scope_separator": " "
+    }
+  }
+}
