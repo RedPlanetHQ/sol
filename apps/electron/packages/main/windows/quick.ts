@@ -6,24 +6,10 @@ import {PORT} from '../utils';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Always center the window on the current display when shown
-export function centerOnCurrentDisplay(quickWindow: BrowserWindow) {
-  const windowWidth = 400;
-  const windowHeight = 200;
-
-  const cursorPoint = screen.getCursorScreenPoint();
-  const currentDisplay = screen.getDisplayNearestPoint(cursorPoint);
-
-  const {bounds} = currentDisplay;
-  const x = Math.round(bounds.x + (bounds.width - windowWidth) / 2);
-  const y = Math.round(bounds.y + (bounds.height - windowHeight) / 2);
-  quickWindow.setBounds({x, y, width: windowWidth, height: windowHeight});
-}
-
 export async function createQuickWindow(show = false) {
   // Desired input box size
-  const windowWidth = 400;
-  const windowHeight = 200;
+  const windowWidth = 600;
+  const windowHeight = 500;
 
   // Get the current display nearest to the cursor
   const cursorPoint = screen.getCursorScreenPoint();
@@ -50,8 +36,8 @@ export async function createQuickWindow(show = false) {
     autoHideMenuBar: true,
     frame: false,
     skipTaskbar: true,
-    hasShadow: false,
-    type: process.platform === 'darwin' ? 'toolbar' : 'toolbar',
+    hasShadow: true,
+    type: process.platform === 'darwin' ? 'panel' : 'toolbar',
     alwaysOnTop: true,
     center: false,
     webPreferences: {
@@ -59,14 +45,12 @@ export async function createQuickWindow(show = false) {
       backgroundThrottling: false,
       preload: join(app.getAppPath(), 'packages/preload/dist/index.mjs'),
     },
-    vibrancy: 'fullscreen-ui',
-    transparent: true,
   });
 
-  quickWindow.setAlwaysOnTop(true, 'floating');
-  quickWindow.setVibrancy('fullscreen-ui');
+  quickWindow.setAlwaysOnTop(true, 'modal-panel');
   quickWindow.setVisibleOnAllWorkspaces(true, {
     visibleOnFullScreen: true,
+    skipTransformProcessType: true,
   });
   quickWindow.setFullScreenable(false);
 
@@ -101,7 +85,7 @@ export async function createQuickWindow(show = false) {
   /**
    * Load the main page of the quick window.
    */
-  quickWindow.loadURL(`http://localhost:${PORT}/dashboard`);
+  quickWindow.loadURL(`http://localhost:${PORT}/quick`);
 
   return {window: quickWindow, state: null};
 }

@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/alt-text */
 import { cn, IssuesLine, Project } from '@redplanethq/ui';
 import Mention from '@tiptap/extension-mention';
 import {
@@ -6,6 +7,7 @@ import {
   NodeViewWrapper,
   ReactNodeViewRenderer,
 } from '@tiptap/react';
+import { Image } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 
 import { getBotIcon, type IconType } from 'common/icon-utils';
@@ -42,6 +44,25 @@ export const MentionComponent = observer((props: NodeViewProps) => {
           <Icon size={14} className="shrink-0" />
           <div className="inline-flex items-center justify-start shrink min-w-[0px] min-h-[24px]">
             <div className={cn('text-left truncate')}>{entity.name}</div>
+          </div>
+        </span>
+      </NodeViewWrapper>
+    );
+  }
+
+  if (label === 'screenshot') {
+    return (
+      <NodeViewWrapper className="inline w-fit">
+        <span
+          className={cn(
+            'items-center gap-1 max-w-[150px] text-left bg-transparent hover:bg-grayAlpha-100 p-1 px-2 inline-flex mention bg-grayAlpha-100 h-6 rounded relative top-0.5',
+          )}
+          onClick={() => {}}
+          data-item="mention"
+        >
+          <Image size={14} />
+          <div className="inline-flex items-center justify-start shrink min-w-[0px] min-h-[24px]">
+            <div className={cn('text-left truncate')}>Screenshot</div>
           </div>
         </span>
       </NodeViewWrapper>

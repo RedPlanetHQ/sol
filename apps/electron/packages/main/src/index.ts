@@ -1,7 +1,12 @@
 import {app} from 'electron';
 import './security-restrictions';
 
-import {registerShortcut, restoreOrCreateQuickWindow, restoreOrCreateWindow} from '../windows';
+import {
+  listenerForMainFullscreen,
+  registerShortcut,
+  restoreOrCreateQuickWindow,
+  restoreOrCreateWindow,
+} from '../windows';
 import {platform} from 'node:process';
 import updater from 'electron-updater';
 import {startAPI} from './api';
@@ -49,7 +54,7 @@ app
     listeners(window);
     restoreOrCreateQuickWindow(true);
     registerShortcut();
-
+    listenerForMainFullscreen();
     // setTray();
   })
   .catch(e => log.error('Failed create window:', e));

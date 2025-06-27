@@ -1,4 +1,4 @@
-import {globalShortcut, Menu, nativeImage, Tray, type BrowserWindow, screen} from 'electron';
+import {globalShortcut, Menu, nativeImage, Tray, type BrowserWindow, screen, app} from 'electron';
 import {createMainWindow} from './main';
 import {createQuickWindow, registerQuickStates} from './quick';
 
@@ -63,10 +63,36 @@ export function registerShortcut() {
   }
 }
 
+export function listenerForMainFullscreen() {
+  if (!appWindows.main) return;
+
+  // Remove any previous listeners to avoid duplicate handlers
+  appWindows.main.removeAllListeners('leave-full-screen');
+
+  const recreateQuickWindow = async () => {
+    // Destroy the previous quick window if it exists
+    if (appWindows.quick && !appWindows.quick.isDestroyed()) {
+      appWindows.quick.destroy();
+      appWindows.quick = null;
+    }
+    // Create a new quick window (hidden)
+    const {window} = await createQuickWindow(true);
+    appWindows.quick = window;
+    registerQuickStates(appWindows.quick);
+  };
+
+  // appWindows.main.on('enter-full-screen', recreateQuickWindow);
+  appWindows.main.on('leave-full-screen', recreateQuickWindow);
+}
+
 /**
  * Restore an existing BrowserWindow or Create a new BrowserWindow.
  */
 export async function restoreOrCreateQuickWindow(show = false) {
+  // Move the window to the current display and ensure it is visible on all workspaces
+  const cursorPoint = screen.getCursorScreenPoint();
+  const currentDisplay = screen.getDisplayNearestPoint(cursorPoint);
+
   if (!appWindows.quick || appWindows.quick.isDestroyed()) {
     // Always create the quick window centered on the current display
     const {window} = await createQuickWindow(show);
@@ -79,28 +105,19 @@ export async function restoreOrCreateQuickWindow(show = false) {
   }
 
   if (!appWindows.quick.isVisible()) {
-    // Move the window to the current display and ensure it is visible on all workspaces
-    const cursorPoint = screen.getCursorScreenPoint();
-    const currentDisplay = screen.getDisplayNearestPoint(cursorPoint);
     const {workArea} = currentDisplay;
 
-    console.log(cursorPoint, currentDisplay);
     // Center the window in the current workArea
-    const windowWidth = 400;
-    const windowHeight = 200;
+    const windowWidth = 600;
+    const windowHeight = 500;
     const x = Math.round(workArea.x + (workArea.width - windowWidth) / 2);
     const y = Math.round(workArea.y + (workArea.height - windowHeight) / 2);
 
-    console.log(x, y, windowHeight, windowWidth);
     appWindows.quick.setBounds({x, y, width: windowWidth, height: windowHeight});
 
-    appWindows.quick.setAlwaysOnTop(true, 'floating');
-    appWindows.quick.setVisibleOnAllWorkspaces(true, {
-      visibleOnFullScreen: true,
-    });
-    appWindows.quick.setFullScreenable(false);
+    appWindows.quick.setAlwaysOnTop(true, 'modal-panel');
 
-    console.log('coming here');
+    if (app.dock) app.dock.show();
     appWindows.quick.show();
   }
 }

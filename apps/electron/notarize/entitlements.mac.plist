@@ -13,5 +13,9 @@
     
     <key>com.apple.security.personal-information.calendars</key>
     <true/>
+
+    <!-- Permission to capture screen (for screenshots) -->
+    <key>com.apple.security.device.screen-capture</key>
+    <true/>
   </dict>
 </plist>

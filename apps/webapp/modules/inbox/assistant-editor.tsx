@@ -20,6 +20,7 @@ import { useSearchCommands } from 'modules/search/command/use-search-commands';
 
 import { EditorRoot, lowlight, type EditorT } from 'common/editor';
 import { SCOPES } from 'common/shortcut-scopes';
+import { Key } from 'ts-key-enum';
 
 interface ConversationTextareaProps {
   onSend: (value: string, title: string, resources?: Resource[]) => void;
@@ -187,20 +188,6 @@ export function AssistantEditor({
         >
           <EditorRoot>
             <EditorContent
-              initialContent={{
-                type: 'doc',
-                content: [
-                  {
-                    type: 'paragraph',
-                    content: [
-                      {
-                        type: 'text',
-                        text: defaultValue,
-                      },
-                    ],
-                  },
-                ],
-              }}
               extensions={[
                 Document,
                 Paragraph,

@@ -17,7 +17,7 @@ interface SuggestionProps {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const useContextSuggestions = (): any => {
+export const useContextSuggestions = (screenshot = false): any => {
   const { pagesStore } = useContextStore();
   const servers = useMCPServers();
 
@@ -36,6 +36,16 @@ export const useContextSuggestions = (): any => {
           title: server.name,
           key: server.key,
         })),
+        ...(screenshot
+          ? [
+              {
+                id: 'screenshot',
+                label: 'screenshot',
+                title: 'Screenshot',
+                key: 'screenshot',
+              },
+            ]
+          : [{}]),
         ...pages.slice(0, 5),
       ].slice(0, 5);
     },
