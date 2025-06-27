@@ -37,12 +37,6 @@ export const SOL_DOMAIN_KNOWLEDGE = `# SOL Domain Knowledge
 - Add content to list pages directly when user says "add X to list Y"
 - Create tasks only when user explicitly requests them
 
-## Slash Commands
-- Identify commands that start with "/"
-- Check if command exists using sol--get_my_memory
-- Follow stored execution instructions if found
-- Provide feedback on command execution
-
 ## Assistant Tasks
 - Use for reminders, notifications, follow-ups, scheduled actions
 - Create as subtasks of main user tasks
