@@ -1,8 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import fs from 'fs';
-import path from 'path';
-
 import { ActionStatusEnum, LLMMappings } from '@redplanethq/sol-sdk';
 import { logger } from '@trigger.dev/sdk/v3';
 import { CoreMessage, DataContent, jsonSchema, tool, ToolSet } from 'ai';
@@ -316,23 +313,6 @@ async function makeNextCall(
 
   if (executionState.resources && executionState.resources.length > 0) {
     messages = await addResources(messages, executionState.resources);
-  }
-
-  // Store the composed messages in a file for debugging/auditing
-  try {
-    const filePath = path.join(
-      process.cwd(),
-      'logs',
-      `chat-messages-${Date.now()}.json`,
-    );
-    fs.promises
-      .mkdir(path.dirname(filePath), { recursive: true })
-      .catch(() => {});
-    fs.promises
-      .writeFile(filePath, JSON.stringify(messages, null, 2))
-      .catch(() => {});
-  } catch (err) {
-    logger.warn('Failed to write chat messages to file', err);
   }
 
   // Get the next action from the LLM
