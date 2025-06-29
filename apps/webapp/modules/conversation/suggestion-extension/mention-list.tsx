@@ -1,4 +1,6 @@
-import { cn, IssuesLine, Project } from '@redplanethq/ui';
+/* eslint-disable jsx-a11y/alt-text */
+import { cn, IssuesLine, LoaderLine, Project } from '@redplanethq/ui';
+import { Image } from 'lucide-react';
 import React, {
   forwardRef,
   useEffect,
@@ -9,11 +11,13 @@ import React, {
 import { getBotIcon, type IconType } from 'common/icon-utils';
 import type { PageType } from 'common/types';
 
+import { useIPC } from 'hooks/ipc';
+
 import { useContextStore } from 'store/global-context-provider';
 
 interface MentionListProps {
   items: Array<PageType & { label?: string; key?: string }>;
-  command: (args: { id: string; label: string }) => void;
+  command: (args: { id: string; label: string; format?: 'string' }) => void;
 }
 
 export const MentionList = forwardRef(
@@ -21,9 +25,12 @@ export const MentionList = forwardRef(
   (props: MentionListProps, ref: React.Ref<any>) => {
     const { tasksStore, listsStore } = useContextStore();
 
-    const [selectedIndex, setSelectedIndex] = useState(0);
+    const ipc = useIPC();
 
-    const selectItem = (index: number) => {
+    const [selectedIndex, setSelectedIndex] = useState(0);
+    const [loading, setLoading] = useState(false);
+
+    const selectItem = async (index: number) => {
       const item = props.items[index];
 
       if (item.label === 'tool') {
@@ -31,6 +38,22 @@ export const MentionList = forwardRef(
           id: item.key,
           label: 'tool',
         });
+
+        return;
+      }
+
+      if (item.label === 'screenshot') {
+        setLoading(true);
+        ipc.getScreenshot().then((url) => {
+          setLoading(false);
+          if (url) {
+            props.command({
+              id: url,
+              label: 'screenshot',
+            });
+          }
+        });
+
         return;
       }
 
@@ -56,8 +79,8 @@ export const MentionList = forwardRef(
       setSelectedIndex((prevIndex) => (prevIndex + 1) % props.items.length);
     };
 
-    const enterHandler = () => {
-      selectItem(selectedIndex);
+    const enterHandler = async () => {
+      await selectItem(selectedIndex);
     };
 
     useEffect(() => {
@@ -102,6 +125,32 @@ export const MentionList = forwardRef(
                   data-item="mention"
                 >
                   <Icon size={14} className="shrink-0" />
+                  <div className="inline-flex items-center justify-start shrink min-w-[0px] min-h-[24px]">
+                    <div className={cn('text-left truncate')}>{item.title}</div>
+                  </div>
+                </button>
+              );
+            }
+
+            if (item.label === 'screenshot') {
+              return (
+                <button
+                  className={cn(
+                    'flex items-center gap-1 w-full text-left bg-transparent hover:bg-grayAlpha-100 p-1 px-2',
+                    index === selectedIndex
+                      ? 'bg-grayAlpha-100 rounded-sm'
+                      : '',
+                  )}
+                  key={index}
+                  onClick={() => selectItem(index)}
+                  data-selected={index === selectedIndex}
+                  data-item="mention"
+                >
+                  {loading ? (
+                    <LoaderLine className="animate-spin" />
+                  ) : (
+                    <Image size={16} />
+                  )}
                   <div className="inline-flex items-center justify-start shrink min-w-[0px] min-h-[24px]">
                     <div className={cn('text-left truncate')}>{item.title}</div>
                   </div>

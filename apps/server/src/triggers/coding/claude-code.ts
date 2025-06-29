@@ -39,7 +39,9 @@ async function* generateClaudeMessages(
         cwd: repoPath,
         model: LLMMappings.CLAUDESONNET,
         permissionMode: 'bypassPermissions',
-        pathToClaudeCodeExecutable: '/usr/local/bin/claude',
+        // pathToClaudeCodeExecutable: '/usr/local/bin/claude',
+        pathToClaudeCodeExecutable:
+          '/Users/manoj/work/sigma/apps/server/node_modules/@anthropic-ai/claude-code/cli.js',
       },
     })) {
       if (message.type === 'system' && message.subtype === 'init') {

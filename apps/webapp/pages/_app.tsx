@@ -32,7 +32,7 @@ export const MyApp = ({
       <Hydrate state={dehydratedState}>
         <div
           className={cn(
-            'h-[100vh] w-[100vw] font-sans antialiased bg-background-2 flex flex-col items-center justify-center',
+            'h-[100vh] w-[100vw] font-sans antialiased flex flex-col items-center justify-center',
             GeistSans.variable,
             GeistMono.variable,
           )}

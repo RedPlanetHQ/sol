@@ -108,7 +108,7 @@ export const TaskListItem = observer(
 
     return (
       <div
-        className="pl-1 pr-2 flex group cursor-default gap-2"
+        className="pl-1 pr-4 flex group cursor-default gap-2"
         onClick={() => {
           taskSelect(taskId);
         }}

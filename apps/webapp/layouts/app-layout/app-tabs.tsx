@@ -121,7 +121,7 @@ export const AppTabs = observer(() => {
         </TooltipWrapper>
       </div>
 
-      <div className="flex gap-0.5 mr-2">
+      <div className="flex gap-0.5 mr-3">
         <AIThinking />
         <Notifications />
         {activeTab.type !== TabViewType.ASSISTANT && (

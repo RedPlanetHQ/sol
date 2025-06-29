@@ -7,6 +7,7 @@ export interface IPCRenderer {
   getAutoUpdates(callback: (event: any, ...args: any[]) => void): void;
   openUrl: (url: string) => void;
   getIntegrationsFolder: () => Promise<string>;
+  getScreenshot: () => Promise<string>;
   initIntegrations: () => void;
   restartAndInstall: () => void;
 

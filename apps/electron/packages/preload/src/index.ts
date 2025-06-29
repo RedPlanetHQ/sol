@@ -36,6 +36,7 @@ const electronHandler = {
     initIntegrations: () => ipcRenderer.send('integrations-init'),
     getIntegrationsFolder: () => ipcRenderer.invoke('get-integrations-folder'),
     getSources: () => ipcRenderer.invoke('get-sources'),
+    getScreenshot: () => ipcRenderer.invoke('get-screenshot'),
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     getAutoUpdates: (callback: (event: IpcRendererEvent, ...args: any[]) => void) => {
       ipcRenderer.on('auto-update', callback);

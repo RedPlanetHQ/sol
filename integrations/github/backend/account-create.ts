@@ -20,6 +20,7 @@ export async function integrationCreate(
   const payload = {
     settings: {
       login: user.login,
+      username: user.login,
       schedule: {
         frequency: '*/5 * * * *',
       },

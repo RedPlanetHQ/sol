@@ -4,6 +4,7 @@ import { logger, metadata, task } from '@trigger.dev/sdk/v3';
 import { format } from 'date-fns';
 
 import { run } from './chat-utils';
+import { addToMemory } from './memory-utils';
 import { callSolTool } from '../sol-tools/sol-tools';
 import { MCP } from '../utils/mcp';
 import { HistoryStep } from '../utils/types';
@@ -99,11 +100,16 @@ export const chat = task({
         agentConversationHistory =
           await getContinuationAgentConversationHistory(payload.conversationId);
 
-        stepHistory = await handleConfirmation(
+        const {
+          stepHistory: confirmationStepHistory,
+          agentUserMessage: existingMessage,
+        } = await handleConfirmation(
           mcp,
           agentConversationHistory.id,
           init.mcp,
         );
+        stepHistory = confirmationStepHistory;
+        agentUserMessage = existingMessage;
       }
 
       await updateConversationHistoryMessage(
@@ -165,13 +171,13 @@ export const chat = task({
         payload.conversationId,
       );
 
-      // await addToMemory(
-      //   init.conversation.id,
-      //   message,
-      //   agentUserMessage,
-      //   init.preferences,
-      //   init.userName,
-      // );
+      await addToMemory(
+        init.conversation.id,
+        message,
+        agentUserMessage,
+        init.preferences,
+        init.userName,
+      );
     } catch (e) {
       await updateConversationStatus('failed', payload.conversationId);
       throw new Error(e);
@@ -186,7 +192,7 @@ async function handleConfirmation(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mcpServers: any;
   },
-): Promise<HistoryStep[]> {
+): Promise<{ stepHistory: HistoryStep[]; agentUserMessage: string }> {
   const agentExecutionHistory = await prisma.conversationExecutionStep.findMany(
     {
       where: {
@@ -197,6 +203,8 @@ async function handleConfirmation(
   );
 
   const history: HistoryStep[] = [];
+  let agentUserMessage = '';
+
   for await (const step of agentExecutionHistory) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const stepMetadata = step.metadata as Record<string, any>;
@@ -263,7 +271,8 @@ async function handleConfirmation(
     }
 
     history.push(stepHistory);
+    agentUserMessage += step.message;
   }
 
-  return history;
+  return { stepHistory: history, agentUserMessage };
 }

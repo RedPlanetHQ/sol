@@ -5,7 +5,7 @@ import fs from 'fs';
 import log from 'electron-log';
 import {PORT} from '../utils';
 
-async function getAccessToken(): Promise<string | null> {
+export async function getAccessToken(): Promise<string | null> {
   const keyName = 'sAccessToken';
   const currentSession = session.defaultSession;
 

@@ -2,6 +2,7 @@ import { Button, cn } from '@redplanethq/ui';
 import { Command, CommandItem, CommandList } from '@redplanethq/ui';
 import { Document } from '@tiptap/extension-document';
 import HardBreak from '@tiptap/extension-hard-break';
+import { History } from '@tiptap/extension-history';
 import { Paragraph } from '@tiptap/extension-paragraph';
 import { Text } from '@tiptap/extension-text';
 import { MessageSquare } from 'lucide-react';
@@ -19,6 +20,7 @@ import { useSearchCommands } from 'modules/search/command/use-search-commands';
 
 import { EditorRoot, lowlight, type EditorT } from 'common/editor';
 import { SCOPES } from 'common/shortcut-scopes';
+import { Key } from 'ts-key-enum';
 
 interface ConversationTextareaProps {
   onSend: (value: string, title: string, resources?: Resource[]) => void;
@@ -186,20 +188,6 @@ export function AssistantEditor({
         >
           <EditorRoot>
             <EditorContent
-              initialContent={{
-                type: 'doc',
-                content: [
-                  {
-                    type: 'paragraph',
-                    content: [
-                      {
-                        type: 'text',
-                        text: defaultValue,
-                      },
-                    ],
-                  },
-                ],
-              }}
               extensions={[
                 Document,
                 Paragraph,
@@ -210,6 +198,7 @@ export function AssistantEditor({
                 CodeBlockLowlight.configure({
                   lowlight,
                 }),
+                History,
                 HardBreak.configure({
                   keepMarks: true,
                 }),

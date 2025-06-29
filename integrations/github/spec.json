@@ -16,7 +16,6 @@
     ],
     "command": "https://integrations.heysol.ai/github/github"
   },
-
   "auth": {
     "OAuth2": {
       "token_url": "https://github.com/login/oauth/access_token",
