@@ -4,7 +4,6 @@ import os from 'os';
 import path from 'path';
 import util from 'util';
 
-import { query } from '@anthropic-ai/claude-code';
 import { LLMMappings } from '@redplanethq/sol-sdk';
 import { logger } from '@trigger.dev/sdk/v3';
 import axios from 'axios';
@@ -13,6 +12,8 @@ import {
   CheckErrors,
   checkUserSessions,
 } from 'triggers/agents/chat/code-tools';
+
+import { query } from './query';
 
 const execAsync = util.promisify(exec);
 
@@ -23,6 +24,55 @@ interface ClaudeCodeParams {
   query: string;
   session_id?: string;
   branch_name?: string;
+}
+
+// Utility function to mask API keys in content
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function maskApiKeys(content: any): any {
+  if (!content) {
+    return content;
+  }
+
+  // Deep clone to avoid modifying the original object
+  const clonedContent = JSON.parse(JSON.stringify(content));
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const maskSensitiveData = (obj: any) => {
+    if (typeof obj !== 'object' || obj === null) {
+      return;
+    }
+
+    // Recursively process objects and arrays
+    if (Array.isArray(obj)) {
+      obj.forEach((item) => maskSensitiveData(item));
+      return;
+    }
+
+    for (const key in obj) {
+      if (typeof obj[key] === 'object' && obj[key] !== null) {
+        maskSensitiveData(obj[key]);
+      } else if (typeof obj[key] === 'string') {
+        // Mask OpenAI API keys (starting with 'sk-')
+        if (/sk-[a-zA-Z0-9]{30,}/.test(obj[key])) {
+          obj[key] = obj[key].replace(
+            /sk-[a-zA-Z0-9]{30,}/g,
+            'sk-***MASKED***',
+          );
+        }
+
+        // Mask Anthropic API keys (typically starting with 'sk-ant-')
+        if (/sk-ant-[a-zA-Z0-9]{30,}/.test(obj[key])) {
+          obj[key] = obj[key].replace(
+            /sk-ant-[a-zA-Z0-9]{30,}/g,
+            'sk-ant-***MASKED***',
+          );
+        }
+      }
+    }
+  };
+
+  maskSensitiveData(clonedContent);
+  return clonedContent;
 }
 
 async function* generateClaudeMessages(
@@ -39,9 +89,7 @@ async function* generateClaudeMessages(
         cwd: repoPath,
         model: LLMMappings.CLAUDESONNET,
         permissionMode: 'bypassPermissions',
-        // pathToClaudeCodeExecutable: '/usr/local/bin/claude',
-        pathToClaudeCodeExecutable:
-          '/Users/manoj/work/sigma/apps/server/node_modules/@anthropic-ai/claude-code/cli.js',
+        pathToClaudeCodeExecutable: '/usr/local/bin/claude',
       },
     })) {
       if (message.type === 'system' && message.subtype === 'init') {
@@ -52,7 +100,10 @@ async function* generateClaudeMessages(
           message.message.content[0] &&
           message.message.content[0].type === 'text'
         ) {
-          yield { type: 'message', content: message.message.content };
+          yield {
+            type: 'message',
+            content: maskApiKeys(message.message.content),
+          };
         }
       } else if (message.type === 'result') {
         yield {

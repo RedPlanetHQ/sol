@@ -19,6 +19,7 @@ import {
   updateTaskPartial,
 } from './operations/task';
 import { createAssistantTask, updateAssistantTask } from './operations/task';
+import { webSearch } from './operations/websearch';
 import {
   CreateListSchema,
   GetListsSchema,
@@ -37,6 +38,7 @@ import {
   UpdatePartialTaskDescriptionSchema,
   UpdateTaskSchema,
 } from './types/task';
+import { WebSearchSchema } from './types/websearch';
 
 export function getSolTools(isMemoryConfigured = false) {
   return {
@@ -131,6 +133,12 @@ Combine multiple filters with spaces, e.g.:
       parameters: updateAssistantTaskSchema,
     }),
 
+    'sol--websearch': tool({
+      description:
+        'Search the web for current information and news. Use this when you need up-to-date information that might not be in your training data. Try different search strategies: broad terms first, then specific phrases, keywords, exact quotes. Use multiple searches with varied approaches to get comprehensive results.',
+      parameters: WebSearchSchema,
+    }),
+
     ...(isMemoryConfigured
       ? {
           'sol--get_my_memory': tool({
@@ -203,7 +211,7 @@ export async function callSolTool(name: string, parameters: any) {
         const result = await deleteTask(args);
         return JSON.stringify(result, null, 2);
       }
-      case 'update_task_partial': {
+      case 'update_task_partial_content': {
         const args = UpdatePartialTaskDescriptionSchema.parse(parameters);
         const result = await updateTaskPartial(args);
         return JSON.stringify(result, null, 2);
@@ -221,6 +229,11 @@ export async function callSolTool(name: string, parameters: any) {
       case 'update_assistant_task': {
         const args = updateAssistantTaskSchema.parse(parameters);
         const result = await updateAssistantTask(args);
+        return JSON.stringify(result, null, 2);
+      }
+      case 'websearch': {
+        const args = WebSearchSchema.parse(parameters);
+        const result = await webSearch(args);
         return JSON.stringify(result, null, 2);
       }
       default:
