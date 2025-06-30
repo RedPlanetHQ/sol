@@ -121,7 +121,6 @@ export async function createMCPConfig(userMCP: any) {
 }
 
 export const init = async (payload: InitChatPayload) => {
-  const agents = payload.context.agents;
   logger.info('Loading init');
   const conversationHistory = await prisma.conversationHistory.findUnique({
     where: { id: payload.conversationHistoryId },
@@ -153,7 +152,6 @@ export const init = async (payload: InitChatPayload) => {
   const integrationAccounts = await prisma.integrationAccount.findMany({
     where: {
       workspaceId: workspace.id,
-      integrationDefinition: { slug: { in: agents } },
     },
     include: { integrationDefinition: true },
   });

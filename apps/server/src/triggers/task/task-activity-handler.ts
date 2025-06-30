@@ -78,9 +78,19 @@ async function createReminders(task: Task) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const taskMetadata = task.metadata as any;
 
+  let awakeBefore =
+    taskMetadata?.assignee && taskMetadata.assignee === 'assistant' ? 0 : 15;
+
+  const reminderTime =
+    new Date(task.startTime).getTime() - awakeBefore * 60 * 1000;
+
+  if (reminderTime < Date.now()) {
+    awakeBefore = 0;
+  }
+
   // Create schedule to run daily 10 minutes before task start time
   const startTime = new Date(task.startTime);
-  const cronMinutes = startTime.getMinutes() - 15;
+  const cronMinutes = startTime.getMinutes() - awakeBefore;
   const cronHours = startTime.getHours();
 
   const { id: scheduleId } = await schedules.create({
