@@ -1,30 +1,30 @@
-import { Badge } from '@redplanethq/ui';
+import { ArrowRight, Button } from '@redplanethq/ui';
 
-import { Container, DownloadButton } from './utils';
+import { Container } from './utils';
 
 export const Hero = () => {
   return (
     <section className="w-full">
-      <Container className="mt-5 flex flex-col items-center p-2 !pt-2 w-full rounded shadow bg-background-3">
-        <div className="flex flex-col bg-gradient-to-br from-[#c15e50] to-[#c15042]/90 rounded w-full items-center rounded p-7 py-10 justify-center h-full">
-          <h1 className="text-[40px] font-normal text-center leading-tight mb-4 tracking-tight text-white max-w-[83%] md:max-w-[65%] rounded font-mono">
-            Your 25-Hour-Day <br /> Personal Assistant
-          </h1>
-          <p className="text-lg text-center mb-8 font-normal text-white max-w-[83%] md:max-w-[65%]">
-          Sol unifies tasks from Slack, GitHub, Linear;
-          learns your workflow, and acts as your AI peer programmer.
-          </p>
+      <Container className="flex flex-col items-center w-full pt-10 lg:pt-15 h-full relative justify-center mx-auto">
+        <div className="relative flex flex-wrap justify-center text-[32px] lg:text-[54px] mt-5 lg:mt-10">
+          Your personal assistant for
+          <span
+            className="mx-4 bg-gradient-to-br from-[#c15042] to-[#c15e50] bg-clip-text text-transparent animate-gradien"
+            style={{
+              backgroundSize: '200% 200%',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              animation: 'gradient-move 3s ease-in-out infinite',
+            }}
+          >
+            daily focus
+          </span>
+        </div>
 
-          <div className="flex flex-col md:flex-row gap-2">
-            <DownloadButton />
-
-            <div className="flex items-center ml-1 gap-1 text-white">
-              Backed by{' '}
-              <Badge className="bg-[#FF6600] text-white text-base font-mono">
-                Y
-              </Badge>
-            </div>
-          </div>
+        <div className="flex gap-1 mt-2">
+          <Button className="p-4 rounded-lg" size="2xl">
+            Join the wailist <ArrowRight size={14} className="ml-2" />
+          </Button>
         </div>
       </Container>
     </section>

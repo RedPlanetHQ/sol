@@ -11,7 +11,7 @@ strong {
     @apply border-border;
   }
   body {
-    @apply text-foreground bg-background text-base;
+    @apply text-foreground text-base;
     @apply antialiased;
     overflow: hidden;
 

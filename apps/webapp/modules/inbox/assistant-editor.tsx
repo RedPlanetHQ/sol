@@ -267,7 +267,7 @@ export function AssistantEditor({
               }}
               immediatelyRender={false}
               className={cn(
-                'editor-container w-full min-w-full text-base sm:rounded-lg px-3 max-h-[400px] pt-1 min-h-[30px] overflow-auto',
+                'editor-container w-full min-w-full text-md sm:rounded-lg px-3 max-h-[400px] pt-1 min-h-[30px] overflow-auto',
               )}
             ></EditorContent>
           </EditorRoot>

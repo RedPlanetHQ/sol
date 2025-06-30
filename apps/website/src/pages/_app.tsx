@@ -24,7 +24,7 @@ export const MyApp = ({ Component, pageProps }: AppLayoutProps) => {
       <TooltipProvider delayDuration={1000}>
         <div
           className={cn(
-            'relative flex min-h-screen flex-col bg-background-2',
+            'relative flex min-h-screen flex-col',
             GeistSans.variable,
             GeistMono.variable,
           )}

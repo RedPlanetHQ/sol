@@ -153,7 +153,7 @@ export function ConversationTextarea({
           }}
           immediatelyRender={false}
           className={cn(
-            'editor-container w-full min-w-full text-base sm:rounded-lg px-3 max-h-[400px] min-h-[40px] overflow-auto',
+            'editor-container w-full min-w-full text-md sm:rounded-lg px-3 max-h-[400px] min-h-[40px] overflow-auto',
           )}
         />
       </EditorRoot>

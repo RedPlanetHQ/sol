@@ -259,6 +259,12 @@ export async function* claudeCode(payload: ClaudeCodeParams) {
       - Clearly state what information is needed
       - Explain why it's needed
       - Suggest possible options
+
+    
+    Security Notice:
+    - You do NOT have access to any environment variables except for a minimal set required for git operations (e.g., PATH, LANG).
+    - Do NOT attempt to access secrets, tokens, or environment variables such as DATABASE_URL, API keys, etc.
+    - If you need credentials for git operations, they are already provided via the remote URL.
       `;
 
     logger.info('Starting Claude message stream');

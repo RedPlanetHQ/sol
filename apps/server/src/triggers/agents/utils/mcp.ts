@@ -28,12 +28,10 @@ export class MCP {
       agents.map(async (agent) => {
         const mcp = mcpConfig.mcpServers[agent];
 
-        return await this.connectToServer(
-          agent,
-          mcp.command,
-          mcp.args,
-          mcp.env,
-        );
+        return await this.connectToServer(agent, mcp.command, mcp.args, {
+          ...mcp.env,
+          DATABASE_URL: mcp.env?.DATABASE_URL ?? '',
+        });
       }),
     );
   }

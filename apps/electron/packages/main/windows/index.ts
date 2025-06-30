@@ -1,6 +1,7 @@
 import {globalShortcut, Menu, nativeImage, Tray, type BrowserWindow, screen, app} from 'electron';
 import {createMainWindow} from './main';
 import {createQuickWindow, registerQuickStates} from './quick';
+import screenshot from 'screenshot-desktop';
 
 import path, {dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -8,6 +9,9 @@ import {registerDeepLink} from '../src/deeplink';
 import log from 'electron-log';
 import {setupAutoUpdater} from '../src/auto-update';
 import type windowStateKeeper from 'electron-window-state';
+
+import {randomUUID} from 'node:crypto';
+import {setScreenshotPath} from './listeners';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -92,6 +96,18 @@ export async function restoreOrCreateQuickWindow(show = false) {
   // Move the window to the current display and ensure it is visible on all workspaces
   const cursorPoint = screen.getCursorScreenPoint();
   const currentDisplay = screen.getDisplayNearestPoint(cursorPoint);
+
+  // Take screenshot for the matched display and save to a temp file with a random id
+  const randomId = randomUUID();
+  const tempFilePath = path.join(app.getPath('userData'), `screenshot-${randomId}.png`);
+
+  // Take screenshot and save to file
+  await screenshot({
+    screen: currentDisplay.id - 1,
+    filename: tempFilePath,
+  });
+
+  setScreenshotPath(tempFilePath);
 
   if (!appWindows.quick || appWindows.quick.isDestroyed()) {
     // Always create the quick window centered on the current display

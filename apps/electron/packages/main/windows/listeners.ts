@@ -10,6 +10,12 @@ import axios from 'axios';
 import {PORT} from '../utils';
 import * as fs from 'fs/promises';
 
+export let lastScreenshot;
+
+export const setScreenshotPath = (path: string) => {
+  lastScreenshot = path;
+};
+
 export function listeners(window: BrowserWindow) {
   // Listen for URL open requests
   ipcMain.on('open-url', (_event, url) => {
@@ -27,23 +33,27 @@ export function listeners(window: BrowserWindow) {
 
   ipcMain?.handle('get-screenshot', async (_event: IpcMainEvent) => {
     try {
-      const cursorPoint = screen.getCursorScreenPoint();
-      const currentDisplay = screen.getDisplayNearestPoint(cursorPoint);
-
       const accessToken = await getAccessToken();
 
-      // Take screenshot for the matched display and save to a temp file with a random id
-      const randomId = randomUUID();
-      const tempFilePath = path.join(app.getPath('userData'), `screenshot-${randomId}.png`);
+      if (!lastScreenshot) {
+        const cursorPoint = screen.getCursorScreenPoint();
+        const currentDisplay = screen.getDisplayNearestPoint(cursorPoint);
 
-      // Take screenshot and save to file
-      await screenshot({
-        screen: currentDisplay.id - 1,
-        filename: tempFilePath,
-      });
+        // Take screenshot for the matched display and save to a temp file with a random id
+        const randomId = randomUUID();
+        const tempFilePath = path.join(app.getPath('userData'), `screenshot-${randomId}.png`);
+
+        // Take screenshot and save to file
+        await screenshot({
+          screen: currentDisplay.id - 1,
+          filename: tempFilePath,
+        });
+
+        lastScreenshot = tempFilePath;
+      }
 
       // Read the file buffer from disk to ensure correct data is uploaded
-      const imgBuffer = await fs.readFile(tempFilePath);
+      const imgBuffer = await fs.readFile(lastScreenshot);
 
       // Simulate a browser File object for upload
       const file = {
@@ -83,7 +93,7 @@ export function listeners(window: BrowserWindow) {
 
       // Optionally, clean up the temp file
       try {
-        await fs.unlink(tempFilePath);
+        await fs.unlink(lastScreenshot);
       } catch (e) {
         log.warn('Failed to remove temp screenshot file:', e);
       }

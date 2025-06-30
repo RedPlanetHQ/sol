@@ -534,7 +534,7 @@ export async function* run(
           thought: '',
           skill: '',
           skillId: '',
-          userMessage: 'Sigma agent error, retrying \n',
+          userMessage: 'Sol agent error, retrying \n',
           isQuestion: false,
           isFinal: false,
           tokenCount: totalCost,

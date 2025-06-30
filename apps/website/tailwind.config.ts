@@ -196,12 +196,18 @@ const config = {
           '0%': { textDecorationColor: 'transparent' },
           '100%': { textDecorationColor: 'currentColor' },
         },
+        'gradient-move': {
+          '0%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+          '100%': { backgroundPosition: '0% 50%' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'multiline-strikethrough':
           'multiline-strikethrough 0.3s ease-in forwards',
+        'gradient-move': 'gradient-move 3s ease-in-out infinite',
       },
     },
   },
