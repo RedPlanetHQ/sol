@@ -1,3 +1,4 @@
+
 <div align="center">
   <a href="https://heysol.ai">
     <img src="https://github.com/user-attachments/assets/0d08302b-8f56-4b95-a3cd-dfa2cc254340" width="200px" alt="Sol logo" />
@@ -20,7 +21,7 @@ SOL is your unified command center for tasks, coding, and alerts—powered by CO
 
 It brings together your work from Slack, GitHub, Linear, and Gmail, delivering AI-powered assistance that gets smarter with every interaction.
 
-<img width="1512" alt="Main" src="https://github.com/user-attachments/assets/068a6108-96fc-48f6-b15f-c61d844f8edf" />
+<img width="1512" alt="Main" src="https://github.com/user-attachments/assets/438400f5-3ae5-4a97-88c5-4c1e40e4c497" />
 
 ## Quickstart
 
