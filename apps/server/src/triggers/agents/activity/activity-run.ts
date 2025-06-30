@@ -1,3 +1,4 @@
+import { PrismaClient } from '@prisma/client';
 import { logger, task, tasks } from '@trigger.dev/sdk/v3';
 
 import {
@@ -17,6 +18,8 @@ interface RunActivityPayload {
   activityId: string;
 }
 
+const prisma = new PrismaClient();
+
 export const activityRun = task({
   id: 'activity',
   queue: {
@@ -32,6 +35,15 @@ export const activityRun = task({
     );
 
     const automationsToRun = automationContext;
+
+    const automations = await prisma.automation.findMany({
+      where: {
+        id: {
+          in: automationsToRun.automations,
+        },
+        deleted: null,
+      },
+    });
 
     if (activity.taskId) {
       const conversation = await getOrCreateConversationForTask(
@@ -60,7 +72,7 @@ export const activityRun = task({
           conversationHistoryId: conversationHistory.id,
           conversationId: conversation.id,
           activity: activity.id,
-          activityExecutionPlan: automationsToRun.executionPlan,
+          activityExecutionPlan: automations.map((a) => a.text).join('\n'),
           context: {},
         },
         { tags: [conversationHistory.id, activity.workspaceId, activity.id] },
@@ -107,7 +119,7 @@ export const activityRun = task({
         conversationHistoryId: conversationHistory.id,
         conversationId: conversation.id,
         activity: activity.id,
-        activityExecutionPlan: automationsToRun.executionPlan,
+        activityExecutionPlan: automations.map((a) => a.text).join('\n'),
         context: {},
       },
       { tags: [conversationHistory.id, activity.workspaceId, activity.id] },

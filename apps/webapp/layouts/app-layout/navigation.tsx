@@ -38,5 +38,25 @@ export const Navigation = observer(() => {
     },
   );
 
-  return <></>;
+  return null;
+  // return (
+  //   <div className="flex items-center">
+  //     <Button
+  //       size="sm"
+  //       variant="ghost"
+  //       onClick={back}
+  //       disabled={!historyManager?.canGoBack}
+  //     >
+  //       <ArrowLeft size={16} />
+  //     </Button>
+  //     <Button
+  //       size="sm"
+  //       variant="ghost"
+  //       onClick={forward}
+  //       disabled={!historyManager?.canGoForward}
+  //     >
+  //       <ArrowRight size={16} />
+  //     </Button>
+  //   </div>
+  // );
 });

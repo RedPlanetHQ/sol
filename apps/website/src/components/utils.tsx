@@ -19,7 +19,7 @@ export function Container({
   return (
     <div
       className={cn(
-        'max-w-3xl mx-auto w-full flex flex-col pt-7 lg:pt-9',
+        'max-w-5xl mx-auto w-full flex flex-col pt-7 lg:pt-9',
         className,
       )}
       id={id}
@@ -157,7 +157,7 @@ export const DownloadButton = () => {
       className="gap-2 items-center w-fit !bg-white text-black"
       onClick={handleDownload}
     >
-      Get Early Access
+      Join waitlist
     </Button>
   );
 };

@@ -15,6 +15,7 @@ import { DailogViewsContext, DialogType } from 'modules/dialog-views-provider';
 import { useSettings } from 'modules/settings';
 
 import { useApplication } from 'hooks/application';
+import { useIPC } from 'hooks/ipc';
 
 import { useCreateTaskMutation } from 'services/tasks';
 
@@ -35,10 +36,11 @@ export const useSearchCommands = (
   value: string,
   onClose: () => void,
   strict?: boolean,
+  quickWindow?: boolean,
 ) => {
   const { tasksStore, pagesStore, listsStore } = useContextStore();
   const { changeActiveTab, selectedTasks, activeTab } = useApplication();
-
+  const ipc = useIPC();
   const { openDialog } = React.useContext(DailogViewsContext);
   const { markComplete, deleteTasks } = useTaskOperations();
   const { openSettings } = useSettings();
@@ -107,10 +109,15 @@ export const useSearchCommands = (
             </>
           ),
           command: () => {
-            createTask({
-              status: 'Todo',
-              title: value,
-            });
+            createTask(
+              {
+                status: 'Todo',
+                title: value,
+              },
+              {
+                onSuccess: () => {},
+              },
+            );
 
             onClose();
           },
@@ -213,6 +220,11 @@ export const useSearchCommands = (
               text: page.title,
               key: task.id,
               command: () => {
+                if (quickWindow && ipc) {
+                  ipc.sendToMain({ type: TabViewType.MY_TASKS, id: task.id });
+                  return;
+                }
+
                 changeActiveTab(TabViewType.MY_TASKS, {
                   entityId: task.id,
                 });
@@ -228,6 +240,11 @@ export const useSearchCommands = (
               text: page.title,
               key: list.id,
               command: () => {
+                if (quickWindow && ipc) {
+                  ipc.sendToMain({ type: TabViewType.LIST, id: list.id });
+                  return;
+                }
+
                 changeActiveTab(TabViewType.LIST, {
                   entityId: list.id,
                 });

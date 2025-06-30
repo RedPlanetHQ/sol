@@ -67,7 +67,6 @@ export function AppLayout({ children }: AppLayoutProps) {
           <div className="h-full w-full overflow-hidden">{children}</div>
         </div>
         <AIThinking />
-        <Navigation />
         <Updates />
       </div>
     </RightSideLayout>

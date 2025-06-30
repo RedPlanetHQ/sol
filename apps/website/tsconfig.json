@@ -9,6 +9,7 @@
     ]
   },
   "include": [
+    "video.d.ts",
     "next-env.d.ts",
     "next.d.ts",
     "electron.d.ts",

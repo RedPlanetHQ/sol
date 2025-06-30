@@ -16,6 +16,7 @@ import { TabViewType } from 'store/application';
 
 import { Notifications } from './notifications';
 import { WorkspaceDropdown } from './workspace-dropdown';
+import { Navigation } from './navigation';
 
 export const AppTabs = observer(() => {
   const { activeTab, changeActiveTab } = useApplication();
@@ -81,6 +82,8 @@ export const AppTabs = observer(() => {
     <div className="tabs-list rounded-none flex gap-2 w-full items-center pt-1">
       <div className="flex rounded-md items-center px-3 h-11 grow gap-0.5">
         <WorkspaceDropdown />
+
+        <Navigation />
         <TooltipWrapper tooltip="G then H">
           <Button
             variant="secondary"
@@ -121,7 +124,7 @@ export const AppTabs = observer(() => {
         </TooltipWrapper>
       </div>
 
-      <div className="flex gap-0.5 mr-2">
+      <div className="flex gap-0.5 mr-3 items-center">
         <AIThinking />
         <Notifications />
         {activeTab.type !== TabViewType.ASSISTANT && (

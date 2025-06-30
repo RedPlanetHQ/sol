@@ -109,7 +109,7 @@ export const SkillComponent = observer((props: any) => {
     return (
       <Collapsible
         className={cn(
-          'content bg-grayAlpha-100 w-fit rounded mb-0.5',
+          'content bg-grayAlpha-100 w-fit rounded mb-0.5 !mt-2',
           open && 'w-full',
         )}
         open={open}

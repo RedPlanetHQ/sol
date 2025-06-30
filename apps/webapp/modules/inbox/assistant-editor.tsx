@@ -2,6 +2,7 @@ import { Button, cn } from '@redplanethq/ui';
 import { Command, CommandItem, CommandList } from '@redplanethq/ui';
 import { Document } from '@tiptap/extension-document';
 import HardBreak from '@tiptap/extension-hard-break';
+import { History } from '@tiptap/extension-history';
 import { Paragraph } from '@tiptap/extension-paragraph';
 import { Text } from '@tiptap/extension-text';
 import { MessageSquare } from 'lucide-react';
@@ -19,6 +20,7 @@ import { useSearchCommands } from 'modules/search/command/use-search-commands';
 
 import { EditorRoot, lowlight, type EditorT } from 'common/editor';
 import { SCOPES } from 'common/shortcut-scopes';
+import { Key } from 'ts-key-enum';
 
 interface ConversationTextareaProps {
   onSend: (value: string, title: string, resources?: Resource[]) => void;
@@ -186,20 +188,6 @@ export function AssistantEditor({
         >
           <EditorRoot>
             <EditorContent
-              initialContent={{
-                type: 'doc',
-                content: [
-                  {
-                    type: 'paragraph',
-                    content: [
-                      {
-                        type: 'text',
-                        text: defaultValue,
-                      },
-                    ],
-                  },
-                ],
-              }}
               extensions={[
                 Document,
                 Paragraph,
@@ -210,6 +198,7 @@ export function AssistantEditor({
                 CodeBlockLowlight.configure({
                   lowlight,
                 }),
+                History,
                 HardBreak.configure({
                   keepMarks: true,
                 }),
@@ -278,7 +267,7 @@ export function AssistantEditor({
               }}
               immediatelyRender={false}
               className={cn(
-                'editor-container w-full min-w-full text-base sm:rounded-lg px-3 max-h-[400px] pt-1 min-h-[30px] overflow-auto',
+                'editor-container w-full min-w-full text-md sm:rounded-lg px-3 max-h-[400px] pt-1 min-h-[30px] overflow-auto',
               )}
             ></EditorContent>
           </EditorRoot>

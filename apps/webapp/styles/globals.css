@@ -14,7 +14,7 @@ strong {
     @apply border-border;
   }
   body {
-    @apply text-foreground bg-background text-base;
+    @apply text-foreground bg-transparent text-base;
     @apply antialiased;
     overflow: hidden;
 
@@ -193,7 +193,7 @@ These are table stylings
 }
 
 .ProseMirror:not(.dragging) .ProseMirror-selectednode.node-skill {
-  @apply !bg-transparent;
+  @apply !bg-transparent !pt-2;
 }
 
 .prosemirror-dropcursor-block {

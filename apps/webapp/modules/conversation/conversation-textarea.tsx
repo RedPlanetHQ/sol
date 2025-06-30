@@ -1,6 +1,7 @@
 import { Button, cn, LoaderLine } from '@redplanethq/ui';
 import { Document } from '@tiptap/extension-document';
 import HardBreak from '@tiptap/extension-hard-break';
+import { History } from '@tiptap/extension-history';
 import { Paragraph } from '@tiptap/extension-paragraph';
 import { Text } from '@tiptap/extension-text';
 import { EditorContent, CodeBlockLowlight, Placeholder } from 'novel';
@@ -95,6 +96,7 @@ export function ConversationTextarea({
             Document,
             Paragraph,
             Text,
+
             CustomMention.configure({
               suggestion,
             }),
@@ -104,10 +106,12 @@ export function ConversationTextarea({
             HardBreak.configure({
               keepMarks: true,
             }),
+
             Placeholder.configure({
               placeholder: () => placeholder ?? 'Ask sol...',
               includeChildren: true,
             }),
+            History,
           ]}
           onCreate={async ({ editor }) => {
             setEditor(editor);
@@ -149,7 +153,7 @@ export function ConversationTextarea({
           }}
           immediatelyRender={false}
           className={cn(
-            'editor-container w-full min-w-full text-base sm:rounded-lg px-3 max-h-[400px] min-h-[40px] overflow-auto',
+            'editor-container w-full min-w-full text-md sm:rounded-lg px-3 max-h-[400px] min-h-[40px] overflow-auto',
           )}
         />
       </EditorRoot>

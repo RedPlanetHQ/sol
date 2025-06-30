@@ -108,7 +108,7 @@ export const RightSideLayout = observer(
           onClose,
         }}
       >
-        <ResizablePanelGroup direction="horizontal">
+        <ResizablePanelGroup direction="horizontal" className="bg-background-2">
           <ResizablePanel
             collapsible={false}
             className="rounded-md"
