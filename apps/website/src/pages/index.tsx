@@ -1,7 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import {
   AddLine,
-  ArrowRight,
   Button,
   Input,
   ScrollArea,
@@ -10,11 +9,13 @@ import {
 import { Dialog, DialogContent } from '@redplanethq/ui';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
+
+import { BusyWork } from 'src/features/busy_work';
 import { CommandCentre } from 'src/features/command_centre';
+import { MemorySection } from 'src/features/memory';
+import { Peer } from 'src/features/peer';
 
 import { Container, Footer, Header, Hero } from '../components';
-import { BusyWork } from 'src/features/busy_work';
-import { Peer } from 'src/features/peer';
 
 const prompts = [
   'Create a task to review PR',
@@ -95,11 +96,11 @@ const DemoVideo = () => {
                 }}
                 aria-hidden="true"
               >
-                <polygon points="13,10 23,16 13,22" fill="white" />
+                <polygon points="13,10 23,16 13,22" fill="#C15E50" />
               </svg>
             </span>
           </div>
-          <div className="px-2">Watch demo</div>
+          <div className="px-2">Watch C.O.R.E. launch</div>
         </Button>
       </Container>
 
@@ -107,7 +108,7 @@ const DemoVideo = () => {
         <DialogContent className="fixed inset-0 flex items-center justify-center z-50 bg-transparent shadow-none p-0">
           <div className="relative w-[90vw] max-w-[560px] aspect-video bg-black rounded-lg overflow-hidden">
             <iframe
-              src="https://www.youtube.com/embed/LEyjZutXA38?autoplay=1"
+              src="https://www.youtube.com/embed/iANZ32dnK60"
               title="Demo Video"
               allow="autoplay; encrypted-media"
               allowFullScreen
@@ -157,11 +158,10 @@ const Index = () => {
           <Hero />
           <InputContainer />
           <DemoVideo />
-          {/* <Video /> */}
           <CommandCentre />
           <BusyWork />
           <Peer />
-          {/* <MemorySection /> */}
+          <MemorySection />
         </div>
         <Footer />
       </ScrollArea>

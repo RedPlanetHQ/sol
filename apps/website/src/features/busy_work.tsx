@@ -1,7 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
 import { ArrowRight } from '@redplanethq/ui';
-import { Container, Section } from '../components';
 import Image from 'next/image';
+
+import { Container, Section } from '../components';
 
 export const BusyWork = () => {
   return (
@@ -22,8 +23,21 @@ export const BusyWork = () => {
             handles the rest.
           </p>
 
-          <div className="md:grid grid-cols-2 gap-8 pt-8">
-            <div className="text-lg">
+          <div className="flex flex-col md:grid md:grid-cols-2 gap-8 pt-8">
+            {/* Image on top for mobile, on right for desktop */}
+            <div className="mb-8 md:mb-0 order-1 md:order-2 flex justify-center md:block">
+              <div className="inline-block max-w-[494px] md:ml-8">
+                <Image
+                  src="/busy.svg"
+                  alt="logo"
+                  key={1}
+                  width={150}
+                  height={150}
+                  className="w-full relative -top-6"
+                />
+              </div>
+            </div>
+            <div className="text-lg order-2 md:order-1 mt-6">
               <p className="mb-2 font-bold"> Examples </p>
               <ul className="p-0 mb-8 flex flex-col gap-2">
                 <li className="list-none relative flex gap-2 items-center">
@@ -63,18 +77,6 @@ export const BusyWork = () => {
                   <p>Fetch: Get error logs from the latest deployment</p>
                 </li>
               </ul>
-            </div>
-            <div className="mb-8 md:mb-0">
-              <div className="inline-block max-w-[494px] md:ml-8">
-                <Image
-                  src="/busywork.png"
-                  alt="logo"
-                  key={1}
-                  width={150}
-                  height={150}
-                  className="w-full"
-                />
-              </div>
             </div>
           </div>
         </div>

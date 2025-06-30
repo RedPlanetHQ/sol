@@ -11,7 +11,6 @@ import { RightSideLayout } from 'layouts/right-side-layout';
 import { useIPC } from 'hooks/ipc';
 
 import { AppTabs } from './app-tabs';
-import { Navigation } from './navigation';
 
 interface AppLayoutProps {
   children: React.ReactNode;

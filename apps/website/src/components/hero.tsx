@@ -3,6 +3,11 @@ import { ArrowRight, Button } from '@redplanethq/ui';
 import { Container } from './utils';
 
 export const Hero = () => {
+  const handleDownload = () => {
+    const downloadUrl = `https://tally.so/r/mOKOp8`;
+    window.open(downloadUrl, '_blank');
+  };
+
   return (
     <section className="w-full">
       <Container className="flex flex-col items-center w-full pt-10 lg:pt-15 h-full relative justify-center mx-auto">
@@ -22,7 +27,11 @@ export const Hero = () => {
         </div>
 
         <div className="flex gap-1 mt-2">
-          <Button className="p-4 rounded-lg" size="2xl">
+          <Button
+            className="p-4 rounded-lg"
+            size="2xl"
+            onClick={handleDownload}
+          >
             Join the wailist <ArrowRight size={14} className="ml-2" />
           </Button>
         </div>

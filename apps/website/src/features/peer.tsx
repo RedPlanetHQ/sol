@@ -1,7 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
 import { ArrowRight } from '@redplanethq/ui';
-import { Container, Section } from '../components';
 import Image from 'next/image';
+
+import { Container, Section } from '../components';
 
 export const Peer = () => {
   return (
@@ -26,10 +27,11 @@ export const Peer = () => {
                   key={1}
                   width={150}
                   height={150}
+                  className="w-[70%] relative"
                 />
               </div>
             </div>
-            <div className="text-lg">
+            <div className="text-lg mt-6">
               <p className="mb-2 font-bold"> Examples </p>
               <ul className="p-0 mb-8 flex flex-col gap-2">
                 <li className="list-none relative pl-2 flex gap-2 items-center">

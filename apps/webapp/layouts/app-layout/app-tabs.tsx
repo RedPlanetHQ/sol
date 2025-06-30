@@ -14,9 +14,9 @@ import { useApplication } from 'hooks/application';
 
 import { TabViewType } from 'store/application';
 
+import { Navigation } from './navigation';
 import { Notifications } from './notifications';
 import { WorkspaceDropdown } from './workspace-dropdown';
-import { Navigation } from './navigation';
 
 export const AppTabs = observer(() => {
   const { activeTab, changeActiveTab } = useApplication();

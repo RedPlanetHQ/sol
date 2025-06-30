@@ -1,7 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
 import { ArrowRight } from '@redplanethq/ui';
-import { Container, Section } from '../components';
 import Image from 'next/image';
+
+import { Container, Section } from '../components';
 
 export const CommandCentre = () => {
   return (
@@ -26,7 +27,7 @@ export const CommandCentre = () => {
             <div className="mb-8 md:mb-0">
               <div className="inline-block max-w-[494px] md:ml-8">
                 <Image
-                  src="/command.png"
+                  src="/command.svg"
                   alt="logo"
                   key={1}
                   width={150}
@@ -36,7 +37,7 @@ export const CommandCentre = () => {
               </div>
             </div>
 
-            <div className="text-lg">
+            <div className="text-lg mt-6">
               <p className="mb-2 font-bold"> Examples </p>
               <ul className="p-0 mb-8 flex flex-col gap-2">
                 <li className="list-none relative flex gap-2 items-center">
