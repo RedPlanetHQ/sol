@@ -10,8 +10,8 @@ export const Hero = () => {
 
   return (
     <section className="w-full">
-      <Container className="flex flex-col items-center w-full pt-10 lg:pt-15 h-full relative justify-center mx-auto">
-        <div className="relative flex flex-wrap justify-center text-[32px] lg:text-[54px] mt-5 lg:mt-10">
+      <Container className="flex flex-col items-center text-center w-full pt-10 lg:pt-15 h-full relative justify-center mx-auto">
+        <div className="relative flex flex-wrap text-center justify-center text-[32px] lg:text-[54px] mt-5 lg:mt-10">
           Your personal assistant for
           <span
             className="mx-4 bg-gradient-to-br from-[#c15042] to-[#c15e50] bg-clip-text text-transparent animate-gradien"

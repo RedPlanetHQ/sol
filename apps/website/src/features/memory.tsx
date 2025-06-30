@@ -13,7 +13,7 @@ export const MemorySection = () => {
       <Container className="flex flex-col items-center">
         {/* Left: Text Content */}
         <div className="flex flex-col items-start py-4 gap-2 w-full">
-          <h3 className="text-[48px] text-foreground mb-1 flex gap-1 items-center flex-wrap">
+          <h3 className="text-[32px] md:text-[48px] text-foreground mb-1 flex gap-1 items-center flex-wrap">
             Think less, do more
           </h3>
           <p className="text-[16px] lg:text-[18px] text-muted-foreground/80 mb-4">
