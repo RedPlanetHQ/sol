@@ -37,7 +37,6 @@
     "eslint-config-prettier": "9.1.0",
     "globals": "15.10.0",
     "nano-staged": "0.8.0",
-    "screenshot-desktop": "1.15.1",
     "typescript": "5.6.2",
     "typescript-eslint": "8.8.1",
     "vite": "5.4.8",
@@ -54,6 +53,7 @@
     "electron-store": "^10.0.1",
     "electron-updater": "6.6.2",
     "electron-window-state": "^5.0.3",
+    "screenshot-desktop": "1.15.1",
     "axios": "^1.6.7"
   },
   "packageManager": "pnpm@10.3.0"

@@ -111,6 +111,8 @@ async function* query({
       env: {
         ...process.env,
         DATABASE_URL: '',
+        OPENAI_API_KEY: '',
+        MODEL: '',
       },
     },
   );
