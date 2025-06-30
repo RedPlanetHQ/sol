@@ -1,3 +1,10 @@
+/**
+ * This code is adapted from the official Claude Code SDK implementation,
+ * see: node_modules/@anthropic-ai/claude-code/sdk.mjs
+ *
+ * Provides an async generator `query` for interacting with Claude Code.
+ */
+
 import type { Options, SDKMessage } from '@anthropic-ai/claude-code';
 
 import { spawn } from 'child_process';
@@ -34,8 +41,6 @@ async function* query({
     model,
     fallbackModel,
   } = options;
-
-  console.log('options', options);
 
   const abortCtrl = abortController ?? new AbortController();
 

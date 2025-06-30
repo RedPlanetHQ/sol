@@ -5,11 +5,12 @@
     "module": "commonjs",
     "outDir": "./dist"
   },
-  "exclude": ["node_modules", ".trigger"],
+  "exclude": ["node_modules", ".trigger", "src/triggers/coding/query.js"],
   "include": [
     "**/*.ts",
     "**/*.tsx",
     "prisma/scripts/create-number.js",
-    "trigger.config.ts"
+    "trigger.config.ts",
+    "src/triggers/coding/query.js"
   ]
 }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from 'axios';
 import { IntegrationAccount } from '@redplanethq/sol-sdk';
 
@@ -127,9 +128,9 @@ async function fetchUserInfo(accessToken: string) {
       {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
         },
-      }
+      },
     );
 
     return response.data.data.viewer;
@@ -180,18 +181,18 @@ async function fetchRecentIssues(accessToken: string, lastSyncTime: string) {
 
     const response = await axios.post(
       'https://api.linear.app/graphql',
-      { 
+      {
         query,
         variables: {
-          lastSyncTime
-        }
+          lastSyncTime,
+        },
       },
       {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
         },
-      }
+      },
     );
 
     return response.data.data.issues;
@@ -229,18 +230,18 @@ async function fetchRecentComments(accessToken: string, lastSyncTime: string) {
 
     const response = await axios.post(
       'https://api.linear.app/graphql',
-      { 
+      {
         query,
         variables: {
-          lastSyncTime
-        }
+          lastSyncTime,
+        },
       },
       {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
         },
-      }
+      },
     );
 
     return response.data.data.comments;
@@ -257,7 +258,7 @@ async function processIssueActivities(
   issues: any[],
   userId: string,
   integrationAccount: IntegrationAccount,
-  isCreator: boolean = false
+  isCreator: boolean = false,
 ) {
   const activities = [];
 
@@ -266,10 +267,11 @@ async function processIssueActivities(
       // Skip issues that don't involve the user
       const isAssignee = issue.assignee?.id === userId;
       const isCreatedByUser = issue.creator?.id === userId;
-      
+
       // Check if user is subscribed to the issue
-      const isSubscribed = issue.subscribers?.nodes?.some((subscriber: any) => subscriber.id === userId) || false;
-      
+      const isSubscribed =
+        issue.subscribers?.nodes?.some((subscriber: any) => subscriber.id === userId) || false;
+
       if (!isAssignee && !isCreatedByUser && !isCreator && !isSubscribed) {
         continue;
       }
@@ -295,7 +297,7 @@ async function processIssueActivities(
           integrationAccountId: integrationAccount.id,
         });
       }
-      
+
       // Process issues where the user is subscribed (if not creator or assignee)
       if (isSubscribed && !isCreatedByUser && !isAssignee) {
         activities.push({
@@ -363,9 +365,9 @@ async function processIssueActivities(
               3: 'Medium',
               4: 'Low',
             };
-            
+
             const newPriority = priorityMap[historyItem.toPriority] || 'a new priority';
-            
+
             let title;
             if (isCreatedByUser) {
               title = `You changed priority of issue ${issue.identifier} to ${newPriority}`;
@@ -376,7 +378,7 @@ async function processIssueActivities(
             } else {
               title = `${issue.creator?.name || 'Someone'} changed priority of issue ${issue.identifier} to ${newPriority}`;
             }
-            
+
             activities.push({
               url: `https://api.linear.app/issue/${issue.id}`,
               title,
@@ -392,11 +394,12 @@ async function processIssueActivities(
             if (historyItem.toAssigneeId !== userId && !isCreatedByUser) {
               continue;
             }
-            
-            const title = historyItem.toAssigneeId === userId
-              ? `You were assigned issue ${issue.identifier}: ${issue.title}`
-              : `You assigned issue ${issue.identifier} to ${issue.assignee?.name || 'someone'}`;
-            
+
+            const title =
+              historyItem.toAssigneeId === userId
+                ? `You were assigned issue ${issue.identifier}: ${issue.title}`
+                : `You assigned issue ${issue.identifier} to ${issue.assignee?.name || 'someone'}`;
+
             activities.push({
               url: `https://api.linear.app/issue/${issue.id}`,
               title,
@@ -426,7 +429,7 @@ async function processIssueActivities(
 async function processCommentActivities(
   comments: any[],
   userId: string,
-  integrationAccount: IntegrationAccount
+  integrationAccount: IntegrationAccount,
 ) {
   const activities = [];
 
@@ -435,10 +438,12 @@ async function processCommentActivities(
       const isCommenter = comment.user?.id === userId;
       const isIssueCreator = comment.issue?.creator?.id === userId;
       const isAssignee = comment.issue?.assignee?.id === userId;
-      
+
       // Check if user is subscribed to the issue
-      const isSubscribed = comment.issue?.subscribers?.nodes?.some((subscriber: any) => subscriber.id === userId) || false;
-      
+      const isSubscribed =
+        comment.issue?.subscribers?.nodes?.some((subscriber: any) => subscriber.id === userId) ||
+        false;
+
       // Skip if not relevant to user
       if (!isCommenter && !isIssueCreator && !isAssignee && !isSubscribed) {
         // TODO: Check for mentions in the comment body
@@ -460,7 +465,7 @@ async function processCommentActivities(
         } else if (isIssueCreator) {
           relation = 'your issue';
         } else if (isSubscribed) {
-          relation = 'an issue you\'re subscribed to';
+          relation = "an issue you're subscribed to";
         }
         title = `${comment.user?.name || 'Someone'} commented on ${relation} ${comment.issue.identifier}: ${truncateText(comment.body, 100)}`;
         sourceId = `linear-comment-received-${comment.id}`;
@@ -511,14 +516,14 @@ function getDefaultSyncTime(): string {
 export async function handleSchedule(integrationAccount: IntegrationAccount) {
   try {
     // Check if we have a valid access token
-    if (!integrationAccount.accessToken) {
+    if (!integrationAccount.integrationConfiguration?.accessToken) {
       console.error('No access token found for Linear integration');
       return { message: 'No access token found' };
     }
 
     // Get settings or initialize if not present
     const settings: LinearSettings = integrationAccount.settings || {};
-    
+
     // Default to 24 hours ago if no last sync times
     const lastIssuesSync = settings.lastIssuesSync || getDefaultSyncTime();
     const lastCommentsSync = settings.lastCommentsSync || getDefaultSyncTime();
@@ -526,7 +531,7 @@ export async function handleSchedule(integrationAccount: IntegrationAccount) {
 
     // Fetch user info to identify activities relevant to them
     const user = await fetchUserInfo(integrationAccount.accessToken);
-    
+
     if (!user || !user.id) {
       console.error('Failed to fetch user info from Linear');
       return { message: 'Failed to fetch user info' };
@@ -563,7 +568,7 @@ export async function handleSchedule(integrationAccount: IntegrationAccount) {
 
     // Update last sync times
     const newSyncTime = new Date().toISOString();
-    
+
     // Save new settings
     integrationAccount.settings = {
       ...settings,

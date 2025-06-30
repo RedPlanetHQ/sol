@@ -193,7 +193,7 @@ These are table stylings
 }
 
 .ProseMirror:not(.dragging) .ProseMirror-selectednode.node-skill {
-  @apply !bg-transparent;
+  @apply !bg-transparent !pt-2;
 }
 
 .prosemirror-dropcursor-block {

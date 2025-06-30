@@ -318,7 +318,7 @@ async function makeNextCall(
   // Get the next action from the LLM
   const response = generate(
     messages,
-    guardLoop > 0 && guardLoop % 3 === 0,
+    guardLoop % 3 === 0,
     (event) => {
       const usage = event.usage;
       totalCost.inputTokens += usage.promptTokens;
