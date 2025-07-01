@@ -1,4 +1,5 @@
 import { Badge, Checkbox, cn } from '@redplanethq/ui';
+import { RiCircleFill } from '@remixicon/react';
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
@@ -197,7 +198,7 @@ export const TaskListItem = observer(
                       {page?.title}
                     </div>
                   </div>
-                  <div className="flex">
+                  <div className="flex items-center">
                     <TaskInfo
                       task={task}
                       minimal={minimal}
@@ -217,14 +218,17 @@ export const TaskListItem = observer(
 
                     {conversationForTask &&
                       (conversationForTask.status === 'need_attention' ||
-                        conversationForTask.status === 'need_approval') &&
-                      conversationForTask.unread && (
+                        conversationForTask.status === 'need_approval') && (
                         <TooltipWrapper tooltip="Task needs your attention">
                           <Badge className="font-mono h-5 !bg-destructive">
                             !
                           </Badge>
                         </TooltipWrapper>
                       )}
+
+                    {conversationForTask && conversationForTask.unread && (
+                      <RiCircleFill className="text-primary" size={8} />
+                    )}
                   </div>
                 </div>
               </div>

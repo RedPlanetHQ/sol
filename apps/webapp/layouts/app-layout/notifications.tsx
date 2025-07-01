@@ -75,7 +75,9 @@ export const Notifications = observer(() => {
 
   // Further categorize not running conversations
   const categorizedConversations = {
-    unread: notRunningConversations.filter((conv) => conv.unread),
+    unread: notRunningConversations.filter(
+      (conv) => conv.unread && !conv.taskId,
+    ),
     needApproval: notRunningConversations.filter(
       (conv) => conv.status === 'need_approval',
     ),

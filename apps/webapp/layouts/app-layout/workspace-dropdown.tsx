@@ -27,7 +27,7 @@ export const WorkspaceDropdown = observer(() => {
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="hover:bg-transparent justify-between gap-2 items-center shrink p-0 h-8"
+          className="hover:bg-transparent justify-between gap-2 items-center shrink p-0 ml-2 h-8"
         >
           <div className="flex justify-between gap-2 items-center">
             <AvatarText

@@ -82,7 +82,7 @@ const DemoVideo = () => {
               alt="Demo video thumbnail"
               className="rounded"
               fill
-              style={{ objectFit: 'cover' }}
+              style={{ objectFit: 'contain' }}
               priority
             />
             <span className="absolute inset-0 flex items-center justify-center">

@@ -35,7 +35,7 @@ export const QuickEditor = observer(
     const [html, setHTML] = useState('');
     const [editor, setEditor] = React.useState<EditorT>();
 
-    const suggestion = useContextSuggestions(true);
+    const suggestion = useContextSuggestions(false);
     const { mutate: createConversation, isLoading: createConversationLoading } =
       useCreateConversationMutation({});
 

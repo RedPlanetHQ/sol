@@ -1,6 +1,6 @@
 {
   "name": "webapp",
-  "version": "0.1.25",
+  "version": "0.1.26",
   "private": true,
   "scripts": {
     "dev": "PORT=3000 next dev",

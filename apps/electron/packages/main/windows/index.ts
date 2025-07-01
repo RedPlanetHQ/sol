@@ -1,7 +1,7 @@
 import {globalShortcut, Menu, nativeImage, Tray, type BrowserWindow, screen, app} from 'electron';
 import {createMainWindow} from './main';
 import {createQuickWindow, registerQuickStates} from './quick';
-import screenshot from 'screenshot-desktop';
+// import screenshot from 'screenshot-desktop';
 
 import path, {dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -102,10 +102,10 @@ export async function restoreOrCreateQuickWindow(show = false) {
   const tempFilePath = path.join(app.getPath('userData'), `screenshot-${randomId}.png`);
 
   // Take screenshot and save to file
-  await screenshot({
-    screen: currentDisplay.id - 1,
-    filename: tempFilePath,
-  });
+  // await screenshot({
+  //   screen: currentDisplay.id - 1,
+  //   filename: tempFilePath,
+  // });
 
   setScreenshotPath(tempFilePath);
 
