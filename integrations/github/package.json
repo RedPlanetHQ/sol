@@ -70,8 +70,7 @@
     ]
   },
   "dependencies": {
-    "@redplanethq/agent-sdk": "0.1.7",
-    "@redplanethq/sol-sdk": "0.1.13",
+    "@redplanethq/sol-sdk": "0.2.18",
     "axios": "^1.7.9",
     "openai": "^4.0.0",
     "react-query": "^3.39.3"

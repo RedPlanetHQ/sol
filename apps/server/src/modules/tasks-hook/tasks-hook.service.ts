@@ -213,6 +213,9 @@ export class TaskHooksService {
   }
 
   async handleListTask(task: Task, context: TaskHookContext) {
+    if (task.updatedBy === 'assistant') {
+      return { message: 'Handled list update by assistant' };
+    }
     const addTaskToListPage = async (task: Task) => {
       const list = await this.prisma.list.findUnique({
         where: {
@@ -276,6 +279,9 @@ export class TaskHooksService {
   }
 
   async handleParentPageTask(task: Task, context: TaskHookContext) {
+    if (task.updatedBy === 'assistant') {
+      return { message: 'Handled parent page update by assistant' };
+    }
     const addTaskToParentPage = async (task: Task, parentId: string) => {
       const parentTask = await this.prisma.task.findUnique({
         where: {

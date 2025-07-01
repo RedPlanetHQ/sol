@@ -90,8 +90,9 @@ async function createReminders(task: Task) {
 
   // Create schedule to run daily 10 minutes before task start time
   const startTime = new Date(task.startTime);
-  const cronMinutes = startTime.getMinutes() - awakeBefore;
-  const cronHours = startTime.getHours();
+  const reminderDate = new Date(startTime.getTime() - awakeBefore * 60 * 1000);
+  const cronMinutes = reminderDate.getMinutes();
+  const cronHours = reminderDate.getHours();
 
   const { id: scheduleId } = await schedules.create({
     task: `task-run-schedule`,
