@@ -7,7 +7,7 @@ export function Footer() {
       <img
         src="/footer.svg"
         alt="logo"
-        className="w-full h-[450px] object-cover opacity-70"
+        className="w-full h-full min-h-[450px] object-cover opacity-70"
       />
       <div className="flex flex-col items-center justify-end z-10 absolute inset-0 pb-4">
         <div className="flex flex-col gap-1 rounded items-center justify-center py-4">

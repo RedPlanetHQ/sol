@@ -6,7 +6,7 @@ import { Container, Section } from '../components';
 
 export const Peer = () => {
   return (
-    <Section name="Peerk" color="#4187C0" id="peer" className="mt-10 lg-mt-20">
+    <Section name="Peerk" color="#4187C0" id="peer" className="mt-5 lg:mt-10">
       <Container className="flex flex-col items-center">
         <div className="flex flex-col items-start py-4 gap-2 w-full">
           <h3 className="text-[32px] md:text-[48px] text-foreground mb-1 flex gap-1 items-center flex-wrap">
@@ -22,12 +22,12 @@ export const Peer = () => {
             <div className="mb-8 md:mb-0">
               <div className="inline-block max-w-[494px] md:ml-8">
                 <Image
-                  src="/peer.svg"
+                  src="/peer.png"
                   alt="logo"
                   key={1}
                   width={150}
                   height={150}
-                  className="w-[70%] relative"
+                  className="w-full relative"
                 />
               </div>
             </div>

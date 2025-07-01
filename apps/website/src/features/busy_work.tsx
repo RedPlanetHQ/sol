@@ -10,7 +10,7 @@ export const BusyWork = () => {
       name="Busy work"
       color="#4187C0"
       id="busy_work"
-      className="mt-10 lg-mt-20"
+      className="mt-5 lg-mt-10"
     >
       <Container className="flex flex-col items-center">
         <div className="flex flex-col items-start py-4 gap-2 w-full">
@@ -28,7 +28,7 @@ export const BusyWork = () => {
             <div className="mb-8 md:mb-0 order-1 md:order-2 flex justify-center md:block">
               <div className="inline-block max-w-[494px] md:ml-8">
                 <Image
-                  src="/busy.svg"
+                  src="/busy.png"
                   alt="logo"
                   key={1}
                   width={150}

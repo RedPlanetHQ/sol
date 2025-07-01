@@ -27,7 +27,7 @@ export const CommandCentre = () => {
             <div className="mb-8 md:mb-0">
               <div className="inline-block max-w-[494px] md:ml-8">
                 <Image
-                  src="/command.svg"
+                  src="/command.png"
                   alt="logo"
                   key={1}
                   width={150}
