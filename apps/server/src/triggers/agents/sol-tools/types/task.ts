@@ -52,6 +52,9 @@ export const CreateTaskSchema = z.object({
     .describe(
       'The scheduled end date and time for this task in ISO 8601 format, including timezone offset (e.g., "2024-06-12T10:00:00+10:00"). Use the timezone from the provided context (e.g., todayDate) unless otherwise specified. Optional; set if the task has a specific end time.',
     ),
+  recurrence: z.array(z.string()).optional().describe('RRULE for the task'),
+  listId: z.string().optional().describe('List ID of the task'),
+  parentId: z.string().optional().describe('Parent task ID of the task'),
 });
 
 export const UpdateTaskSchema = z.object({
@@ -76,6 +79,9 @@ export const UpdateTaskSchema = z.object({
     .describe(
       'The scheduled end date and time for this task in ISO 8601 format, including timezone offset (e.g., "2024-06-12T10:00:00+10:00"). Use the timezone from the provided context (e.g., todayDate) unless otherwise specified. Optional; set if the task has a specific end time.',
     ),
+  recurrence: z.array(z.string()).optional().describe('RRULE for the task'),
+  listId: z.string().optional().describe('List ID of the task'),
+  parentId: z.string().optional().describe('Parent task ID of the task'),
 });
 
 export const UpdatePartialTaskDescriptionSchema = z.object({

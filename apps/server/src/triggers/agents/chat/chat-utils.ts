@@ -140,7 +140,6 @@ const internalTools = [
 async function needConfirmation(
   toolCalls: any[],
   autonomy: number,
-  userQuery: string,
 ): Promise<Record<string, any> | undefined> {
   const userPromptHandler = Handlebars.compile(
     CONFIRMATION_CHECKER_USER_PROMPT,
@@ -149,7 +148,6 @@ async function needConfirmation(
   const userPrompt = userPromptHandler({
     TOOL_CALLS: toolCalls,
     AUTONOMY: autonomy,
-    USER_QUERY: userQuery,
   });
 
   const messages: CoreMessage[] = [];
@@ -318,7 +316,7 @@ async function makeNextCall(
   // Get the next action from the LLM
   const response = generate(
     messages,
-    guardLoop % 3 === 0,
+    guardLoop > 0 && guardLoop % 3 === 0,
     (event) => {
       const usage = event.usage;
       totalCost.inputTokens += usage.promptTokens;
@@ -469,7 +467,6 @@ export async function* run(
         const confirmation = await needConfirmation(
           toolCalls,
           preferences.autonomy ?? 50,
-          message,
         );
 
         if (confirmation) {

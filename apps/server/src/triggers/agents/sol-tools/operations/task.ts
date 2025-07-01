@@ -40,6 +40,11 @@ export async function createTask(params: CreateTaskParams) {
       type: 'external',
       by: 'assistant',
     },
+    startTime: params.startTime,
+    endTime: params.endTime,
+    recurrence: params.recurrence,
+    listId: params.listId,
+    parentId: params.parentId,
   });
   return response.data;
 }
@@ -54,6 +59,11 @@ export async function updateTask(params: UpdateTaskParams) {
     ...(params.title && { title: params.title }),
     ...(params.status && { status: params.status }),
     ...(params.pageDescription && { pageDescription: params.pageDescription }),
+    ...(params.startTime && { startTime: params.startTime }),
+    ...(params.endTime && { endTime: params.endTime }),
+    ...(params.recurrence && { recurrence: params.recurrence }),
+    ...(params.listId && { listId: params.listId }),
+    ...(params.parentId && { parentId: params.parentId }),
   };
 
   const response = await axios.post(

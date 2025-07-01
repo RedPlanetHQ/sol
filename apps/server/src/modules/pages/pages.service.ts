@@ -234,7 +234,15 @@ export class PagesService {
     });
 
     if (!page?.description) {
-      throw new Error(`Page ${pageId} not found or has no content`);
+      page.description = JSON.stringify({
+        type: 'doc',
+        content: [
+          {
+            type: 'paragraph',
+            content: [],
+          },
+        ],
+      });
     }
 
     // Parse the current description JSON and convert to HTML

@@ -1,13 +1,13 @@
 import { IntegrationAccount } from '@redplanethq/sol-sdk';
 import axios from 'axios';
 
-import { createActivity, getGithubData, getUserEvents, ActivityCreate } from './utils';
+import { createActivity, getUserEvents, ActivityCreate, getGithubData } from './utils';
 
 export async function handleSchedule(integrationAccount: IntegrationAccount) {
   const integrationConfiguration = integrationAccount.integrationConfiguration as {
     access_token: string;
   };
-  const settings = integrationAccount.settings as { 
+  const settings = integrationAccount.settings as {
     lastSyncTime: string;
     lastUserEventTime?: string;
     username?: string;
@@ -37,7 +37,7 @@ export async function handleSchedule(integrationAccount: IntegrationAccount) {
   let hasMorePages = true;
   let notificationCount = 0;
   let userEventCount = 0;
-  
+
   // If we have username but no lastUserEventTime, initialize it same as lastSyncTime
   if (settings.username && !settings.lastUserEventTime) {
     settings.lastUserEventTime = lastSyncTime;
@@ -73,7 +73,6 @@ export async function handleSchedule(integrationAccount: IntegrationAccount) {
         let title = '';
         let url = '';
         let sourceURL = '';
-        let sourceId = '';
         let githubData;
         const isComment = subject.latest_comment_url?.includes('/comments/') || false;
         const isIssue = subject.type === 'Issue';
@@ -89,7 +88,6 @@ export async function handleSchedule(integrationAccount: IntegrationAccount) {
         if (url) {
           // Fetch the full data from GitHub API
           githubData = await getGithubData(url, integrationConfiguration.access_token);
-          sourceId = githubData.id?.toString() || '';
           sourceURL = githubData.html_url || url;
 
           // Create structured text based on notification reason
@@ -163,7 +161,6 @@ export async function handleSchedule(integrationAccount: IntegrationAccount) {
           activity.push({
             url,
             title,
-            sourceId,
             sourceURL,
             integrationAccountId: integrationAccount.id,
           });
@@ -174,131 +171,95 @@ export async function handleSchedule(integrationAccount: IntegrationAccount) {
     if (activity.length > 0) {
       await createActivity(activity);
     }
-
-    await axios.post(`/api/v1/integration_account/${integrationAccount.id}`, {
-      settings: { ...settings, lastSyncTime: new Date().toISOString() },
-    });
   }
 
   // Process user-initiated events (direct actions) for more complete activity tracking
   if (settings.username) {
     let userEventsPage = 1;
     let hasMoreUserEvents = true;
-    
+
     while (hasMoreUserEvents) {
       const userEvents = await getUserEvents(
         settings.username,
         userEventsPage,
         integrationConfiguration.access_token,
-        settings.lastUserEventTime
+        lastSyncTime,
       );
 
       if (!userEvents || userEvents.length === 0) {
         hasMoreUserEvents = false;
         break;
       }
-      userEventsPage++;
-      
+
+      // Search API returns max 30 items per page (15 PRs + 15 issues)
+      // If we get less than 30, it's likely the last page
+      if (userEvents.length < 30) {
+        hasMoreUserEvents = false;
+      } else {
+        userEventsPage++;
+      }
+
       // Track events initiated by the user that might not appear in notifications
       const userActivity: ActivityCreate[] = [];
-      
-      for (const event of userEvents) {
+
+      for (const item of userEvents) {
         // Skip events we've already processed
-        const eventTime = new Date(event.created_at).toISOString();
-        if (settings.lastUserEventTime && eventTime <= settings.lastUserEventTime) {
+        const eventTime = new Date(item.created_at).toISOString();
+        if (eventTime <= lastSyncTime) {
           continue;
         }
-        
+
         let title = '';
         let url = '';
         let sourceURL = '';
-        let sourceId = '';
-        
-        switch (event.type) {
-          case 'PullRequestEvent':
-            if (event.payload.action === 'opened' || event.payload.action === 'reopened') {
-              const pr = event.payload.pull_request;
-              title = `You created PR #${pr.number}: ${pr.title}`;
-              sourceURL = pr.html_url;
-              sourceId = `pr_${pr.id}`;
-              url = pr.url;
-            }
-            break;
-            
-          case 'IssuesEvent':
-            if (event.payload.action === 'opened' || event.payload.action === 'reopened') {
-              const issue = event.payload.issue;
-              title = `You created issue #${issue.number}: ${issue.title}`;
-              sourceURL = issue.html_url;
-              sourceId = `issue_${issue.id}`;
-              url = issue.url;
-            }
-            break;
-            
-          case 'IssueCommentEvent':
-            if (event.payload.action === 'created') {
-              const issue = event.payload.issue;
-              const comment = event.payload.comment;
-              title = `You commented on issue #${issue.number}: ${comment.body?.substring(0, 100)}${comment.body?.length > 100 ? '...' : ''}`;
-              sourceURL = comment.html_url;
-              sourceId = `comment_${comment.id}`;
-              url = comment.url;
-            }
-            break;
-            
-          case 'PullRequestReviewEvent':
-            const review = event.payload.review;
-            const pr = event.payload.pull_request;
-            title = `You reviewed PR #${pr.number}: ${review.state}`;
-            sourceURL = review.html_url;
-            sourceId = `review_${review.id}`;
-            url = review.url;
-            break;
-            
-          case 'PullRequestReviewCommentEvent':
-            if (event.payload.action === 'created') {
-              const pr = event.payload.pull_request;
-              const comment = event.payload.comment;
-              title = `You commented on PR #${pr.number}: ${comment.body?.substring(0, 100)}${comment.body?.length > 100 ? '...' : ''}`;
-              sourceURL = comment.html_url;
-              sourceId = `pr_comment_${comment.id}`;
-              url = comment.url;
-            }
-            break;
-            
-          case 'CommitCommentEvent':
-            const comment = event.payload.comment;
-            title = `You commented on commit ${comment.commit_id?.substring(0, 7)}: ${comment.body?.substring(0, 100)}${comment.body?.length > 100 ? '...' : ''}`;
-            sourceURL = comment.html_url;
-            sourceId = `commit_comment_${comment.id}`;
-            url = comment.url;
-            break;
+
+        if (item.type === 'pr') {
+          title = `User created PR #${item.number}: ${item.title}`;
+          sourceURL = item.html_url;
+          url = item.url;
+        } else if (item.type === 'issue') {
+          title = `User created issue #${item.number}: ${item.title}`;
+          sourceURL = item.html_url;
+          url = item.url;
+        } else if (item.type === 'pr_comment') {
+          title = `User commented on PR #${item.number}: ${item.title}`;
+          sourceURL = item.html_url;
+          url = item.url;
+        } else if (item.type === 'issue_comment') {
+          title = `User commented on issue #${item.number}: ${item.title}`;
+          sourceURL = item.html_url;
+          url = item.url;
         }
-        
+
         if (title && url) {
           userActivity.push({
             url,
             title,
-            sourceId,
             sourceURL,
             integrationAccountId: integrationAccount.id,
           });
         }
       }
-      
+
+      console.log(userActivity);
+
       if (userActivity.length > 0) {
         await createActivity(userActivity);
         userEventCount += userActivity.length;
       }
     }
-    
-    // Update lastUserEventTime in settings
-    await axios.post(`/api/v1/integration_account/${integrationAccount.id}`, {
-      settings: { ...settings, lastUserEventTime: new Date().toISOString() },
-    });
   }
 
-  return { 
-    message: `Processed ${notificationCount} notifications and ${userEventCount} user events from GitHub` 
+  // Update lastUserEventTime in settings
+  await axios.post(`/api/v1/integration_account/${integrationAccount.id}`, {
+    settings: {
+      ...settings,
+      lastUserEventTime: new Date().toISOString(),
+      lastSyncTime: new Date().toISOString(),
+    },
+  });
+
+  return {
+    message: `Processed ${notificationCount} notifications and ${userEventCount} user events from GitHub`,
   };
 }
