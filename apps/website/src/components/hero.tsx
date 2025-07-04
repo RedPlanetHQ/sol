@@ -4,7 +4,7 @@ import { Container } from './utils';
 
 export const Hero = () => {
   const handleDownload = () => {
-    const downloadUrl = `https://tally.so/r/mOKOp8`;
+    const downloadUrl = `https://tally.so/r/mOZNJa`;
     window.open(downloadUrl, '_blank');
   };
 

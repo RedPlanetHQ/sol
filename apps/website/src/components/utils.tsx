@@ -146,7 +146,7 @@ export const CONTENT = `<h2 class="heading-node h2-style text-xl mt-[1rem] font-
 
 export const DownloadButton = () => {
   const handleDownload = () => {
-    const downloadUrl = `https://tally.so/r/mOKOp8`;
+    const downloadUrl = `https://tally.so/r/mOZNJa`;
     window.open(downloadUrl, '_blank');
   };
 
