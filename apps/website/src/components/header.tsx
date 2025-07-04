@@ -20,8 +20,17 @@ export const Header = () => {
           <div className="font-mono mr-2 text-lg">SOL</div>
         </div>
 
-        {/* Right Side: Download only */}
-        <div className="flex items-center gap-1">
+        {/* Right Side: Links and Download */}
+        <div className="flex items-center gap-3">
+          <nav className="hidden md:flex items-center gap-6 mr-2">
+            <a href="/" className="text-foreground hover:text-primary transition-colors">
+              Home
+            </a>
+            <a href="/changelog" className="text-foreground hover:text-primary transition-colors">
+              Changelog
+            </a>
+          </nav>
+          
           <Button
             size="lg"
             variant="secondary"
