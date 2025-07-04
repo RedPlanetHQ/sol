@@ -18,6 +18,24 @@ export function Footer() {
           <div className="text-base mx-4 mb-1 text-center font-mono">
             Be among the first explorers—join our crew and get early access
           </div>
+          
+          <div className="flex gap-6 my-3">
+            <a href="/" className="text-foreground hover:text-primary transition-colors">
+              Home
+            </a>
+            <a href="/changelog" className="text-foreground hover:text-primary transition-colors">
+              Changelog
+            </a>
+            <a 
+              href="https://github.com/RedPlanetHQ/sol" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-foreground hover:text-primary transition-colors"
+            >
+              GitHub
+            </a>
+          </div>
+          
           <div className="text-sm mx-4">
             © {new Date().getFullYear()} RedplanetHQ. All rights reserved.
           </div>

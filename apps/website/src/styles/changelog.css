@@ -1,0 +1,121 @@
+/* Changelog specific styles */
+.changelog-timeline {
+  position: relative;
+}
+
+.changelog-timeline-line {
+  position: absolute;
+  left: 11px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: oklch(var(--border));
+}
+
+.changelog-entry {
+  position: relative;
+  margin-bottom: 4rem;
+}
+
+.changelog-entry:last-child {
+  margin-bottom: 0;
+}
+
+.changelog-dot {
+  position: absolute;
+  left: 0;
+  top: 6px;
+  height: 24px;
+  width: 24px;
+  border-radius: 50%;
+  border: 4px solid oklch(var(--background-2));
+  background-color: oklch(var(--primary));
+}
+
+.changelog-content {
+  padding-left: 3rem;
+}
+
+.changelog-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.changelog-date {
+  font-size: 0.875rem;
+  color: oklch(var(--muted-foreground));
+}
+
+.changelog-version {
+  padding: 0.25rem 0.5rem;
+  background-color: oklch(var(--primary) / 0.1);
+  color: oklch(var(--primary));
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 9999px;
+}
+
+.changelog-section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.changelog-collapsible {
+  margin-bottom: 1.5rem;
+}
+
+.changelog-collapsible-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  text-align: left;
+  font-weight: 500;
+  padding: 0.5rem 0;
+  font-size: 1.25rem;
+}
+
+.changelog-chevron {
+  height: 1.25rem;
+  width: 1.25rem;
+  transition: transform 0.2s ease-in-out;
+}
+
+.changelog-chevron-expanded {
+  transform: rotate(180deg);
+}
+
+.changelog-list {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.changelog-list-item {
+  margin-bottom: 0.5rem;
+}
+
+.changelog-screenshot {
+  margin-top: 2rem;
+}
+
+.changelog-screenshot-title {
+  font-size: 1.125rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.changelog-image-container {
+  overflow: hidden;
+  border-radius: 0.375rem;
+  background-color: oklch(var(--background-3));
+  border: 1px solid oklch(var(--border));
+}
+
+.changelog-image {
+  width: 100%;
+  object-fit: cover;
+}

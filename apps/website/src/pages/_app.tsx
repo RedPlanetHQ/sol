@@ -1,6 +1,7 @@
 import './global.css';
 import '@redplanethq/ui/index.css';
 import '@redplanethq/ui/global.css';
+import '../styles/changelog.css';
 
 import type { AppLayoutProps } from 'next/app';
 
