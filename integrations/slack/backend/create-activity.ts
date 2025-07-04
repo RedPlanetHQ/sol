@@ -73,6 +73,7 @@ export const createActivityEvent = async (
     await axios.post('/api/v1/activity', activity);
   }
 
+  // Only create activity for "eyes" reaction if the user who added the reaction is the integration user
   if (eventData.event.type === 'reaction_added' && eventData.event.reaction === 'eyes') {
     const event = eventData.event;
 
@@ -86,6 +87,14 @@ export const createActivityEvent = async (
     }
 
     const accessToken = integrationConfiguration.access_token;
+    const integrationUserId = integrationConfiguration.userId;
+    // Only proceed if the user who added the reaction is the integration user
+    if (event.user !== integrationUserId) {
+      return {
+        message: `Processed activity from slack (no action for non-integration user eye reaction)`,
+      };
+    }
+
     const channel = event.item.channel;
     const ts = event.item.ts;
 
@@ -115,7 +124,8 @@ export const createActivityEvent = async (
       conversationContext = `channel ${conversationInfo.name}(${conversationInfo.id})`;
     }
 
-    const text = `Message from user ${userIdMap.get(eventMessage.user)?.real_name}(${eventMessage.user}) in ${conversationContext} at ${eventMessage.ts}. Content: '${eventMessageText}'`;
+    // Change the activity text to reflect that "I" (the integration user) added the eye emoji
+    const text = `I (user ${userIdMap.get(event.user)?.real_name || event.user}) added an :eyes: reaction in ${conversationContext} at ${eventMessage.ts}. Content: '${eventMessageText}'`;
 
     const permalinkResponse = await axios.get(
       `https://slack.com/api/chat.getPermalink?channel=${channel}&message_ts=${ts}`,

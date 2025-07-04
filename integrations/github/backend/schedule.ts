@@ -229,6 +229,10 @@ export async function handleSchedule(integrationAccount: IntegrationAccount) {
           title = `User commented on issue #${item.number}: ${item.title}`;
           sourceURL = item.html_url;
           url = item.url;
+        } else if (item.type === 'self_assigned_issue') {
+          title = `User self-assigned issue #${item.number}: ${item.title}`;
+          sourceURL = item.html_url;
+          url = item.url;
         }
 
         if (title && url) {
