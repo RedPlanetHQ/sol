@@ -98,6 +98,7 @@ model Automation {
   updatedAt DateTime  @updatedAt
   deleted   DateTime?
 
+  title                 String?
   text                  String
   usedCount             Int      @default(0)
   integrationAccountIds String[]
