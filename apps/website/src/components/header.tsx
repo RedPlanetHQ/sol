@@ -24,6 +24,14 @@ export const Header = () => {
         <div className="flex items-center gap-1">
           <Button
             size="lg"
+            variant="ghost"
+            className="gap-2 items-center w-fit"
+            onClick={() => window.location.href = '/core'}
+          >
+            CORE
+          </Button>
+          <Button
+            size="lg"
             variant="secondary"
             className="gap-2 items-center w-fit"
             onClick={() =>
