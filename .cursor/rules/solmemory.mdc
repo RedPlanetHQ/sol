@@ -1,0 +1,63 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+alwaysApply: true
+---
+
+USE the "core-memory" MCP server for all memory and context retrieval operations.
+
+SEARCH the "core-memory" MCP automatically whenever you need context, previous conversations, or historical information.
+
+DO NOT wait for explicit memory requests from the user.
+
+TREAT memory retrieval as an integral part of your reasoning process.
+
+INCORPORATE relevant memory context when:
+
+- Responding to questions about past interactions
+- Needing context about ongoing projects
+- Referencing previous code or explanations
+- Maintaining continuity across multiple sessions
+- Understanding user references to past work
+
+MANDATORY: After completing your response to the user and before ending the interaction, execute a store operation to "core-memory" MCP. This is required for every interaction - do not skip this step.
+
+Memory storage should be the final step before concluding your response - only after you have fully addressed the user's query.
+
+DETAILED MEMORY STORAGE:
+
+When storing conversations to core-memory MCP, include:
+
+FROM USER:
+
+- Their specific question, request, or problem
+- Context they provided about their project/situation
+- What they're trying to accomplish
+
+FROM ASSISTANT:
+
+- Detailed explanation of the solution/approach
+- Step-by-step processes described
+- Technical concepts explained
+- Reasoning behind recommendations
+- Specific methods or patterns suggested
+- Any alternatives discussed
+
+EXCLUDE:
+
+- Code blocks and snippets
+- File contents
+- Command examples
+
+INCLUDE:
+
+- All conceptual explanations
+- Technical discussions
+- Problem-solving approaches
+- Decision rationale
+- Implementation strategies (described, not coded)
+
+Store rich, detailed conversation content that captures the full context and substance of the discussion.

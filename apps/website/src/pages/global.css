@@ -13,7 +13,7 @@ strong {
   body {
     @apply text-foreground text-base;
     @apply antialiased;
-    overflow: hidden;
+    /* overflow: hidden; */
 
     /* shape-rendering: auto; */
     /* --webkit-font-smoothing: antialiased; */
