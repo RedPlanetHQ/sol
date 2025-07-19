@@ -31,6 +31,51 @@ model Activity {
   ConversationHistory ConversationHistory[]
 }
 
+model AuthSession {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model AuthAccount {
+  id           String    @id @default(uuid())
+  userId       String
+  accountId    String
+  providerId   String
+  accessToken  String?
+  refreshToken String?
+  idToken      String?
+  expiresAt    DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, providerId])
+  @@map("account")
+}
+
+model AuthVerification {
+  id         String   @id @default(uuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  userId     String?
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("verification")
+}
+
 model Command {
   id        String    @id @default(uuid())
   createdAt DateTime  @default(now())
@@ -286,7 +331,7 @@ model PersonalAccessToken {
   deleted   DateTime?
 
   name  String
-  jwt   String
+  jwt   String?
   token String
 
   user        User   @relation(fields: [userId], references: [id])
@@ -389,8 +434,10 @@ model User {
   updatedAt DateTime @updatedAt
   email     String   @unique
 
+  name                    String? // Better Auth expects 'name' field
   fullname                String?
   username                String
+  emailVerified           Boolean @default(true) // Better Auth expects this
   initialSetupComplete    Boolean @default(false)
   anonymousDataCollection Boolean @default(false)
 
@@ -409,6 +456,11 @@ model User {
   InvitationCode      InvitationCode?       @relation(fields: [invitationCodeId], references: [id])
   invitationCodeId    String?
   UserCodingSession   UserCodingSession[]
+
+  // Better Auth relationships
+  authSessions      AuthSession[]
+  authAccounts      AuthAccount[]
+  authVerifications AuthVerification[]
 }
 
 model UserCodingSession {

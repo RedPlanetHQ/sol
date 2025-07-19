@@ -5,16 +5,14 @@ import {
   Get,
   Param,
   Post,
-  Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
 import { Workspace, WorkspaceRequestParamsDto } from '@redplanethq/sol-sdk';
-import { Request, Response } from 'express';
-import { SessionContainer } from 'supertokens-node/recipe/session';
+import { Response } from 'express';
 
 import { AuthGuard } from 'modules/auth/auth.guard';
-import { Session as SessionDecorator } from 'modules/auth/session.decorator';
+import { UserId } from 'modules/auth/session.decorator';
 
 import {
   CreateInitialResourcesDto,
@@ -32,17 +30,14 @@ export class WorkspacesController {
   @Post('onboarding')
   @UseGuards(AuthGuard)
   async createIntialResources(
-    @SessionDecorator() session: SessionContainer,
+    @UserId() userId: string,
     @Body() workspaceData: CreateInitialResourcesDto,
     @Res() res: Response,
-    @Req() req: Request,
   ) {
-    const userId = session.getUserId();
     return await this.workspacesService.createInitialResources(
       userId,
       workspaceData,
       res,
-      req,
     );
   }
 

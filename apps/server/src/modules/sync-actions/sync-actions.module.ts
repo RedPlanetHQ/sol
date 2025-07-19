@@ -1,8 +1,9 @@
 import { HttpModule } from '@nestjs/axios';
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { PrismaModule, PrismaService } from 'nestjs-prisma';
 
 import { ActivityModule } from 'modules/activity/activity.module';
+import { AuthModule } from 'modules/auth/auth.module';
 import { PagesModule } from 'modules/pages/pages.module';
 import { TasksHookModule } from 'modules/tasks-hook/tasks-hooks.module';
 import { UsersService } from 'modules/users/users.service';
@@ -17,6 +18,7 @@ import SyncActionsService from './sync-actions.service';
     PagesModule,
     TasksHookModule,
     ActivityModule,
+    forwardRef(() => AuthModule),
   ],
   controllers: [SyncActionsController],
   // TODO: Add respective models used in the service. For now using prismaService

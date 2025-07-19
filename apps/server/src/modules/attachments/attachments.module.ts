@@ -1,8 +1,9 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MulterModule } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { PrismaModule, PrismaService } from 'nestjs-prisma';
 
+import { AuthModule } from 'modules/auth/auth.module';
 import { UsersService } from 'modules/users/users.service';
 
 import { AttachmentController } from './attachments.controller';
@@ -15,6 +16,7 @@ import { StorageFactory } from './storage.factory';
     MulterModule.register({
       storage: memoryStorage(),
     }),
+    forwardRef(() => AuthModule),
   ],
   controllers: [AttachmentController],
   providers: [AttachmentService, PrismaService, UsersService, StorageFactory],

@@ -2,13 +2,11 @@ import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { PrismaClientExceptionFilter } from 'nestjs-prisma';
-import supertokens from 'supertokens-node';
 
 import type { CorsConfig } from 'common/configs/config.interface';
 
 import { LoggerService } from 'modules/logger/logger.service';
 import ReplicationService from 'modules/replication/replication.service';
-import { TriggerdevService } from 'modules/triggerdev/triggerdev.service';
 
 import { AppModule } from './app.module';
 
@@ -30,10 +28,6 @@ async function bootstrap() {
 
   // Validation
   app.useGlobalPipes(new ValidationPipe({}));
-
-  // Initiate trigger service
-  const triggerService = app.get(TriggerdevService);
-  triggerService.initCommonProject();
 
   // Initiate replication service
   const replicationService = app.get(ReplicationService);
@@ -58,7 +52,7 @@ async function bootstrap() {
   if (corsConfig.enabled) {
     app.enableCors({
       origin: ['https://app.heysol.ai'],
-      allowedHeaders: ['content-type', ...supertokens.getAllCORSHeaders()],
+      allowedHeaders: ['content-type', 'authorization'],
       credentials: true,
     });
   }

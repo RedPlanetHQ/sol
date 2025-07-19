@@ -6,22 +6,15 @@ import {
   Param,
   Post,
   Query,
-  Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
 import { CodeDto, CreatePatDto, PatIdDto, User } from '@redplanethq/sol-sdk';
-import { Request, Response } from 'express';
-import supertokens from 'supertokens-node';
-import { SessionContainer } from 'supertokens-node/recipe/session';
-import Session from 'supertokens-node/recipe/session';
+import { Response } from 'express';
 
+import type { AuthUser } from 'modules/auth/auth.config';
 import { AuthGuard } from 'modules/auth/auth.guard';
-import {
-  Session as SessionDecorator,
-  UserId,
-  Workspace,
-} from 'modules/auth/session.decorator';
+import { CurrentUser, UserId, Workspace } from 'modules/auth/session.decorator';
 
 import { UpdateUserBody, UserIdParams } from './users.interface';
 import { UsersService } from './users.service';
@@ -35,9 +28,8 @@ export class UsersController {
 
   @Get()
   @UseGuards(AuthGuard)
-  async getUser(@SessionDecorator() session: SessionContainer): Promise<User> {
-    const userId = session.getUserId();
-    const user = await this.users.getUser(userId);
+  async getUser(@CurrentUser() currentUser: AuthUser): Promise<User> {
+    const user = await this.users.getUser(currentUser.id);
 
     return user;
   }
@@ -53,14 +45,13 @@ export class UsersController {
   @UseGuards(AuthGuard)
   async createPersonalAccessToken(
     @Workspace() workspaceId: string,
-    @SessionDecorator() session: SessionContainer,
+    @CurrentUser() currentUser: AuthUser,
     @Body()
     createPatDto: CreatePatDto,
   ) {
-    const userId = session.getUserId();
     const user = await this.users.createPersonalAccessToken(
       createPatDto.name,
-      userId,
+      currentUser.id,
       workspaceId,
     );
 
@@ -79,26 +70,16 @@ export class UsersController {
 
   @Get('pat-authentication')
   @UseGuards(AuthGuard)
-  async getPatAuthentication(
-    @UserId() userId: string,
-    @Res() res: Response,
-    @Req() req: Request,
-  ) {
-    await Session.createNewSession(
-      req,
-      res,
-      'public',
-      supertokens.convertToRecipeUserId(userId),
-    );
-
+  async getPatAuthentication(@Res() res: Response) {
+    // With Better Auth, the user already has a valid session
+    // No need to create a new session
     res.send({ status: 200 });
   }
 
   @Get('pats')
   @UseGuards(AuthGuard)
-  async getPats(@SessionDecorator() session: SessionContainer) {
-    const userId = session.getUserId();
-    return await this.users.getPats(userId);
+  async getPats(@CurrentUser() currentUser: AuthUser) {
+    return await this.users.getPats(currentUser.id);
   }
 
   @Delete('pats/:patId')

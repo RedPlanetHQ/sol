@@ -1,10 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { Workspace, WorkspaceRequestParamsDto } from '@redplanethq/sol-sdk';
 import { schedules } from '@trigger.dev/sdk/v3';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { PrismaService } from 'nestjs-prisma';
-import supertokens from 'supertokens-node';
-import Session from 'supertokens-node/recipe/session';
 
 import { OnboardingContent } from './constants';
 import {
@@ -38,7 +36,6 @@ export default class WorkspacesService {
     userId: string,
     workspaceData: CreateInitialResourcesDto,
     res: Response,
-    req: Request,
   ) {
     const inviteCode = await this.prisma.invitationCode.findFirst({
       where: {
@@ -90,13 +87,6 @@ export default class WorkspacesService {
 
     // Create onboarding list and tasks
     await this.createOnboardingListAndTasks(workspace.id);
-
-    await Session.createNewSession(
-      req,
-      res,
-      'public',
-      supertokens.convertToRecipeUserId(userId),
-    );
 
     res.send({ status: 200, ...workspace });
   }

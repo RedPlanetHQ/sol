@@ -2,10 +2,7 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CodeDto, User } from '@redplanethq/sol-sdk';
 import { PrismaService } from 'nestjs-prisma';
 
-import {
-  generateKeyForUserId,
-  generatePersonalAccessToken,
-} from 'common/authentication';
+import { generatePersonalAccessToken } from 'common/authentication';
 
 import { LoggerService } from 'modules/logger/logger.service';
 
@@ -98,7 +95,6 @@ export class UsersService {
     workspaceId: string,
     type = 'user',
   ) {
-    const jwt = await generateKeyForUserId(userId);
     const token = generatePersonalAccessToken();
 
     const pat = await this.prisma.personalAccessToken.create({
@@ -107,7 +103,6 @@ export class UsersService {
         userId,
         token,
         workspaceId,
-        jwt,
         type,
       },
     });
@@ -175,13 +170,11 @@ export class UsersService {
       }
 
       // If expired, refresh the PAT
-      const jwt = await generateKeyForUserId(userId);
       const token = generatePersonalAccessToken();
 
       const updatedPat = await this.prisma.personalAccessToken.update({
         where: { id: existingPat.id },
         data: {
-          jwt,
           token,
           createdAt: new Date(), // Reset the creation date
         },

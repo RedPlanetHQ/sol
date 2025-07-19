@@ -4,9 +4,9 @@ import { RiGoogleLine } from '@remixicon/react';
 import getConfig from 'next/config';
 import { useRouter } from 'next/router';
 import React from 'react';
-import { getAuthorisationURLWithQueryParamsAndSetState } from 'supertokens-auth-react/recipe/thirdparty';
 import { z } from 'zod';
 
+import { authClient } from 'common/lib/auth-client';
 import { AuthGuard } from 'common/wrappers';
 
 import { useIPC } from 'hooks/ipc';
@@ -19,6 +19,7 @@ import {
 
 import { AuthLayout } from './layout';
 import { getCookies } from './utils';
+
 const { publicRuntimeConfig } = getConfig();
 
 export const AuthSchema = z.object({
@@ -57,36 +58,27 @@ export function Auth() {
     createAuthCode();
   };
 
-  async function googleSignInClicked() {
+  async function coreSignInClicked() {
     try {
+      setLoading(true);
+
       // Store redirectToPath in localStorage if it exists
       if (redirectToPath) {
         localStorage.removeItem('redirectToPath');
         localStorage.setItem('redirectToPath', redirectToPath as string);
       }
 
-      const authUrl = await getAuthorisationURLWithQueryParamsAndSetState({
-        thirdPartyId: 'google',
-
-        // This is where Google should redirect the user back after login or error.
-        // This URL goes on the Google's dashboard as well.
-        frontendRedirectURI: `https://app.heysol.ai/auth/google`,
+      // Use better-auth CORE OAuth
+      await authClient.signIn.social({
+        provider: 'core',
+        callbackURL: redirectToPath ? (redirectToPath as string) : '/home',
+        errorCallbackURL: '/auth?error=signin_failed',
       });
-
-      /*
-        Example value of authUrl: https://accounts.google.com/o/oauth2/v2/auth/oauthchooseaccount?scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email&access_type=offline&include_granted_scopes=true&response_type=code&client_id=1060725074195-kmeum4crr01uirfl2op9kd5acmi9jutn.apps.googleusercontent.com&state=5a489996a28cafc83ddff&redirect_uri=https%3A%2F%2Fsupertokens.io%2Fdev%2Foauth%2Fredirect-to-app&flowName=GeneralOAuthFlow
-        */
-
-      // we redirect the user to google for auth.
-      window.location.assign(authUrl);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
-      if (err.isSuperTokensGeneralError === true) {
-        // this may be a custom error message sent from the API by you.
-        window.alert(err.message);
-      } else {
-        window.alert('Oops! Something went wrong.');
-      }
+      setLoading(false);
+      console.error('CORE sign in error:', err);
+      window.alert('Oops! Something went wrong with authentication.');
     }
   }
 
@@ -126,9 +118,10 @@ export function Auth() {
             <Button
               variant="secondary"
               className="gap-2 w-fit"
-              onClick={googleSignInClicked}
+              onClick={coreSignInClicked}
+              isLoading={loading}
             >
-              <RiGoogleLine size={16} /> Login with google
+              <RiGoogleLine size={16} /> Login with CORE
             </Button>
           </div>
         </div>

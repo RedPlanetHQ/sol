@@ -120,7 +120,7 @@ export async function createMCPConfig(userMCP: any) {
   };
 }
 
-export const init = async (payload: InitChatPayload) => {
+export const init = async ({ payload }: { payload: InitChatPayload }) => {
   logger.info('Loading init');
   const conversationHistory = await prisma.conversationHistory.findUnique({
     where: { id: payload.conversationHistoryId },

@@ -1,6 +1,7 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { PrismaModule } from 'nestjs-prisma';
 
+import { AuthModule } from 'modules/auth/auth.module';
 import { IntegrationAccountModule } from 'modules/integration-account/integration-account.module';
 import { IntegrationDefinitionModule } from 'modules/integration-definition/integration-definition.module';
 import { IntegrationsModule } from 'modules/integrations/integrations.module';
@@ -15,6 +16,7 @@ import { OAuthCallbackService } from './oauth-callback.service';
     IntegrationAccountModule,
     IntegrationDefinitionModule,
     IntegrationsModule,
+    forwardRef(() => AuthModule),
   ],
   controllers: [OAuthCallbackController],
   providers: [OAuthCallbackService, UsersService],

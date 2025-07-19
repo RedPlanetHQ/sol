@@ -5,9 +5,9 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
-import Session from 'supertokens-node/recipe/session';
 
 import { UsersService } from 'modules/users/users.service';
+import { AuthService } from './auth.service';
 
 @Injectable()
 export class CreditsGuard implements CanActivate {
@@ -15,21 +15,28 @@ export class CreditsGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const ctx = context.switchToHttp();
-
-    const resp = ctx.getResponse();
     const request = ctx.getRequest();
 
     const usersService = await this.moduleRef.resolve(UsersService);
-    const session = await Session.getSession(request, resp, {
-      sessionRequired: false,
-    });
-    const userId = session.getUserId();
+    const authService = await this.moduleRef.resolve(AuthService);
 
-    const hasCredits = await usersService.hasAvailableCredits(userId);
-    if (!hasCredits) {
-      throw new BadRequestException('No credits available');
+    try {
+      const sessionResult = await authService.getSession(request.headers);
+
+      if (!sessionResult?.user) {
+        throw new BadRequestException('Authentication required');
+      }
+
+      const userId = sessionResult.user.id;
+      const hasCredits = await usersService.hasAvailableCredits(userId);
+
+      if (!hasCredits) {
+        throw new BadRequestException('No credits available');
+      }
+
+      return hasCredits;
+    } catch (error) {
+      throw new BadRequestException('Authentication or credits check failed');
     }
-
-    return hasCredits;
   }
 }

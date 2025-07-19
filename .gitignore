@@ -42,3 +42,5 @@ certificate.*
 # Agent things 
 context.json
 .claude
+CLAUDE.md
+.cursor

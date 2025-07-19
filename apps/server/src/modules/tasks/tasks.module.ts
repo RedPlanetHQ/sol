@@ -1,6 +1,7 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { PrismaModule, PrismaService } from 'nestjs-prisma';
 
+import { AuthModule } from 'modules/auth/auth.module';
 import { ContentModule } from 'modules/content/content.module';
 import { ConversationModule } from 'modules/conversation/conversation.module';
 import { IntegrationsService } from 'modules/integrations/integrations.service';
@@ -23,6 +24,7 @@ import { TasksService } from './tasks.service';
     ContentModule,
     TaskOccurenceModule,
     VectorStoreModule,
+    forwardRef(() => AuthModule),
   ],
   controllers: [TasksController, TasksAIController],
   providers: [

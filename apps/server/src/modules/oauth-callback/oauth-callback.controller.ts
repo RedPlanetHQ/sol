@@ -7,13 +7,9 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { SessionContainer } from 'supertokens-node/recipe/session';
 
 import { AuthGuard } from 'modules/auth/auth.guard';
-import {
-  Session as SessionDecorator,
-  Workspace,
-} from 'modules/auth/session.decorator';
+import { UserId, Workspace } from 'modules/auth/session.decorator';
 
 import { OAuthBodyInterface, CallbackParams } from './oauth-callback.interface';
 import { OAuthCallbackService } from './oauth-callback.service';
@@ -28,11 +24,10 @@ export class OAuthCallbackController {
   @Post()
   @UseGuards(AuthGuard)
   async getRedirectURL(
-    @SessionDecorator() session: SessionContainer,
+    @UserId() userId: string,
     @Workspace() workspaceId: string,
     @Body() body: OAuthBodyInterface,
   ) {
-    const userId = session.getUserId();
     return await this.oAuthCallbackService.getRedirectURL(
       body,
       userId,
