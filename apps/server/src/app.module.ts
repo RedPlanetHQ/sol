@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { AuthModule as BAuthModule } from 'modules/bauth';
 import { PrismaModule } from 'nestjs-prisma';
 
 import config from 'common/configs/config';
@@ -12,6 +13,7 @@ import { loggingMiddleware } from 'common/middleware/logging.middleware';
 import { ActivityModule } from 'modules/activity/activity.module';
 import { ALSModule } from 'modules/als/als.module';
 import { AttachmentModule } from 'modules/attachments/attachments.module';
+import { auth } from 'modules/auth/auth.config';
 import { AuthModule } from 'modules/auth/auth.module';
 import { AutomationModule } from 'modules/automation/automation.module';
 import { ContentModule } from 'modules/content/content.module';
@@ -38,6 +40,7 @@ import { AppService } from './app.service';
 
 @Module({
   imports: [
+    BAuthModule.forRoot(auth),
     CacheModule.register({
       isGlobal: true,
     }),

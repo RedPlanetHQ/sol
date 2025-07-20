@@ -119,7 +119,7 @@ export const ScheduleList = observer(() => {
     <AutoSizer className="h-full mt-2 px-1">
       {({ width, height }) => (
         <ScrollManagedList
-          className=""
+          className="!h-auto"
           listId="schedule-list"
           height={height}
           overscanRowCount={10}

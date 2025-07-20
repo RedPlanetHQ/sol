@@ -3,31 +3,17 @@ version: "3.8"
 services:
   postgres:
     container_name: sol-postgres
-    image: postgres:15
+    image: redplanethq/postgres:0.1.0
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
     ports:
-      - "5433:5432"
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - sol
-
-  supertokens:
-    image: registry.supertokens.io/supertokens/supertokens-postgresql:9.3.0
-    container_name: sol-supertokens
-    environment:
-      POSTGRESQL_CONNECTION_URI: ${SUPERTOKEN_DATABASE_URL}
-      REFRESH_TOKEN_VALIDITY: 2592000 # 30 days in seconds
-      ACCESS_TOKEN_VALIDITY: 2592000 # 30 days in seconds
-      PASSWORD_RESET_TOKEN_LIFETIME: 86400
-    ports:
-      - 3567:3567
-    networks:
-      - sol
-    restart: unless-stopped
 
   redis:
     image: redis:alpine3.19
@@ -50,101 +36,9 @@ services:
     volumes:
       - qdrant_data:/qdrant/storage
 
-   triggerapp:
-    image: ghcr.io/triggerdotdev/trigger.dev:v3
-    container_name: sol-triggerapp
-    restart: unless-stopped
-    environment:
-      V3_ENABLED: "true"
-      DATABASE_URL: ${TRIGGER_DATABASE_URL}
-      DIRECT_URL: ${TRIGGER_DATABASE_URL}
-      SESSION_SECRET: ${TRIGGER_TOKEN}
-      MAGIC_LINK_SECRET: ${TRIGGER_TOKEN}
-      ENCRYPTION_KEY: ${TRIGGER_TOKEN}
-      REDIS_HOST: ${REDIS_URL}
-      REDIS_PORT: ${REDIS_PORT}
-      REDIS_TLS_DISABLED: ${REDIS_TLS_DISABLED}
-      PORT: ${TRIGGER_PORT}
-      REMIX_APP_PORT: ${TRIGGER_PORT}
-      NODE_ENV: ${NODE_ENV}
-      APP_ORIGIN: ${TRIGGER_API_URL}
-      DEV_OTEL_EXPORTER_OTLP_ENDPOINT: http://localhost:3030/otel
-      RUNTIME_PLATFORM: "docker-compose"
-      DEPLOY_REGISTRY_HOST: docker.io
-      DEPLOY_REGISTRY_NAMESPACE: redplanethq
-      TRIGGER_PROTOCOL: ${TRIGGER_PROTOCOL}
-      TRIGGER_DOMAIN: ${TRIGGER_DOMAIN}
-      INTERNAL_OTEL_TRACE_DISABLED: 1
-      INTERNAL_OTEL_TRACE_LOGGING_ENABLED: 0
-      ELECTRIC_ORIGIN: http://sol-electric:3000
-      APP_LOG_LEVEL: ${APP_LOG_LEVEL}
-
-    ports:
-      - 3030:3030
-    networks:
-      - sol
-
-  # Trigger related
-  docker-provider:
-    image: ghcr.io/triggerdotdev/provider/docker:v3
-    container_name: sol-docker-provider
-    restart: unless-stopped
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    user: root
-    networks:
-      - sol
-    depends_on:
-      - triggerapp
-    environment:
-      PLATFORM_HOST: sol-triggerapp
-      OTEL_EXPORTER_OTLP_ENDPOINT: http://localhost:3030/otel
-      PLATFORM_WS_PORT: ${TRIGGER_PORT}
-      HTTP_SERVER_PORT: 9020
-      COORDINATOR_HOST: 127.0.0.1
-      COORDINATOR_PORT: 9020
-      SECURE_CONNECTION: "false"
-      TRIGGER_PROTOCOL: ${TRIGGER_PROTOCOL}
-      TRIGGER_DOMAIN: ${TRIGGER_DOMAIN}
-      APP_LOG_LEVEL: ${APP_LOG_LEVEL}
-
-  coordinator:
-    image: ghcr.io/triggerdotdev/coordinator:v3
-    container_name: sol-coordinator
-    restart: unless-stopped
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    user: root
-    networks:
-      - sol
-    depends_on:
-      - triggerapp
-    ports:
-      - 9020:9020
-    environment:
-      PLATFORM_HOST: sol-triggerapp
-      OTEL_EXPORTER_OTLP_ENDPOINT: http://localhost:3030/otel
-      PLATFORM_WS_PORT: ${TRIGGER_PORT}
-      HTTP_SERVER_PORT: 9020
-      SECURE_CONNECTION: "false"
-      TRIGGER_PROTOCOL: ${TRIGGER_PROTOCOL}
-      TRIGGER_DOMAIN: ${TRIGGER_DOMAIN}
-      APP_LOG_LEVEL: ${APP_LOG_LEVEL}
-
-  electric:
-    image: electricsql/electric:${ELECTRIC_IMAGE_TAG:-latest}
-    container_name: sol-electric
-    restart: ${RESTART_POLICY:-unless-stopped}
-    environment:
-      DATABASE_URL: ${TRIGGER_DATABASE_URL}
-      ELECTRIC_INSECURE: true
-    networks:
-      - sol
-    ports:
-      - ${DOCKER_PUBLISH_IP:-127.0.0.1}:3061:3000
-
 volumes:
   qdrant_data:
+  postgres_data:
 
 networks:
   app_network:

@@ -1,7 +1,6 @@
 import { Button } from '@redplanethq/ui';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { signOut } from 'supertokens-auth-react/recipe/session';
 
 import { AIThinking } from 'modules/ai-thinking';
 import { Updates } from 'modules/updates/updates';
@@ -11,6 +10,7 @@ import { RightSideLayout } from 'layouts/right-side-layout';
 import { useIPC } from 'hooks/ipc';
 
 import { AppTabs } from './app-tabs';
+import { signOut } from 'common/lib/auth-client';
 
 interface AppLayoutProps {
   children: React.ReactNode;

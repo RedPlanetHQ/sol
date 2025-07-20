@@ -35,7 +35,7 @@ export class ALSMiddleware implements NestMiddleware {
     store.set('ipAddress', req.headers['x-forwarded-for']);
     store.set('requestId', requestId);
 
-    if (sessionResult.session && sessionResult.user) {
+    if (sessionResult && sessionResult.session && sessionResult.user) {
       store.set('actorId', sessionResult.user.id);
       // Get workspace for the user
       const workspace = await this.prisma.workspace.findFirst({

@@ -10,9 +10,10 @@ import {
 import { observer } from 'mobx-react-lite';
 import { useRouter } from 'next/router';
 import React from 'react';
-import { signOut } from 'supertokens-auth-react/recipe/session';
 
 import { useSettings } from 'modules/settings';
+
+import { signOut } from 'common/lib/auth-client';
 
 import { useContextStore } from 'store/global-context-provider';
 

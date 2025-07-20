@@ -1,6 +1,5 @@
 /* eslint-disable react/no-unescaped-entities */
 import { Button } from '@redplanethq/ui';
-import { RiGoogleLine } from '@remixicon/react';
 import getConfig from 'next/config';
 import { useRouter } from 'next/router';
 import React from 'react';
@@ -11,6 +10,7 @@ import { AuthGuard } from 'common/wrappers';
 
 import { useIPC } from 'hooks/ipc';
 import { useIsElectron } from 'hooks/use-is-electron';
+import CoreLogo from 'icons/core';
 
 import {
   useCreateAuthCodeMutation,
@@ -69,11 +69,11 @@ export function Auth() {
       }
 
       // Use better-auth CORE OAuth
-      await authClient.signIn.social({
-        provider: 'core',
+      await authClient.signIn.oauth2({
+        providerId: 'redplanethq_core',
         callbackURL: redirectToPath ? (redirectToPath as string) : '/home',
-        errorCallbackURL: '/auth?error=signin_failed',
       });
+
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setLoading(false);
@@ -118,10 +118,11 @@ export function Auth() {
             <Button
               variant="secondary"
               className="gap-2 w-fit"
+              size="lg"
               onClick={coreSignInClicked}
               isLoading={loading}
             >
-              <RiGoogleLine size={16} /> Login with CORE
+              <CoreLogo size={18} /> Login with Core
             </Button>
           </div>
         </div>

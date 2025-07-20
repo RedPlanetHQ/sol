@@ -22,7 +22,7 @@ export async function integrationCreate(
       login: user.login,
       username: user.login,
       schedule: {
-        frequency: '*/5 * * * *',
+        frequency: '*/15 * * * *',
       },
     },
     accountId: user.id.toString(),

@@ -1,8 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { betterAuth, type User, type Session } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
-import { bearer } from 'better-auth/plugins/bearer';
-import { genericOAuth } from 'better-auth/plugins/generic-oauth';
+import { apiKey, genericOAuth, bearer } from 'better-auth/plugins';
 
 interface CoreUserInfo {
   sub?: string;
@@ -27,7 +26,8 @@ export const auth = betterAuth({
   },
 
   // Basic app configuration
-  baseURL: process.env.BACKEND_HOST || 'http://localhost:3001',
+  baseURL: 'http://localhost:53082',
+  basePath: '/auth',
 
   // Session configuration
   session: {
@@ -35,38 +35,46 @@ export const auth = betterAuth({
     updateAge: 60 * 60 * 24, // 1 day
     modelName: 'AuthSession',
   },
-
   // Account and verification table configuration
   account: {
     modelName: 'AuthAccount',
   },
-
   verification: {
     modelName: 'AuthVerification',
   },
-
   // Trust proxy for production
-  trustedOrigins: [process.env.FRONTEND_HOST || 'http://localhost:3000'],
+  trustedOrigins: [
+    process.env.FRONTEND_HOST || 'http://localhost:3000',
+    'https://app.heysol.ai',
+  ],
+
+  logger: {
+    disabled: false,
+    level: 'debug',
+    log: (level, message, ...args) => {
+      // Custom logging implementation
+      console.log(`[${level}] ${message}`, ...args);
+    },
+  },
 
   // Configure Core OAuth2 provider
   plugins: [
-    bearer(),
     genericOAuth({
       config: [
         {
-          providerId: 'core',
+          providerId: 'redplanethq_core',
           clientId: process.env.CORE_CLIENT_ID!,
           clientSecret: process.env.CORE_CLIENT_SECRET!,
 
-          // CORE OAuth2 endpoints
+          // // CORE OAuth2 endpoints
           authorizationUrl: `${process.env.CORE_BASE_URL}/oauth/authorize`,
           tokenUrl: `${process.env.CORE_BASE_URL}/oauth/token`,
           userInfoUrl: `${process.env.CORE_BASE_URL}/oauth/userinfo`,
 
-          // OAuth2 scopes
-          scopes: ['openid', 'profile', 'email'],
+          // // OAuth2 scopes
+          scopes: ['read', 'write'],
 
-          // Additional configuration
+          // // Additional configuration
           pkce: true, // Use PKCE for security
 
           // Custom user info transformation if needed
@@ -100,6 +108,9 @@ export const auth = betterAuth({
         },
       ],
     }),
+
+    bearer(),
+    apiKey(),
   ],
 
   async onUserCreated(user: User) {

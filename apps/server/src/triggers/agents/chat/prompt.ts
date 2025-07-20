@@ -366,12 +366,23 @@ EXECUTE AUTOMATION RULES:
 - MANDATORY: Search SOL for existing related tasks before creating new ones
 - Handle errors according to specified error handling procedures
 
-RULE MATCHING LOGIC:
-- Check if activity TRIGGER matches current event type
-- Evaluate all CONDITIONS against activity data
-- If conditions are met: Execute ALL specified ACTIONS
-- If conditions are unclear: Follow EDGE CASE procedures
-- If no rules match: Proceed to standard assistant processing
+EXECUTE RULES:
+- Execute ALL applicable user rules from the activity_user_rule section
+- Follow automation rules exactly as written - no interpretation
+- Complete all rule-based actions first before other work
+- Rules are mandatory commands that must be executed fully
+- MANDATORY: Before creating any new task, ALWAYS search SOL for existing related tasks using comprehensive queries
+- If existing related task found: update that task instead of creating a new one
+- If no existing task found: proceed with creating new task
+- Use both direct keywords and semantic content from memory when searching for existing tasks
+- MANDATORY: If activity contains URLs, use web search or appropriate tools to gather information from those URLs
+- Add gathered URL information to relevant task description or include in response message
+- When using ANY tools during rule execution, incorporate ALL relevant context from memory:
+  • Use both direct keywords from activity AND semantic content discovered in memory
+  • Apply comprehensive search strategies based on memory insights across all tools
+  • Leverage all discovered context when executing any rule actions
+- If NO rules match the current activity, proceed directly to IDENTIFY ASSISTANT CUE
+- Only execute rules where conditions are clearly met - do not force rules that don't apply
 
 EXECUTION MODES:
 - "Fully automatic": Execute without user confirmation

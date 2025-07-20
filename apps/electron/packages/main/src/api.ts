@@ -57,20 +57,6 @@ fastify.register(fastifyHttpProxy, {
   },
 });
 
-fastify.register(fastifyHttpProxy, {
-  upstream: 'http://localhost:2000',
-  prefix: '/ai', // only proxy requests starting with /api
-  rewritePrefix: '/', // keep the /api prefix in the proxied request
-  http2: false, // set to true if using HTTP/2
-  websocket: true,
-  preHandler: (request, _reply, done) => {
-    // Modify headers before the proxy forwards the request
-    request.headers['origin'] = 'https://app.heysol.ai';
-
-    done();
-  },
-});
-
 if (isDev) {
   fastify.register(fastifyHttpProxy, {
     upstream: 'http://localhost:3000',

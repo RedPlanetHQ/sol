@@ -1,9 +1,9 @@
 import { Loader, useToast } from '@redplanethq/ui';
 import { useRouter } from 'next/router';
 import React from 'react';
-import { SessionAuth } from 'supertokens-auth-react/recipe/session';
 
 import { Logo } from 'common/logo';
+import { SessionAuth } from 'common/wrappers/session-auth';
 
 import { useAuthorizeMutation } from 'services/users';
 
@@ -13,15 +13,9 @@ export function Authorize() {
   } = useRouter();
   const [loading, setLoading] = React.useState(true);
 
-  const { toast } = useToast();
-
   const { mutate: authorize } = useAuthorizeMutation({
-    onError: (error) => {
+    onError: () => {
       setLoading(false);
-      toast({
-        title: 'Token error!',
-        description: error,
-      });
     },
     onSuccess: () => {
       setLoading(false);

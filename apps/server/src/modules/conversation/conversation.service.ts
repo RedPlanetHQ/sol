@@ -121,6 +121,7 @@ export class ConversationService {
       conversationHistoryId: conversationHistory.id,
     };
   }
+
   async getConversationContext(
     conversationHistoryId: string,
   ): Promise<ConversationContext> {

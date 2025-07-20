@@ -2,10 +2,10 @@
 
 import { useRouter } from 'next/router';
 import React from 'react';
-import { SessionAuth } from 'supertokens-auth-react/recipe/session';
 
 import { AuthLayout } from 'modules/auth';
 
+import { SessionAuth } from 'common/wrappers/session-auth';
 import { UserDataWrapper } from 'common/wrappers/user-data-wrapper';
 
 import { UserContext } from 'store/user-context';

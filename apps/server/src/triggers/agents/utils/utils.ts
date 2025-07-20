@@ -60,27 +60,6 @@ export interface RunChatPayload {
   activityExecutionPlan?: string;
 }
 
-export const getAccessToken = async (
-  clientId: string,
-  clientSecret: string,
-  refreshToken: string,
-  redirectURL: string,
-) => {
-  const accessResponse = await axios.post(
-    'https://oauth2.googleapis.com/token',
-    {
-      client_id: clientId,
-      client_secret: clientSecret,
-      grant_type: 'refresh_token',
-      refresh_token: refreshToken,
-      redirect_uri: redirectURL,
-    },
-    { headers: {} },
-  );
-
-  return accessResponse.data;
-};
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function createMCPConfig(userMCP: any) {
   if (userMCP && userMCP.mcpServers) {

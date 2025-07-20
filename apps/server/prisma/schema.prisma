@@ -41,6 +41,9 @@ model AuthSession {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  ipAddress String?
+  userAgent String?
+
   @@map("session")
 }
 
@@ -57,6 +60,11 @@ model AuthAccount {
   updatedAt    DateTime  @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
 
   @@unique([userId, providerId])
   @@map("account")
@@ -126,6 +134,7 @@ model Attachment {
 }
 
 // Used to authenticate users from cli
+
 model AuthorizationCode {
   id        String    @id @default(uuid())
   createdAt DateTime  @default(now())
@@ -461,6 +470,7 @@ model User {
   authSessions      AuthSession[]
   authAccounts      AuthAccount[]
   authVerifications AuthVerification[]
+  apikeys           Apikey[]
 }
 
 model UserCodingSession {
@@ -562,4 +572,31 @@ enum UserType {
   Agent
   User
   System
+}
+
+model Apikey {
+  id                  String    @id
+  name                String?
+  start               String?
+  prefix              String?
+  key                 String
+  userId              String
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refillInterval      Int?
+  refillAmount        Int?
+  lastRefillAt        DateTime?
+  enabled             Boolean?
+  rateLimitEnabled    Boolean?
+  rateLimitTimeWindow Int?
+  rateLimitMax        Int?
+  requestCount        Int?
+  remaining           Int?
+  lastRequest         DateTime?
+  expiresAt           DateTime?
+  createdAt           DateTime
+  updatedAt           DateTime
+  permissions         String?
+  metadata            String?
+
+  @@map("apikey")
 }

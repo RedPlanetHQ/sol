@@ -1,7 +1,8 @@
 import { Loader } from '@redplanethq/ui';
 import { useRouter } from 'next/router';
-import React, { cloneElement } from 'react';
-import Session from 'supertokens-web-js/recipe/session';
+import React, { cloneElement, useEffect } from 'react';
+
+import { useSession } from 'common/lib/auth-client';
 
 interface Props {
   children: React.ReactElement;
@@ -10,24 +11,23 @@ interface Props {
 export function AuthGuard(props: Props): React.ReactElement {
   const { children } = props;
   const router = useRouter();
-  const [isLoading, setLoading] = React.useState(true);
+  const { data: session, isPending } = useSession();
 
-  React.useEffect(() => {
-    checkForSession();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  async function checkForSession() {
-    if (await Session.doesSessionExist()) {
+  useEffect(() => {
+    if (!isPending && session) {
       router.replace('/home');
-    } else {
-      setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPending, session]);
+
+  if (isPending) {
+    return <Loader />;
   }
 
-  if (!isLoading) {
+  if (!session) {
     return cloneElement(children);
   }
 
-  return <Loader />;
+  // Optionally, you could return null here since router.replace will redirect
+  return null;
 }

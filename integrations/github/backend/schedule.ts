@@ -245,8 +245,6 @@ export async function handleSchedule(integrationAccount: IntegrationAccount) {
         }
       }
 
-      console.log(userActivity);
-
       if (userActivity.length > 0) {
         await createActivity(userActivity);
         userEventCount += userActivity.length;

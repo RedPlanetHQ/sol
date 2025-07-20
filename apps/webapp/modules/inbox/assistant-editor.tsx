@@ -160,7 +160,7 @@ export function AssistantEditor({
   };
 
   return (
-    <Command className="rounded-lg border bg-background-3 mt-0 w-full p-1 rounded-xl border-gray-300 border-1 !h-auto">
+    <Command className="rounded-lg bg-background-3 mt-0 w-full p-1 rounded-xl border-gray-300 border-1 !h-auto">
       <ResourceUploader
         className={className}
         resources={resources}

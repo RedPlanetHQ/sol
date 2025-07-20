@@ -1,6 +1,12 @@
 module.exports = {
   reactStrictMode: false,
-  transpilePackages: ['geist', '@redplanethq/ui', 'novel', 'react-tweet'],
+  transpilePackages: [
+    'geist',
+    '@redplanethq/ui',
+    'novel',
+    'react-tweet',
+    'highlight.js',
+  ],
   images: {
     unoptimized: true,
   },

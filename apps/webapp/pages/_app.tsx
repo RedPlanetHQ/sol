@@ -15,11 +15,7 @@ import { Hydrate } from 'react-query';
 
 import { Provider } from 'modules/provider';
 
-import { initSuperTokens } from 'common/init-config';
-
 TimeAgo.addDefaultLocale(en);
-
-initSuperTokens();
 
 export const MyApp = ({
   Component,

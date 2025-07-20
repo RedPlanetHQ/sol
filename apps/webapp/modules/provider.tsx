@@ -5,7 +5,6 @@ import { PostHogProvider } from 'posthog-js/react';
 import React from 'react';
 import { HotkeysProvider } from 'react-hotkeys-hook';
 import { QueryClientProvider } from 'react-query';
-import { SuperTokensWrapper } from 'supertokens-auth-react';
 
 import { initPosthog } from 'common/init-config';
 import { useGetQueryClient } from 'common/lib';
@@ -26,26 +25,24 @@ export function Provider({ children }: ProviderProps) {
   const queryClientRef = useGetQueryClient();
 
   return (
-    <SuperTokensWrapper>
-      <PostHogProvider client={posthog}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <HotkeysProvider initiallyActiveScopes={[SCOPES.Global]}>
-            <TooltipProvider delayDuration={2000} disableHoverableContent>
-              <StoreContext.Provider value={storeContextStore as any}>
-                <QueryClientProvider client={queryClientRef.current}>
-                  <DialogViewsProvider>{children}</DialogViewsProvider>
-                  <Toaster />
-                </QueryClientProvider>
-              </StoreContext.Provider>
-            </TooltipProvider>
-          </HotkeysProvider>
-        </ThemeProvider>
-      </PostHogProvider>
-    </SuperTokensWrapper>
+    <PostHogProvider client={posthog}>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="light"
+        enableSystem
+        disableTransitionOnChange
+      >
+        <HotkeysProvider initiallyActiveScopes={[SCOPES.Global]}>
+          <TooltipProvider delayDuration={2000} disableHoverableContent>
+            <StoreContext.Provider value={storeContextStore as any}>
+              <QueryClientProvider client={queryClientRef.current}>
+                <DialogViewsProvider>{children}</DialogViewsProvider>
+                <Toaster />
+              </QueryClientProvider>
+            </StoreContext.Provider>
+          </TooltipProvider>
+        </HotkeysProvider>
+      </ThemeProvider>
+    </PostHogProvider>
   );
 }
