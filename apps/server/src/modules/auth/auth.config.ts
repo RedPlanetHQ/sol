@@ -70,6 +70,7 @@ export const auth = betterAuth({
           authorizationUrl: `${process.env.CORE_BASE_URL}/oauth/authorize`,
           tokenUrl: `${process.env.CORE_BASE_URL}/oauth/token`,
           userInfoUrl: `${process.env.CORE_BASE_URL}/oauth/userinfo`,
+          redirectURI: `${process.env.FRONTEND_HOST}/api/auth/oauth2/callback/redplanethq_core`,
 
           // // OAuth2 scopes
           scopes: ['read', 'write'],
@@ -98,7 +99,10 @@ export const auth = betterAuth({
             return {
               id: userInfo.sub || userInfo.id || '',
               email: userInfo.email,
-              name: userInfo.name || userInfo.fullname || 'User',
+              name:
+                userInfo.name ||
+                userInfo.fullname ||
+                userInfo.email.split('@')[0],
               image: userInfo.picture || userInfo.image,
               emailVerified: Boolean(userInfo.email_verified),
               createdAt: new Date(),

@@ -445,7 +445,7 @@ model User {
 
   name                    String? // Better Auth expects 'name' field
   fullname                String?
-  username                String
+  username                String?
   emailVerified           Boolean @default(true) // Better Auth expects this
   initialSetupComplete    Boolean @default(false)
   anonymousDataCollection Boolean @default(false)
