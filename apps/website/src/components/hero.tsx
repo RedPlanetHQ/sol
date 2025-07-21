@@ -31,6 +31,7 @@ export const Hero = () => {
             className="p-4 rounded-lg"
             size="2xl"
             onClick={handleDownload}
+            style={{ backgroundColor: '#C15E50', color: 'white' }}
           >
             Join the wailist <ArrowRight size={14} className="ml-2" />
           </Button>
