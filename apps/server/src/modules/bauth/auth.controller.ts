@@ -37,6 +37,7 @@ export class AuthController {
     const response = await this.auth.handler(
       getRequest({ base, request: req }),
     );
+
     setResponse(res, response);
   }
 }

@@ -63,7 +63,6 @@ export class UsersController {
   @Get('api-key-authentication')
   @UseGuards(AuthGuard)
   async getApiKeyAuthentication(@Res() res: Response) {
-    console.log('getApiKeyAuthentication');
     // With Better Auth, the user already has a valid session
     // No need to create a new session
     res.send({ status: 200 });

@@ -43,7 +43,7 @@ export function Auth() {
       );
 
       try {
-        await getCookies(data.code);
+        await getCookies(data.code, ipc);
         router.replace('/home');
       } catch (e) {}
 

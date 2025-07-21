@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { CodeDto, User } from '@redplanethq/sol-sdk';
 import { PrismaService } from 'nestjs-prisma';
 
@@ -89,15 +93,12 @@ export class UsersService {
   }
 
   async createApiKey(name: string, userId: string) {
-    console.log('createApiKey', name, userId);
     const apiKey = await auth.api.createApiKey({
       body: {
         userId,
         name,
       },
     });
-
-    console.log('apiKey', apiKey);
 
     return { name, token: apiKey.key, id: apiKey.id };
   }
@@ -158,6 +159,11 @@ export class UsersService {
   async authorizeCode(userId: string, workspaceId: string, codeBody: CodeDto) {
     // only allow authorization codes that were created less than 10 mins ago
     const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
+
+    if (!codeBody.code) {
+      throw new BadRequestException('No code');
+    }
+
     const code = await this.prisma.authorizationCode.findFirst({
       where: {
         code: codeBody.code,

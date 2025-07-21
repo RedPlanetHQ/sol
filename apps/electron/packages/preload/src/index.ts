@@ -12,6 +12,13 @@ import {contextBridge, ipcRenderer} from 'electron';
 
 export type Channels = 'ipc';
 
+// Electron Store API for renderer process
+const electronStore = {
+  get: (key: string) => ipcRenderer.sendSync('electron-store-get', key),
+  set: (key: string, value: unknown) => ipcRenderer.send('electron-store-set', key, value),
+  delete: (key: string) => ipcRenderer.send('electron-store-delete', key),
+};
+
 const electronHandler = {
   ipcRenderer: {
     sendMessage(channel: Channels, ...args: unknown[]) {
@@ -54,6 +61,7 @@ const electronHandler = {
       // Send the message to main process using a specific channel
       ipcRenderer.send('from-quick-window', {type, id});
     },
+    store: electronStore,
   },
 };
 

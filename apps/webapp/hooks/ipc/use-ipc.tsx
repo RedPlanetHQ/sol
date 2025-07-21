@@ -14,6 +14,12 @@ export interface IPCRenderer {
   // For other window communication
   sendToMain: ({ type, id }: { type: string; id: string }) => void;
   fromOtherWindows(callback: (event: any, ...args: any[]) => void): void;
+
+  store: {
+    get: (key: string) => Promise<string | undefined>;
+    set: (key: string, value: unknown) => void;
+    delete: (key: string) => void;
+  };
 }
 
 export const useIPC = (): IPCRenderer => {

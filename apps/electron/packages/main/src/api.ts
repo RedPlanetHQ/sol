@@ -5,6 +5,7 @@ import Fastify from 'fastify';
 import path from 'node:path';
 import fastifyStatic from '@fastify/static';
 import {PORT} from '../utils';
+import {store} from './store';
 
 const isDev = process.env.NODE_ENV === 'development';
 const apiBaseUrl = isDev ? 'http://localhost:3001' : 'https://server.heysol.ai';
@@ -44,6 +45,12 @@ fastify.register(fastifyHttpProxy, {
   preHandler: (request, _reply, done) => {
     // Modify headers before the proxy forwards the request
     request.headers['origin'] = process.env.FRONTEND_HOST || 'https://app.heysol.ai';
+    const token = store?.get('token');
+
+    if (token) {
+      console.log(token);
+      request.headers['x-api-key'] = token;
+    }
 
     // Special handling for file upload endpoints
     if (request.url.includes('/upload') && request.method === 'POST') {

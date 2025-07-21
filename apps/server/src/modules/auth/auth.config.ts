@@ -1,9 +1,7 @@
 import { PrismaClient } from '@prisma/client';
-import { betterAuth, type User, type Session } from 'better-auth';
+import { betterAuth, type User } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { apiKey, genericOAuth, bearer } from 'better-auth/plugins';
-
-import { pluginAuth } from './plugin';
 
 interface CoreUserInfo {
   sub?: string;
@@ -49,15 +47,6 @@ export const auth = betterAuth({
     process.env.FRONTEND_HOST || 'http://localhost:3000',
     'https://app.heysol.ai',
   ],
-
-  logger: {
-    disabled: false,
-    level: 'debug',
-    log: (level, message, ...args) => {
-      // Custom logging implementation
-      console.log(`[${level}] ${message}`, ...args);
-    },
-  },
 
   // Configure Core OAuth2 provider
   plugins: [
@@ -121,13 +110,11 @@ export const auth = betterAuth({
       keyExpiration: {
         defaultExpiresIn: 30 * 24 * 60 * 60 * 1000,
       },
+      rateLimit: { enabled: false },
     }),
-    pluginAuth(),
   ],
 
   async onUserCreated(user: User) {
-    console.log('New user created:', user.id, user.email);
-
     try {
       // Update user with fullname and any missing fields
       await prisma.user.update({
@@ -137,17 +124,9 @@ export const auth = betterAuth({
           username: user.email.split('@')[0],
         },
       });
-
-      console.log('User profile updated:', user.id);
     } catch (error) {
       console.error('Error updating user profile:', user.id, error);
     }
-  },
-
-  // Optional: Custom session creation hook
-  async onSessionCreated(_session: Session, user: User) {
-    console.log('New session created for user:', user.id);
-    // Add any custom logic here, like adding workspace context
   },
 });
 

@@ -34,6 +34,10 @@ function getRequest({ request, base }: any) {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function setResponse(res: any, response: any) {
+  if (!(response instanceof Response)) {
+    return res.json(response);
+  }
+
   // Set headers, handling set-cookie as an array if needed
   for (const [key, value] of response.headers) {
     try {

@@ -14,8 +14,9 @@ export function Authorize() {
   const [loading, setLoading] = React.useState(true);
 
   const { mutate: authorize } = useAuthorizeMutation({
-    onError: () => {
+    onError: (error) => {
       setLoading(false);
+      console.log(error);
     },
     onSuccess: () => {
       setLoading(false);
@@ -23,11 +24,13 @@ export function Authorize() {
   });
 
   React.useEffect(() => {
-    authorize({
-      code: code as string,
-    });
+    if (code) {
+      authorize({
+        code: code as string,
+      });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [code]);
 
   if (loading) {
     return <Loader text="Verifying token" />;

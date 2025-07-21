@@ -12,6 +12,7 @@ export function AuthGuard(props: Props): React.ReactElement {
   const { children } = props;
   const router = useRouter();
   const { data: session, isPending } = useSession();
+  console.log(session);
 
   useEffect(() => {
     if (!isPending && session) {

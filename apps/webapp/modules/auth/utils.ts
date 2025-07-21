@@ -1,6 +1,8 @@
 import axios from 'axios';
 import pRetry from 'p-retry';
 
+import type { IPCRenderer } from 'hooks/ipc';
+
 async function getPersonalAccessToken(code: string) {
   const response = await axios.post('/api/v1/users/api-key-for-code', {
     code,
@@ -13,23 +15,7 @@ async function getPersonalAccessToken(code: string) {
   };
 }
 
-async function getCookiesSet(token: string) {
-  try {
-    console.log('getCookiesSet', token);
-
-    await axios.get('/api/auth/get-session', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    window.location.reload();
-  } catch (e) {
-    console.log('error', e);
-  }
-}
-
-export const getCookies = async (code: string) => {
+export const getCookies = async (code: string, ipc: IPCRenderer) => {
   const indexResult = await pRetry(() => getPersonalAccessToken(code), {
     // this means we're polling, same distance between each attempt
     factor: 1,
@@ -37,6 +23,7 @@ export const getCookies = async (code: string) => {
     minTimeout: 1000,
   });
 
-  console.log('indexResult', indexResult);
-  await getCookiesSet(indexResult.token);
+  if (indexResult.token) {
+    ipc.store.set('token', indexResult.token);
+  }
 };
