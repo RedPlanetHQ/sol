@@ -18,8 +18,12 @@ export const dailyRunSchedule = schedules.task({
 
     const timezone = (workspace.preferences as Preferences).timezone;
 
-    const pat = await prisma.personalAccessToken.findFirst({
-      where: { userId: workspace.userId as string, name: 'default' },
+    const apiKey = await prisma.apikey.findFirst({
+      where: {
+        userId: workspace.userId as string,
+        name: 'default',
+        enabled: true,
+      },
     });
 
     axios.interceptors.request.use((config) => {
@@ -27,7 +31,7 @@ export const dailyRunSchedule = schedules.task({
 
       if (config.url?.startsWith('/api')) {
         config.url = `${process.env.BACKEND_HOST}${config.url.replace('/api', '')}`;
-        config.headers.Authorization = `Bearer ${pat?.token}`;
+        config.headers.Authorization = `Bearer ${apiKey?.key}`;
       }
 
       return config;

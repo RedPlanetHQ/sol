@@ -120,8 +120,12 @@ export const init = async ({ payload }: { payload: InitChatPayload }) => {
 
   const timezone = (workspace.preferences as Preferences).timezone;
 
-  const pat = await prisma.personalAccessToken.findFirst({
-    where: { userId: workspace.userId as string, name: 'default' },
+  const apiKey = await prisma.apikey.findFirst({
+    where: {
+      userId: workspace.userId as string,
+      name: 'default',
+      enabled: true,
+    },
   });
 
   const user = await prisma.user.findFirst({
@@ -208,10 +212,10 @@ export const init = async ({ payload }: { payload: InitChatPayload }) => {
 
     if (config.url?.startsWith('/api')) {
       config.url = `${process.env.BACKEND_HOST}${config.url.replace('/api', '')}`;
-      config.headers.Authorization = `Bearer ${pat?.token}`;
+      config.headers.Authorization = `Bearer ${apiKey?.key}`;
       config.headers['x-updated-by'] = 'assistant';
     } else if (config.url.includes(process.env.BACKEND_HOST)) {
-      config.headers.Authorization = `Bearer ${pat?.token}`;
+      config.headers.Authorization = `Bearer ${apiKey?.key}`;
     } else if (config.url?.startsWith('https://sol::core_memory')) {
       config.url = `${workspacePreferences.memory_host}/search`;
       config.headers.Authorization = `Bearer ${workspacePreferences.memory_api_key}`;
@@ -230,7 +234,7 @@ export const init = async ({ payload }: { payload: InitChatPayload }) => {
   return {
     conversation,
     conversationHistory,
-    token: pat?.token,
+    token: apiKey?.key,
     userId: workspace.userId,
     userName: user.fullname,
     mcp: { mcpServers },

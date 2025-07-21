@@ -83,7 +83,6 @@ export class IntegrationAccountService {
           },
         },
         userId,
-        workspaceId,
       );
 
     return integrationAccount;

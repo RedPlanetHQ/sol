@@ -2,8 +2,7 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CodeDto, User } from '@redplanethq/sol-sdk';
 import { PrismaService } from 'nestjs-prisma';
 
-import { generatePersonalAccessToken } from 'common/authentication';
-
+import { auth } from 'modules/auth/auth.config';
 import { LoggerService } from 'modules/logger/logger.service';
 
 import { UpdateUserBody, userSerializer } from './users.interface';
@@ -89,52 +88,36 @@ export class UsersService {
     return userSerializer(user);
   }
 
-  async createPersonalAccessToken(
-    name: string,
-    userId: string,
-    workspaceId: string,
-    type = 'user',
-  ) {
-    const token = generatePersonalAccessToken();
-
-    const pat = await this.prisma.personalAccessToken.create({
-      data: {
-        name,
+  async createApiKey(name: string, userId: string) {
+    console.log('createApiKey', name, userId);
+    const apiKey = await auth.api.createApiKey({
+      body: {
         userId,
-        token,
-        workspaceId,
-        type,
+        name,
       },
     });
 
-    return { name, token, id: pat.id };
+    console.log('apiKey', apiKey);
+
+    return { name, token: apiKey.key, id: apiKey.id };
   }
 
-  async getPats(userId: string) {
-    const pats = (
-      await this.prisma.personalAccessToken.findMany({
-        where: { userId, type: 'user', deleted: null },
-      })
-    ).map((pat) => ({ name: pat.name, id: pat.id }));
+  async getApiKeys(userId: string) {
+    const apiKeys = await this.prisma.apikey.findMany({
+      where: { userId, enabled: true },
+      select: { id: true, name: true, createdAt: true },
+    });
 
-    return pats;
+    return apiKeys;
   }
 
-  async deletePat(patId: string) {
-    await this.prisma.personalAccessToken.update({
-      where: { id: patId },
+  async deleteApiKey(apiKeyId: string) {
+    await this.prisma.apikey.update({
+      where: { id: apiKeyId },
       data: {
-        deleted: new Date(),
+        enabled: false,
       },
     });
-  }
-
-  async getJwtFromPat(token: string) {
-    const pat = await this.prisma.personalAccessToken.findFirst({
-      where: { token, deleted: null },
-    });
-
-    return pat?.jwt;
   }
 
   // Authorization code
@@ -150,47 +133,26 @@ export class UsersService {
     });
   }
 
-  async getOrCreatePat(userId: string, workspaceId: string) {
-    // First try to find an existing active PAT
-    const existingPat = await this.prisma.personalAccessToken.findFirst({
+  async getOrCreateApiKey(userId: string) {
+    // First try to find an existing active API key
+    const existingApiKey = await this.prisma.apikey.findFirst({
       where: {
         userId,
-        type: 'user',
-        deleted: null,
-        workspaceId,
+        enabled: true,
+        name: 'default',
       },
     });
 
-    if (existingPat) {
-      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-      const isExpired = existingPat.createdAt < thirtyDaysAgo;
-
-      if (!isExpired) {
-        return existingPat.token;
+    if (existingApiKey) {
+      // Check if it's not expired
+      if (!existingApiKey.expiresAt || existingApiKey.expiresAt > new Date()) {
+        return existingApiKey.key;
       }
-
-      // If expired, refresh the PAT
-      const token = generatePersonalAccessToken();
-
-      const updatedPat = await this.prisma.personalAccessToken.update({
-        where: { id: existingPat.id },
-        data: {
-          token,
-          createdAt: new Date(), // Reset the creation date
-        },
-      });
-
-      return updatedPat.token;
     }
 
-    // If no active PAT exists, create a new one
-    const pat = await this.createPersonalAccessToken(
-      'default',
-      userId,
-      workspaceId,
-      'user',
-    );
-    return pat.token;
+    // If no active API key exists or expired, create a new one
+    const apiKey = await this.createApiKey('default', userId);
+    return apiKey.token;
   }
 
   async authorizeCode(userId: string, workspaceId: string, codeBody: CodeDto) {
@@ -199,7 +161,7 @@ export class UsersService {
     const code = await this.prisma.authorizationCode.findFirst({
       where: {
         code: codeBody.code,
-        personalAccessTokenId: null,
+        apiKeyId: null,
         createdAt: {
           gte: tenMinutesAgo,
         },
@@ -212,55 +174,17 @@ export class UsersService {
       );
     }
 
-    const existingCliPersonalAccessToken =
-      await this.prisma.personalAccessToken.findFirst({
-        where: {
-          userId,
-          type: 'cli',
-        },
-      });
+    const token = await this.createApiKey(
+      `login_${Math.random().toString(36).substring(2, 15)}`,
+      userId,
+    );
 
-    // we only allow you to have one CLI PAT at a time, so return this
-    if (existingCliPersonalAccessToken) {
-      // associate this authorization code with the existing personal access token
-      await this.prisma.authorizationCode.updateMany({
-        where: {
-          code: codeBody.code,
-        },
-        data: {
-          personalAccessTokenId: existingCliPersonalAccessToken.id,
-          workspaceId,
-        },
-      });
-
-      if (existingCliPersonalAccessToken.deleted) {
-        // re-activate revoked CLI PAT so we can use it again
-        await this.prisma.personalAccessToken.update({
-          where: {
-            id: existingCliPersonalAccessToken.id,
-          },
-          data: {
-            deleted: null,
-          },
-        });
-      }
-
-      // we don't return the decrypted token
-      return {
-        id: existingCliPersonalAccessToken.id,
-        name: existingCliPersonalAccessToken.name,
-        userId: existingCliPersonalAccessToken.userId,
-      };
-    }
-
-    const token = await this.createPersonalAccessToken('cli', userId, 'cli');
-
-    await this.prisma.authorizationCode.updateMany({
+    await this.prisma.authorizationCode.update({
       where: {
-        code: codeBody.code,
+        id: code.id,
       },
       data: {
-        personalAccessTokenId: token.id,
+        apiKeyId: `${token.token}__${token.id}`,
         workspaceId,
       },
     });
@@ -268,8 +192,8 @@ export class UsersService {
     return token;
   }
 
-  /** Gets a PersonalAccessToken from an Auth Code, this only works within 10 mins of the auth code being created */
-  async getPersonalAccessTokenFromAuthorizationCode(authorizationCode: string) {
+  /** Gets an API Key from an Auth Code, this only works within 10 mins of the auth code being created */
+  async getApiKeyFromAuthorizationCode(authorizationCode: string) {
     // only allow authorization codes that were created less than 10 mins ago
     const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
     const code = await this.prisma.authorizationCode.findFirst({
@@ -284,24 +208,23 @@ export class UsersService {
       throw new Error('Invalid authorization code, or code expired');
     }
 
-    if (!code.personalAccessTokenId) {
-      throw new Error('No personal token found');
+    if (!code.apiKeyId) {
+      throw new Error('No API key found');
     }
 
-    const pat = await this.prisma.personalAccessToken.findUnique({
-      where: { id: code.personalAccessTokenId },
+    const token = code.apiKeyId.split('__')[0];
+
+    await this.prisma.authorizationCode.update({
+      where: {
+        id: code.id,
+      },
+      data: {
+        apiKeyId: code.apiKeyId.split('__')[1],
+      },
     });
 
-    // there's no PersonalAccessToken associated with this code
-    if (!pat) {
-      return {
-        token: null,
-        workspaceId: undefined,
-      };
-    }
-
     return {
-      token: pat.token,
+      token,
       workspaceId: code.workspaceId,
     };
   }

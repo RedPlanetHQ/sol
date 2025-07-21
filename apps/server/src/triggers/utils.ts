@@ -10,8 +10,8 @@ export const init = async (payload: any) => {
   const workspace = await prisma.workspace.findUnique({
     where: { id: workspaceId },
   });
-  const pat = await prisma.personalAccessToken.findFirst({
-    where: { userId: workspace.userId, name: 'default' },
+  const apiKey = await prisma.apikey.findFirst({
+    where: { userId: workspace.userId, name: 'default', enabled: true },
   });
 
   axios.interceptors.request.use((config) => {
@@ -20,9 +20,9 @@ export const init = async (payload: any) => {
       config.url = `${process.env.BACKEND_HOST}${config.url}`;
     }
 
-    // Add authorization header if not present and we have a PAT
-    if (!config.headers?.['Authorization'] && pat?.token) {
-      config.headers.Authorization = `Bearer ${pat.token}`;
+    // Add authorization header if not present and we have an API key
+    if (!config.headers?.['Authorization'] && apiKey?.key) {
+      config.headers.Authorization = `Bearer ${apiKey.key}`;
     }
 
     return config;

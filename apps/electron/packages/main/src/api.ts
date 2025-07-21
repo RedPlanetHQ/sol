@@ -43,7 +43,7 @@ fastify.register(fastifyHttpProxy, {
   websocket: true,
   preHandler: (request, _reply, done) => {
     // Modify headers before the proxy forwards the request
-    request.headers['origin'] = 'https://app.heysol.ai';
+    request.headers['origin'] = process.env.FRONTEND_HOST || 'https://app.heysol.ai';
 
     // Special handling for file upload endpoints
     if (request.url.includes('/upload') && request.method === 'POST') {

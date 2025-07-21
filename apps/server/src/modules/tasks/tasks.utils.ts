@@ -48,7 +48,6 @@ export async function handleCalendarTask(
       },
     },
     userId,
-    workspaceId,
   );
 }
 

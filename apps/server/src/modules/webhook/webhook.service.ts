@@ -90,7 +90,6 @@ export default class WebhookService {
           },
         },
         integrationAccount.integratedById,
-        integrationAccount.workspaceId,
       );
     } else {
       this.logger.log({

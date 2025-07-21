@@ -11,7 +11,7 @@ import { PrismaService } from 'nestjs-prisma';
 
 import { AuthService } from './auth.service';
 
-interface ExtendedRequest extends ExpressRequest {
+export interface ExtendedRequest extends ExpressRequest {
   user?: AuthUser & { workspaceId?: string };
   session?: AuthSession;
   workspace?: { id: string };
@@ -34,9 +34,9 @@ export class AuthGuard implements CanActivate {
         return true;
       }
 
-      // If session auth fails, try PAT authentication
-      const patResult = await this.tryPATAuthentication(request);
-      if (patResult) {
+      // If session auth fails, try API key authentication
+      const apiKeyResult = await this.tryApiKeyAuthentication(request);
+      if (apiKeyResult) {
         return true;
       }
 
@@ -53,8 +53,13 @@ export class AuthGuard implements CanActivate {
     try {
       const auth = this.authService.getAuth();
 
+      // Construct full URL from Express request
+      const protocol = request.protocol || 'http';
+      const host = request.get('host') || process.env.FRONTEND_HOST;
+      const fullUrl = `${protocol}://${host}${request.url}`;
+
       // Convert Express request to Web API request format for validation
-      const webRequest = new Request(request.url || '', {
+      const webRequest = new Request(fullUrl, {
         method: request.method,
         headers: request.headers as HeadersInit,
       });
@@ -78,7 +83,7 @@ export class AuthGuard implements CanActivate {
     }
   }
 
-  private async tryPATAuthentication(
+  private async tryApiKeyAuthentication(
     request: ExtendedRequest,
   ): Promise<boolean> {
     try {
@@ -89,40 +94,26 @@ export class AuthGuard implements CanActivate {
 
       const token = authHeader.replace('Bearer ', '');
 
-      // Validate PAT token against database
-      const personalAccessToken =
-        await this.prisma.personalAccessToken.findFirst({
-          where: {
-            token,
-          },
-          include: {
-            user: true,
-          },
-        });
+      const auth = this.authService.getAuth();
+      const result = await auth.api.verifyApiKey({
+        body: { key: token },
+      });
 
-      if (!personalAccessToken || !personalAccessToken.user) {
+      if (!result.valid || !result.key) {
         return false;
       }
 
-      // Create a user object compatible with Better Auth format
-      const user: AuthUser = {
-        id: personalAccessToken.user.id,
-        email: personalAccessToken.user.email,
-        name:
-          personalAccessToken.user.name ||
-          personalAccessToken.user.fullname ||
-          'User',
-        image: personalAccessToken.user.image,
-        emailVerified: personalAccessToken.user.emailVerified,
-        createdAt: personalAccessToken.user.createdAt,
-        updatedAt: personalAccessToken.user.updatedAt,
-      };
+      const session = await auth.api.getSession({
+        headers: new Headers({
+          'x-api-key': token,
+        }),
+      });
 
-      // Attach user to request (no session for PAT)
-      request.user = user;
-      request.session = undefined; // PATs don't have sessions
+      // Attach user to request (no session for API keys)
+      request.user = session.user;
+      request.session = session.session;
 
-      await this.attachWorkspace(request, user.id);
+      await this.attachWorkspace(request, session.user.id);
       return true;
     } catch (error) {
       return false;

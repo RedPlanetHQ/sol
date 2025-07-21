@@ -30,7 +30,7 @@ export class ConversationService {
   ) {
     const { pageId, title, conversationId, ...otherData } = conversationData;
     // TODO: see where to add this later
-    await this.user.getOrCreatePat(userId, workspaceId);
+    await this.user.getOrCreateApiKey(userId);
 
     if (conversationId) {
       const conversationHistory = await this.prisma.conversationHistory.create({

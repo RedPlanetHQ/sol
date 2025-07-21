@@ -2,7 +2,7 @@ import axios from 'axios';
 import pRetry from 'p-retry';
 
 async function getPersonalAccessToken(code: string) {
-  const response = await axios.post('/api/v1/users/pat-for-code', {
+  const response = await axios.post('/api/v1/users/api-key-for-code', {
     code,
   });
 
@@ -15,14 +15,18 @@ async function getPersonalAccessToken(code: string) {
 
 async function getCookiesSet(token: string) {
   try {
-    await axios.get('/api/v1/users/pat-authentication', {
+    console.log('getCookiesSet', token);
+
+    await axios.get('/api/auth/get-session', {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
 
     window.location.reload();
-  } catch (e) {}
+  } catch (e) {
+    console.log('error', e);
+  }
 }
 
 export const getCookies = async (code: string) => {
@@ -33,5 +37,6 @@ export const getCookies = async (code: string) => {
     minTimeout: 1000,
   });
 
+  console.log('indexResult', indexResult);
   await getCookiesSet(indexResult.token);
 };

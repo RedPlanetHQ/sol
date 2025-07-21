@@ -9,7 +9,7 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { CodeDto, CreatePatDto, PatIdDto, User } from '@redplanethq/sol-sdk';
+import { CodeDto, User } from '@redplanethq/sol-sdk';
 import { Response } from 'express';
 
 import type { AuthUser } from 'modules/auth/auth.config';
@@ -41,51 +41,44 @@ export class UsersController {
     return user;
   }
 
-  @Post('pat')
+  @Post('api-key')
   @UseGuards(AuthGuard)
-  async createPersonalAccessToken(
-    @Workspace() workspaceId: string,
+  async createApiKey(
     @CurrentUser() currentUser: AuthUser,
-    @Body()
-    createPatDto: CreatePatDto,
+    @Body() body: { name: string },
   ) {
-    const user = await this.users.createPersonalAccessToken(
-      createPatDto.name,
-      currentUser.id,
-      workspaceId,
-    );
+    const apiKey = await this.users.createApiKey(body.name, currentUser.id);
 
-    return user;
+    return apiKey;
   }
 
-  @Post('pat-for-code')
-  async getPatForCode(
+  @Post('api-key-for-code')
+  async getApiKeyForCode(
     @Body()
     codeBody: CodeDto,
   ) {
-    return await this.users.getPersonalAccessTokenFromAuthorizationCode(
-      codeBody.code,
-    );
+    return await this.users.getApiKeyFromAuthorizationCode(codeBody.code);
   }
 
-  @Get('pat-authentication')
+  @Get('api-key-authentication')
   @UseGuards(AuthGuard)
-  async getPatAuthentication(@Res() res: Response) {
+  async getApiKeyAuthentication(@Res() res: Response) {
+    console.log('getApiKeyAuthentication');
     // With Better Auth, the user already has a valid session
     // No need to create a new session
     res.send({ status: 200 });
   }
 
-  @Get('pats')
+  @Get('api-keys')
   @UseGuards(AuthGuard)
-  async getPats(@CurrentUser() currentUser: AuthUser) {
-    return await this.users.getPats(currentUser.id);
+  async getApiKeys(@CurrentUser() currentUser: AuthUser) {
+    return await this.users.getApiKeys(currentUser.id);
   }
 
-  @Delete('pats/:patId')
+  @Delete('api-keys/:apiKeyId')
   @UseGuards(AuthGuard)
-  async deletePat(@Param() patIdDto: PatIdDto) {
-    return await this.users.deletePat(patIdDto.patId);
+  async deleteApiKey(@Param('apiKeyId') apiKeyId: string) {
+    return await this.users.deleteApiKey(apiKeyId);
   }
 
   @Get('authorization')

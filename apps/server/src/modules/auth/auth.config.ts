@@ -3,6 +3,8 @@ import { betterAuth, type User, type Session } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { apiKey, genericOAuth, bearer } from 'better-auth/plugins';
 
+import { pluginAuth } from './plugin';
+
 interface CoreUserInfo {
   sub?: string;
   id?: string;
@@ -114,7 +116,13 @@ export const auth = betterAuth({
     }),
 
     bearer(),
-    apiKey(),
+    apiKey({
+      defaultPrefix: 'sol_pat_',
+      keyExpiration: {
+        defaultExpiresIn: 30 * 24 * 60 * 60 * 1000,
+      },
+    }),
+    pluginAuth(),
   ],
 
   async onUserCreated(user: User) {

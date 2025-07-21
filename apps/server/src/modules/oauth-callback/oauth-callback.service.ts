@@ -223,7 +223,6 @@ export class OAuthCallbackService {
             },
           },
           sessionRecord.userId,
-          sessionRecord.workspaceId,
         );
 
       await tasks.trigger<typeof scheduler>('scheduler', {

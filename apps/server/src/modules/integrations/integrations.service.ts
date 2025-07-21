@@ -16,20 +16,19 @@ export class IntegrationsService {
   private async prepareIntegrationTrigger(
     integrationDefinition: IntegrationDefinition,
     userId?: string,
-    workspaceId?: string,
   ) {
     this.logger.info({
       message: `Loading integration ${integrationDefinition.slug}`,
       where: 'IntegrationsService.runIntegrationTrigger',
     });
 
-    const pat = userId
-      ? await this.usersService.getOrCreatePat(userId, workspaceId)
+    const apiKey = userId
+      ? await this.usersService.getOrCreateApiKey(userId)
       : '';
 
     return {
       integrationDefinition,
-      pat,
+      apiKey,
     };
   }
 
@@ -38,12 +37,10 @@ export class IntegrationsService {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     event: any,
     userId?: string,
-    workspaceId?: string,
   ) {
     const params = await this.prepareIntegrationTrigger(
       integrationDefinition,
       userId,
-      workspaceId,
     );
     return await tasks.trigger<typeof integrationRun>('integration-run', {
       ...params,
@@ -56,12 +53,10 @@ export class IntegrationsService {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     event: any,
     userId?: string,
-    workspaceId?: string,
   ) {
     const params = await this.prepareIntegrationTrigger(
       integrationDefinition,
       userId,
-      workspaceId,
     );
 
     const response = await tasks.triggerAndPoll<typeof integrationRun>(

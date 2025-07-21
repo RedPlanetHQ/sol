@@ -201,13 +201,10 @@ export class TaskHooksService {
     };
 
     if (callBeautify()) {
-      const pat = await this.usersService.getOrCreatePat(
-        context.userId,
-        context.workspaceId,
-      );
+      const apiKey = await this.usersService.getOrCreateApiKey(context.userId);
       await tasks.trigger<typeof beautifyTask>('beautify-task', {
         taskId: task.id,
-        pat,
+        pat: apiKey,
       });
     }
   }

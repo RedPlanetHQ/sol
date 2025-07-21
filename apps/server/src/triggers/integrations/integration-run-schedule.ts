@@ -24,13 +24,17 @@ export const integrationRunSchedule = schedules.task({
       return deletedSchedule;
     }
 
-    const pat = await prisma.personalAccessToken.findFirst({
-      where: { userId: integrationAccount.workspace.userId, name: 'default' },
+    const apiKey = await prisma.apikey.findFirst({
+      where: {
+        userId: integrationAccount.workspace.userId,
+        name: 'default',
+        enabled: true,
+      },
     });
 
     return await tasks.trigger<typeof integrationRun>('integration-run', {
       event: IntegrationPayloadEventType.SCHEDULED_SYNC,
-      pat: pat.token,
+      apiKey: apiKey.key,
       integrationAccount,
       integrationDefinition: integrationAccount.integrationDefinition,
     });

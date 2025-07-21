@@ -19,7 +19,7 @@ const fetcher = async (url: string) => {
 const loadRemoteModule = async (requires: any) =>
   createLoadRemoteModule({ fetcher, requires });
 
-function createAxiosInstance(token: string) {
+function createAxiosInstance(apiKey: string) {
   const instance = axios.create();
 
   instance.interceptors.request.use((config) => {
@@ -32,7 +32,7 @@ function createAxiosInstance(token: string) {
       config.url.includes(process.env.FRONTEND_HOST) ||
       config.url.includes(process.env.BACKEND_HOST)
     ) {
-      config.headers.Authorization = `Bearer ${token}`;
+      config.headers.Authorization = `Bearer ${apiKey}`;
     }
 
     return config;
@@ -47,13 +47,13 @@ const getRequires = (axios: any) => createRequires({ axios });
 export const integrationRun = task({
   id: 'integration-run',
   run: async ({
-    pat,
+    apiKey,
     eventBody,
     integrationAccount,
     integrationDefinition,
     event,
   }: {
-    pat: string;
+    apiKey: string;
     // This is the event you want to pass to the integration
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     event: any;
@@ -63,7 +63,7 @@ export const integrationRun = task({
     integrationAccount?: IntegrationAccount;
   }) => {
     const remoteModuleLoad = await loadRemoteModule(
-      getRequires(createAxiosInstance(pat)),
+      getRequires(createAxiosInstance(apiKey)),
     );
 
     logger.info(
