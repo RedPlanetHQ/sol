@@ -2,6 +2,8 @@ import { apiKeyClient, genericOAuthClient } from 'better-auth/client/plugins';
 import { nextCookies } from 'better-auth/next-js';
 import { createAuthClient } from 'better-auth/react';
 
+import type { IPCRenderer } from 'hooks/ipc';
+
 export const authClient = createAuthClient({
   baseURL: process.env.NEXT_PUBLIC_BASE_HOST || 'http://localhost:3000',
   basePath: '/api/auth',
@@ -9,4 +11,12 @@ export const authClient = createAuthClient({
   plugins: [nextCookies(), genericOAuthClient(), apiKeyClient()],
 });
 
-export const { signIn, signUp, signOut, useSession, getSession } = authClient;
+export const { signIn, signUp, useSession, getSession } = authClient;
+
+export const signOut = async (ipc: IPCRenderer) => {
+  if (ipc) {
+    ipc.store.delete('token');
+  }
+
+  authClient.signOut();
+};

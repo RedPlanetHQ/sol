@@ -37,7 +37,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           <Button
             variant="secondary"
             onClick={async () => {
-              await signOut();
+              await signOut(ipc);
 
               replace('/auth');
             }}

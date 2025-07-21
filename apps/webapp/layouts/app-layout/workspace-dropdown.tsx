@@ -16,10 +16,12 @@ import { useSettings } from 'modules/settings';
 import { signOut } from 'common/lib/auth-client';
 
 import { useContextStore } from 'store/global-context-provider';
+import { useIPC } from 'hooks/ipc';
 
 export const WorkspaceDropdown = observer(() => {
   const { workspaceStore } = useContextStore();
   const { replace } = useRouter();
+  const ipc = useIPC();
 
   const { openSettings } = useSettings();
 
@@ -52,7 +54,7 @@ export const WorkspaceDropdown = observer(() => {
         </DropdownMenuGroup>
         <DropdownMenuItem
           onClick={async () => {
-            await signOut();
+            await signOut(ipc);
 
             replace('/auth');
           }}
